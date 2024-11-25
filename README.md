@@ -2,7 +2,7 @@
 
 ![](https://media.forgecdn.net/attachments/description/1077948/description_ef2d2447-7cfd-420b-b35e-5b420689b359.png)
 
-![CurseForge Downloads](https://img.shields.io/curseforge/dt/1077948?style=flat&logo=curseforge&logoColor=#F16436&logoSize=auto)
+![CurseForge Downloads](https://img.shields.io/curseforge/dt/1077948?style=flat&logo=curseforge&logoColor=#F16436&logoSize=auto) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;![Static Badge](https://img.shields.io/badge/Twitch-lightgrey?style=social&logo=twitch&logoSize=auto&link=https%3A%2F%2Fwww.twitch.tv%2Fdivinekate)
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/N4N7F7NP4)
 
