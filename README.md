@@ -2,7 +2,7 @@
 
 ![](https://media.forgecdn.net/attachments/description/1077948/description_ef2d2447-7cfd-420b-b35e-5b420689b359.png)
 
-![CurseForge Downloads](https://img.shields.io/curseforge/dt/1077948?style=flat&logo=curseforge&logoColor=#F16436&logoSize=auto)    [![Static Badge](https://img.shields.io/badge/Twitch-lightgrey?style=social&logo=twitch&logoSize=auto)](https://www.twitch.tv/divinekate)
+![CurseForge Downloads](https://img.shields.io/curseforge/dt/1077948?style=for-the-badge&logo=curseforge&color=F16436)         [![Static Badge](https://img.shields.io/badge/Twitch-lavender?style=for-the-badge&logo=Twitch&logoSize=auto)](https://www.twitch.tv/divinekate)          [![Static Badge](https://img.shields.io/badge/Bluesky-lightblue?style=for-the-badge&logo=Bluesky&logoSize=auto)](https://bsky.app/profile/divinekate.bsky.social)
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/N4N7F7NP4)
 
