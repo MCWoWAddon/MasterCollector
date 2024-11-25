@@ -2,7 +2,7 @@
 
 ![](https://media.forgecdn.net/attachments/description/1077948/description_ef2d2447-7cfd-420b-b35e-5b420689b359.png)
 
-<script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support me on Ko-fi', '#72a4f2', 'N4N7F7NP4');kofiwidget2.draw();</script> 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/N4N7F7NP4)
 
 Ever wanted a checklist that appears right on your character screen and automatically marks off your progress? No need for extra addons, spreadsheets, or task lists for each character? Then this is for you! Master Collector introduces the world's first mount tracker checklist for daily & weekly things to do!
 
