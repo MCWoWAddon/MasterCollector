@@ -2,6 +2,8 @@
 
 ![](https://media.forgecdn.net/attachments/description/1077948/description_ef2d2447-7cfd-420b-b35e-5b420689b359.png)
 
+![CurseForge Downloads](https://img.shields.io/curseforge/dt/1077948?style=flat&logo=curseforge&logoColor=#F16436&logoSize=auto)
+
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/N4N7F7NP4)
 
 Ever wanted a checklist that appears right on your character screen and automatically marks off your progress? No need for extra addons, spreadsheets, or task lists for each character? Then this is for you! Master Collector introduces the world's first mount tracker checklist for daily & weekly things to do!
