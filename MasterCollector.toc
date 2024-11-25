@@ -1,0 +1,15 @@
+## Interface: 110005
+## Title: Master Collector
+## Notes: Your ultimate addon for tracking and managing your collection of mounts in World of Warcraft!
+## Author: DivineKate
+## Version: 1.1
+## SavedVariables: MasterCollectorSV
+## OptionalDeps: Rarity
+
+init.lua
+MasterCollector.lua
+Options.lua
+WeeklyMounts.lua
+DailyReps.lua
+DailyLockouts.lua
+Events.lua
