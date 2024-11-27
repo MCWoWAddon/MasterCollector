@@ -47,8 +47,8 @@ function MC.events()
         {"Noblegarden", {430, 2023}, {"Swift Springstrider", "Noble Flying Carpet"}, {0, 100}},
         {"Winter Veil", {769}, {"Minion of Grumpus"}, {100}},
         {"Darkmoon Faire", {429, 434, 855, 962}, {"Swift Forest Strider", "Darkmoon Dancing Bear", "Darkwater Skate", "Darkmoon Dirigible"}, {0, 0, 0, 0}},
-        {"Burning Crusade Timewalking", {778, 781}, {"Reins of the Eclipse Dragonhawk", "Reins of the Infinite Timereaver"}, {0, 4000}},
-        {"Wrath of the Lich King Timewalking", {552, 781}, {"Bridle of the Ironbound Wraithcharger", "Reins of the Infinite Timereaver"}, {0, 4000}},
+        {"Burning Crusade Timewalking", {778, 2225, 781}, {"Reins of the Eclipse Dragonhawk", "Reins of the Amani Hunting Bear", "Reins of the Infinite Timereaver"}, {0, 0, 4000}},
+        {"Wrath of the Lich King Timewalking", {552, 2317, 781}, {"Bridle of the Ironbound Wraithcharger", "Enchanted Spellweave Carpet", "Reins of the Infinite Timereaver"}, {0, 0, 4000}},
         {"Mists of Pandaria Timewalking", {476, 781}, {"Yu'lei, Daughter of Jade", "Reins of the Infinite Timereaver"}, {0, 4000}},
         {"Warlords of Draenor Timewalking", {1242, 1243, 781}, {"Beastlord's Irontusk", "Beastlord's Warwolf", "Reins of the Infinite Timereaver"}, {0, 0, 4000}},
         {"Legion Timewalking", {1521, 781}, {"Favor of the Val'sharah Hippogryph", "Reins of the Infinite Timereaver"}, {0, 4000}},
@@ -876,6 +876,32 @@ function MC.events()
         return isDunegorgerKraulokUp()
     end
 
+    local function GetActiveTimewalkingEvent()
+        local timewalkingBuffs = {
+            [744] = "Sign of the Scourge",  -- Wrath of the Lich King
+            [995] = "Sign of the Twisting Nether", -- Burning Crusade
+            [1453] = "Sign of the Mists",    -- Mists of Pandaria
+            [1971] = "Sign of Iron", -- Warlords of Draenor
+            [2274] = "Sign of the Legion",  -- Legion
+        }
+    
+        local timewalkingEvents = {
+            [744] = "Wrath of the Lich King Timewalking",
+            [995] = "Burning Crusade Timewalking",
+            [1453] = "Mists of Pandaria Timewalking",
+            [1971] = "Warlords of Draenor Timewalking",
+            [2274] = "Legion Timewalking",
+        }
+    
+        for eventID, buffName in pairs(timewalkingBuffs) do
+            -- Check if the player has the corresponding buff
+            if AuraUtil.FindAuraByName(buffName, "player") then
+                return timewalkingEvents[eventID]  -- Return the event name instead of event ID
+            end
+        end
+        return nil  -- No active Timewalking event found
+    end
+
     local function EventsActive()
         local monthInfo = C_Calendar.GetMonthInfo(0)
         local dayCount = monthInfo.numDays
@@ -893,13 +919,55 @@ function MC.events()
         local currentTime = time(currentTimeTable)
         local activeEvents = {}
         local output = ""
+        local activeTimewalkingEvent = GetActiveTimewalkingEvent()
+
+        if activeTimewalkingEvent then
+            for _, eventInfo in ipairs(calendarEvents) do
+                local eventName = eventInfo[1]
+    
+                if eventName == activeTimewalkingEvent then
+                    local mountsToShow = {}
+    
+                    for j, mountID in ipairs(eventInfo[2]) do
+                        local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
+    
+                        if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
+                            local rarityAttemptsText, dropChanceText = "", ""
+                            local attempts = GetRarityAttempts(eventInfo[3][j]) or 0
+                            local dropChanceDenominator = (eventInfo[4] and eventInfo[4][j]) or 1
+    
+                            if dropChanceDenominator > 1 then
+                                if MasterCollectorSV.showRarityDetail then
+                                    local chance = 1 / dropChanceDenominator
+                                    local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                                    rarityAttemptsText = string.format("\n    (Attempts: %d/%s", attempts, dropChanceDenominator)
+                                    dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                                end
+                            end
+    
+                            if MasterCollectorSV.showMountName then
+                                table.insert(mountsToShow, mountName .. rarityAttemptsText .. dropChanceText)
+                            end
+                        end
+                    end
+    
+                    output = output .. MC.goldHex .. activeTimewalkingEvent .. " is active!|r\n"
+                    if #mountsToShow > 0 then
+                        output = output .. "    Mounts:\n"
+                        for _, mount in ipairs(mountsToShow) do
+                            output = output .. "    " .. mount .. "\n"
+                        end
+                    end
+                end
+            end
+        end
 
         for day = 1, dayCount do
             local dayEventCount = C_Calendar.GetNumDayEvents(0, day)
 
             for i = 1, dayEventCount do
                 local event = C_Calendar.GetDayEvent(0, day, i)
-                if event then    
+                if event then
                     local normalizedEventName = event.title:match("^%s*(.-)%s*$") -- Trim spaces
 
                     for _, eventInfo in ipairs(calendarEvents) do
@@ -928,8 +996,8 @@ function MC.events()
                             local endTime = time(endTimeTable)
 
                             if currentTime >= startTime and currentTime <= endTime then
-                                if not activeEvents[eventInfo[1]] then
-                                    activeEvents[eventInfo[1]] = true
+                                if not activeEvents[eventName] then
+                                    activeEvents[eventName] = true
 
                                     local mountsToShow = {}
                                     for j, mountID in ipairs(eventInfo[2]) do
@@ -970,9 +1038,12 @@ function MC.events()
                 end
             end
         end
+        if output ~= "" then
+            return output
+        end
     end
 
-    local displayText = EventsActive() or ""
+    local displayText = ""
     local hasNonNilStatus = (displayText ~= "")
 
     local function appendIfNotNil(statusFunction)
@@ -984,6 +1055,7 @@ function MC.events()
     end
 
     local statusFunctions = {
+        EventsActive,
         CheckWorldQuests,
         GetLegionInvasionStatus,
         GetActiveWarfrontStatus,
