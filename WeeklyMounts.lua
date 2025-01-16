@@ -676,14 +676,16 @@ function MC.weeklyDisplay()
                 local rarityAttemptsText = ""
                 local dropChanceText = ""
 
-                if itemName then
-                    local attempts = GetRarityAttempts(itemName) or 0
+                if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                    if itemName then
+                        local attempts = GetRarityAttempts(itemName) or 0
 
-                    if MasterCollectorSV.showRarityDetail then
-                        local chance = 1 / dropChanceDenominator
-                        local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
-                        dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                        if MasterCollectorSV.showRarityDetail then
+                            local chance = 1 / dropChanceDenominator
+                            local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                            rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
+                            dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                        end
                     end
                 end
 
@@ -774,14 +776,16 @@ function MC.weeklyDisplay()
                 local rarityAttemptsText = ""
                 local dropChanceText = ""
 
-                if itemName and dropChanceDenominator then
-                    local attempts = GetRarityAttempts(itemName) or 0
+                if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                    if itemName and dropChanceDenominator then
+                        local attempts = GetRarityAttempts(itemName) or 0
 
-                    if MasterCollectorSV.showRarityDetail then
-                        local chance = 1 / dropChanceDenominator
-                        local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
-                        dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                        if MasterCollectorSV.showRarityDetail then
+                            local chance = 1 / dropChanceDenominator
+                            local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                            rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
+                            dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                        end
                     end
                 end
 

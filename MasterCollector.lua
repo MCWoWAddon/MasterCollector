@@ -78,10 +78,12 @@ function MC.CheckFrameVisibility()
 end
 
 function MC.UpdateFrameHeight()
-    local textHeight = MC.mainFrame.text:GetStringHeight()
-    local padding = 20
-    MC.frameChild:SetHeight(textHeight + padding)
-    MC.frameScroll:UpdateScrollChildRect()
+    C_Timer.After(0.1, function()
+        local textHeight = MC.mainFrame.text:GetStringHeight()
+        local padding = 20
+        MC.frameChild:SetHeight(textHeight + padding)
+        MC.frameScroll:UpdateScrollChildRect()
+    end)
 end
 
 MC.mainFrame:SetScript("OnSizeChanged", function(self, width, height)

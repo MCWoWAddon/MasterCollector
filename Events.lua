@@ -1444,11 +1444,13 @@ function MC.events()
             1733, -- Calescent Shalewing
         }
 
-        if MasterCollectorSV.showRarityDetail then
-            local chance = 1 / dropChanceDenominator
-            local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-            rarityAttemptsText = string.format("     (Attempts: %d/%s", attempts, dropChanceDenominator)
-            dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+        if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+            if MasterCollectorSV.showRarityDetail then
+                local chance = 1 / dropChanceDenominator
+                local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                rarityAttemptsText = string.format("     (Attempts: %d/%s", attempts, dropChanceDenominator)
+                dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+            end
         end
 
         if MasterCollectorSV.showResearchersUnderFireTimer then
@@ -1598,11 +1600,13 @@ function MC.events()
             1638, -- Explorer's Stonehide Packbeast
         }
 
-        if MasterCollectorSV.showRarityDetail then
-            local chance = 1 / dropChanceDenominator
-            local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-            rarityAttemptsText = string.format("     (Attempts: %d/%s", attempts, dropChanceDenominator)
-            dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+        if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+            if MasterCollectorSV.showRarityDetail then
+                local chance = 1 / dropChanceDenominator
+                local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                rarityAttemptsText = string.format("     (Attempts: %d/%s", attempts, dropChanceDenominator)
+                dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+            end
         end
 
         if MasterCollectorSV.showBigDigTimer then
@@ -1774,11 +1778,13 @@ function MC.events()
                 local rarityAttemptsText = ""
                 local dropChanceText = ""
 
-                if MasterCollectorSV.showRarityDetail then
-                    local chance = 1 / dropChanceDenominator
-                    local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                    rarityAttemptsText = string.format("     (Attempts: %d/%s", attempts, dropChanceDenominator)
-                    dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                    if MasterCollectorSV.showRarityDetail then
+                        local chance = 1 / dropChanceDenominator
+                        local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                        rarityAttemptsText = string.format("     (Attempts: %d/%s", attempts, dropChanceDenominator)
+                        dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                    end
                 end
 
                 if MasterCollectorSV.showMountName then
@@ -2079,12 +2085,14 @@ function MC.events()
                             local mountCurrency = ""
 
                             if dropChanceDenominator > 1 then
-                                if MasterCollectorSV.showRarityDetail then
-                                    local chance = 1 / dropChanceDenominator
-                                    local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                    rarityAttemptsText = string.format("\n    (Attempts: %d/%s", attempts,
-                                        dropChanceDenominator)
-                                    dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                                if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                                    if MasterCollectorSV.showRarityDetail then
+                                        local chance = 1 / dropChanceDenominator
+                                        local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                                        rarityAttemptsText = string.format("\n    (Attempts: %d/%s", attempts,
+                                            dropChanceDenominator)
+                                        dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                                    end
                                 end
                             else
                                 if mountID ~= 781 then

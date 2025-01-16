@@ -374,12 +374,14 @@ function MC.dailiesDisplay()
                     local rarityAttemptsText = ""
                     local dropChanceText = ""
 
-                    if MasterCollectorSV.showRarityDetail and dropChanceDenominator then
-                        local chance = 1 / dropChanceDenominator
-                        local attempts = GetRarityAttempts(itemName) or 0
-                        local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
-                        dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                    if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                        if MasterCollectorSV.showRarityDetail and dropChanceDenominator then
+                            local chance = 1 / dropChanceDenominator
+                            local attempts = GetRarityAttempts(itemName) or 0
+                            local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                            rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
+                            dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                        end
                     end
 
                     local shouldShow = not (MasterCollectorSV.hideBossesWithMountsObtained and isCollected) and
@@ -549,23 +551,25 @@ function MC.dailiesDisplay()
                                             local rarityAttemptsText = ""
                                             local dropChanceText = ""
 
-                                            if MasterCollectorSV.showRarityDetail and itemData then
-                                                dropChanceDenominator = itemData.dropChanceDenominator
-                                                local attempts = GetRarityAttempts(itemName) or 0
+                                            if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                                                if MasterCollectorSV.showRarityDetail and itemData then
+                                                    dropChanceDenominator = itemData.dropChanceDenominator
+                                                    local attempts = GetRarityAttempts(itemName) or 0
 
-                                                if dropChanceDenominator and dropChanceDenominator ~= 0 then
-                                                    local chance = 1 / dropChanceDenominator
-                                                    local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                                    rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts,
-                                                        dropChanceDenominator)
-                                                    dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                                                    if dropChanceDenominator and dropChanceDenominator ~= 0 then
+                                                        local chance = 1 / dropChanceDenominator
+                                                        local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                                                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts,
+                                                            dropChanceDenominator)
+                                                        dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                                                    else
+                                                        rarityAttemptsText = ""
+                                                        dropChanceText = ""
+                                                    end
                                                 else
                                                     rarityAttemptsText = ""
                                                     dropChanceText = ""
                                                 end
-                                            else
-                                                rarityAttemptsText = ""
-                                                dropChanceText = ""
                                             end
                                             if MasterCollectorSV.showMountName then
                                                 dungeonText = dungeonText ..
@@ -669,17 +673,18 @@ function MC.dailiesDisplay()
                                 local rarityAttemptsText = ""
                                 local dropChanceText = ""
 
-                                if MasterCollectorSV.showRarityDetail and dropChanceDenominator and dropChanceDenominator ~= 0 then
-                                    local chance = 1 / dropChanceDenominator
-                                    local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                    rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts,
-                                        dropChanceDenominator)
-                                    dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
-                                else
-                                    rarityAttemptsText = ""
-                                    dropChanceText = ""
+                                if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                                    if MasterCollectorSV.showRarityDetail and dropChanceDenominator and dropChanceDenominator ~= 0 then
+                                        local chance = 1 / dropChanceDenominator
+                                        local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts,
+                                            dropChanceDenominator)
+                                        dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                                    else
+                                        rarityAttemptsText = ""
+                                        dropChanceText = ""
+                                    end
                                 end
-
                                 table.insert(mountTexts,
                                     string.format("      - %s Mount: %s%s%s|r", whiteColor, mountName, rarityAttemptsText,
                                         dropChanceText))
@@ -762,13 +767,15 @@ function MC.dailiesDisplay()
                             local dropChanceText = ""
                             local dropChanceDenominator = 50
 
-                            if MasterCollectorSV.showRarityDetail and dropChanceDenominator then
-                                local chance = 1 / dropChanceDenominator
-                                local attempts = GetRarityAttempts("Necroray Egg") or 0
-                                local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                rarityAttemptsText = string.format(" (Necroray Egg Attempts: %d/%s", attempts,
-                                    dropChanceDenominator)
-                                dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                            if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                                if MasterCollectorSV.showRarityDetail and dropChanceDenominator then
+                                    local chance = 1 / dropChanceDenominator
+                                    local attempts = GetRarityAttempts("Necroray Egg") or 0
+                                    local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                                    rarityAttemptsText = string.format(" (Necroray Egg Attempts: %d/%s", attempts,
+                                        dropChanceDenominator)
+                                    dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                                end
                             end
 
                             mountInfo = mountInfo ..
@@ -1196,12 +1203,14 @@ function MC.dailiesDisplay()
                                 mountsUnobtained = true
                             end
 
-                            if MasterCollectorSV.showRarityDetail and dropChanceDenominator then
-                                local chance = 1 / dropChanceDenominator
-                                local attempts = GetRarityAttempts(itemName) or 0
-                                local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
-                                dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                            if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                                if MasterCollectorSV.showRarityDetail and dropChanceDenominator then
+                                    local chance = 1 / dropChanceDenominator
+                                    local attempts = GetRarityAttempts(itemName) or 0
+                                    local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                                    rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
+                                    dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                                end
                             end
 
                             output = output ..
@@ -1463,7 +1472,7 @@ function MC.dailiesDisplay()
         local function QueryDFDailyActivities()
             local output = {}
             local mountsUnobtained = false
-            table.insert(output, MC.goldHex .. "DF Daily Activities|r")
+            local hasValidEntries = false
 
             if not dailyDFActivities or #dailyDFActivities == 0 then
                 table.insert(output, MC.goldHex .. "No activities found.|r")
@@ -1537,8 +1546,10 @@ function MC.dailiesDisplay()
                         local questDurations = { 5, 5, 5, 5 } -- Define durations for the 4 groups of quests
 
                         for i, questID in ipairs(questIDs) do
-                            if C_QuestLog.IsQuestFlaggedCompleted(questID) then
-                                completedDays = completedDays + (questDurations[i] or 0)
+                            if type(questID) == "number" then
+                                if C_QuestLog.IsQuestFlaggedCompleted(questID) then
+                                    completedDays = completedDays + (questDurations[i] or 0)
+                                end
                             end
                         end
 
@@ -1593,11 +1604,11 @@ function MC.dailiesDisplay()
                                 table.insert(entryOutput,
                                     "         Mount: " ..
                                     (mountName or "Unknown Mount") ..
-                                    " (Progress: " .. completedDays .. " / " .. (requiredDays or "Unknown") .. " Days)")
+                                    " (Progress: " .. (completedDays or 0) .. " / " .. (requiredDays or "Unknown") .. " Days)")
                             else
                                 table.insert(entryOutput,
                                     "         Progress: " ..
-                                    completedDays .. " / " .. (requiredDays or "Unknown") .. " Days")
+                                    (completedDays or 0) .. " / " .. (requiredDays or "Unknown") .. " Days")
                             end
                         elseif not MasterCollectorSV.hideBossesWithMountsObtained then
                             table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
@@ -1731,11 +1742,16 @@ function MC.dailiesDisplay()
                     elseif objective == "Eon's Fringe Daily" then
                         local anyQuestCompleted = false
                         local _, achieveName, _, achieved = GetAchievementInfo(19463)
-                        for _, dailyQuestID in ipairs(questIDs) do
-                            if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) then
-                                anyQuestCompleted = true
+                        for _, dailyQuestIDs in ipairs(questIDs) do
+                            if type(dailyQuestIDs) == "table" then
+                                for _, dailyQuestID in ipairs(dailyQuestIDs) do
+                                    if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) then
+                                        anyQuestCompleted = true
+                                    end
+                                end
                             end
                         end
+                        
                         colorHex = anyQuestCompleted and MC.greenHex or MC.redHex
 
                         if MasterCollectorSV.hideBossesWithMountsObtained and not achieved then
@@ -1755,13 +1771,21 @@ function MC.dailiesDisplay()
                         local waterloggedBundleCompleted = false
 
                         for i = 1, 4 do
-                            if C_QuestLog.IsQuestFlaggedCompleted(questIDs[i]) then
-                                ritualOfferingsCompleted = ritualOfferingsCompleted + 1
+                            if type(questIDs[i]) == "table" then
+                                for _, questID in ipairs(questIDs[i]) do
+                                    if C_QuestLog.IsQuestFlaggedCompleted(questID) then
+                                        ritualOfferingsCompleted = ritualOfferingsCompleted + 1
+                                    end
+                                end
                             end
                         end
 
-                        if C_QuestLog.IsQuestFlaggedCompleted(questIDs[5]) then
-                            waterloggedBundleCompleted = true
+                        if type(questIDs[5]) == "table" then
+                            for _, questID in ipairs(questIDs[5]) do
+                                if C_QuestLog.IsQuestFlaggedCompleted(questID) then
+                                    waterloggedBundleCompleted = true
+                                end
+                            end
                         end
 
                         local allQuestsCompleted = (ritualOfferingsCompleted == 4 and waterloggedBundleCompleted)
@@ -1802,21 +1826,26 @@ function MC.dailiesDisplay()
                         end
                     end
 
-                    if next(entryOutput) then
+                    if #entryOutput > 0 then
+                        if not hasValidEntries then
+                            table.insert(output, MC.goldHex .. "DF Daily Activities|r")
+                            hasValidEntries = true
+                        end
+
                         for _, line in ipairs(entryOutput) do
                             table.insert(output, line)
                         end
-                    else
-                        output = nil
                     end
                 end
-            end
-            if output ~= nil then
-                if MasterCollectorSV.hideBossesWithMountsObtained and mountsUnobtained then
-                    return output
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    return output
+                if not hasValidEntries then
+                    output = nil
                 end
+            end
+
+            if MasterCollectorSV.hideBossesWithMountsObtained and mountsUnobtained then
+                return output
+            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+                return output
             end
         end
 
