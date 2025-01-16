@@ -14,6 +14,8 @@ MC.mainFrame:RegisterEvent("ENCOUNTER_END")
 MC.mainFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 MC.mainFrame:RegisterEvent("ADDON_LOADED")
 MC.mainFrame:RegisterEvent("COVENANT_CHOSEN")
+MC.mainFrame:RegisterEvent("CINEMATIC_START")
+MC.mainFrame:RegisterEvent("PLAY_MOVIE")
 
 MC.defaultValues = {
     fontSize = 12.00,
@@ -21,9 +23,9 @@ MC.defaultValues = {
     showBossesWithNoLockout = true,
     islocked = false,
     bossFilter = "",
-    greenFontColor = {0, 1, 0},
-    redFontColor = {1, 0, 0},
-    goldFontColor = {1, 0.82, 0},
+    greenFontColor = { 0, 1, 0 },
+    redFontColor = { 1, 0, 0 },
+    goldFontColor = { 1, 0.82, 0 },
     backdropAlpha = 0.4,
     lastActiveTab = "Weekly\nLockouts",
     hideMinimapIcon = false,
@@ -89,6 +91,29 @@ MC.defaultValues = {
     showMawAssaultTimer = true,
     showBeastwarrensHuntTimer = true,
     showTormentorsTimer = true,
+    showTimeRiftsTimer = true,
+    showStormsFuryTimer = true,
+    showDragonbaneKeepTimer = true,
+    showFeastTimer = true,
+    showHuntsTimer = true,
+    showDreamsurgesTimer = true,
+    showSuffusionCampTimer = true,
+    showElementalStormsTimer = true,
+    showFroststoneStormTimer = true,
+    showLegendaryAlbumTimer = true,
+    showResearchersUnderFireTimer = true,
+    showSuperbloomTimer = true,
+    showBigDigTimer = true,
+    showBeledarShiftTimer = true,
+    showDFWeeklies = true,
+    showDFRaids = true,
+    showDFDailies = true,
+    cinematicSkip = false,
+    showDFRares = true,
+    showDFOtherReps = true,
+    showArgentDailies = true,
+    showBrunnhildarDailies = true,
+    showWoDDailies = true
 }
 
 MasterCollectorSV = MasterCollectorSV or {}
@@ -157,14 +182,37 @@ MC.checkboxNames = {
     "showSummonDepthsTimer",
     "showMawAssaultTimer",
     "showBeastwarrensHuntTimer",
-    "showTormentorsTimer"
+    "showTormentorsTimer",
+    "showTimeRiftsTimer",
+    "showStormsFuryTimer",
+    "showDragonbaneKeepTimer",
+    "showFeastTimer",
+    "showHuntsTimer",
+    "showDreamsurgesTimer",
+    "showSuffusionCampTimer",
+    "showElementalStormsTimer",
+    "showFroststoneStormTimer",
+    "showLegendaryAlbumTimer",
+    "showResearchersUnderFireTimer",
+    "showSuperbloomTimer",
+    "showBigDigTimer",
+    "showBeledarShiftTimer",
+    "showDFWeeklies",
+    "showDFRaids",
+    "showDFDailies",
+    "cinematicSkip",
+    "showDFRares",
+    "showDFOtherReps",
+    "showArgentDailies",
+    "showBrunnhildarDailies",
+    "showWoDDailies"
 }
 
 function MC.OnSlashCommand(msg)
     if msg == "" then
-            Settings.OpenToCategory(MC.optionsCategory:GetID())
+        Settings.OpenToCategory(MC.optionsCategory:GetID())
     else
-        print("Invalid command. Usage: /mc - Open the MasterCollector options panel")
+        print("Invalid command. Usage: /mc - Open the |cffffff00MasterCollector|r options panel")
     end
 end
 
@@ -180,18 +228,18 @@ end
 
 function MC.InitializeColors()
     -- Initialize the hex values from saved variables
-    local goldColor = MasterCollectorSV["goldFontColor"] or {1, 1, 1}
-    local greenColor = MasterCollectorSV["greenFontColor"] or {1, 1, 1}
-    local redColor = MasterCollectorSV["redFontColor"] or {1, 1, 1}
+    local goldColor = MasterCollectorSV["goldFontColor"] or { 1, 1, 1 }
+    local greenColor = MasterCollectorSV["greenFontColor"] or { 1, 1, 1 }
+    local redColor = MasterCollectorSV["redFontColor"] or { 1, 1, 1 }
 
     MC.goldHex = MC.colorsToHex(goldColor)
     MC.greenHex = MC.colorsToHex(greenColor)
     MC.redHex = MC.colorsToHex(redColor)
 end
 
+local cinematicHandled = false
 MC.mainFrame:SetScript("OnEvent", function(self, event, addonname)
     if event == "ADDON_LOADED" and addonname == "MasterCollector" then
-        
         for key, value in pairs(MC.defaultValues) do
             if MasterCollectorSV[key] == nil then
                 MasterCollectorSV[key] = value
@@ -206,15 +254,55 @@ MC.mainFrame:SetScript("OnEvent", function(self, event, addonname)
         MC.UpdateTabPositions()
         MC.UpdateMainFrameSize()
         MC.InitializeColors()
+
+        print(string.format(
+            "|cffffff00MasterCollector|r: Cinematic skipping is %s.",
+            MasterCollectorSV.cinematicSkip and "|cff00ff00enabled|r" or "|cffff0000disabled|r"
+        ))
     end
 
-    if event == "PLAYER_ENTERING_WORLD" or event == "UPDATE_INSTANCE_INFO" or event == "ENCOUNTER_END" or event == "PLAYER_REGEN_ENABLED" or event == "COVENANT_CHOSEN" then
+    if event == "PLAYER_ENTERING_WORLD" or event == "UPDATE_INSTANCE_INFO" or event == "ENCOUNTER_END"
+        or event == "PLAYER_REGEN_ENABLED" or event == "COVENANT_CHOSEN" or event == "ZONE_CHANGED_NEW_AREA" then
         MC.InitializeColors()
         MC.weeklyDisplay()
         MC.repsDisplay()
         MC.dailiesDisplay()
+        --MC.UpdateActiveIslands()
         if MasterCollectorSV.frameVisible and MasterCollectorSV.lastActiveTab == "Event\nGrinds" then
             MC.RefreshMCEvents()
         end
+    end
+
+    if event == "CINEMATIC_START" or event == "PLAY_MOVIE" then
+        if MasterCollectorSV.cinematicSkip and not cinematicHandled then
+            cinematicHandled = true
+            C_Timer.After(1.5, function()
+                if event == "CINEMATIC_START" then
+                    if CinematicFrame and CinematicFrame:IsShown() then
+                        CinematicFrame_CancelCinematic()
+                        print("|cffffff00MasterCollector|r: Skipping cinematic")
+                    end
+                elseif event == "PLAY_MOVIE" then
+                    if MovieFrame and MovieFrame:IsShown() then
+                        MovieFrame:Hide()
+                        print("|cffffff00MasterCollector|r: Skipping cinematic")
+                    end
+                end
+                cinematicHandled = false
+            end)
+        end
+    end
+end)
+
+CinematicFrame:HookScript("OnShow", function()
+    if MasterCollectorSV.cinematicSkip then
+        C_Timer.After(1, function()
+            if CinematicFrame:IsShown() then
+                cinematicHandled = true
+                CinematicFrame_CancelCinematic()
+                print("|cffffff00MasterCollector|r: Skipping cinematic")
+                cinematicHandled = false
+            end
+        end)
     end
 end)

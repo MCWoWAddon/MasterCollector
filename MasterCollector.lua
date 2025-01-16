@@ -19,13 +19,13 @@ MC.mainFrame:SetClampedToScreen(true)
 function MC.UpdateMainFrameSize()
     local tabCount = 0
     local tabsList = { MC.weeklyTab, MC.dailyTab, MC.dailyrepTab, MC.grindMountsTab, MC.eventTab }
-    
+
     for _, tab in ipairs(tabsList) do
         if tab:IsVisible() then
             tabCount = tabCount + 1
         end
     end
-    
+
     local baseWidth = 200
     local dynamicWidth = baseWidth + (tabCount * 50)
 
@@ -33,13 +33,14 @@ function MC.UpdateMainFrameSize()
         dynamicWidth = math.min(dynamicWidth, UIParent:GetWidth())
         MC.mainFrame:SetWidth(dynamicWidth)
     end
-    
+
     if not MasterCollectorSV.baseHeight then
         MasterCollectorSV.baseHeight = 200
     end
 
     local dynamicHeight = math.min(MasterCollectorSV.baseHeight, UIParent:GetHeight())
     MC.mainFrame:SetResizeBounds(dynamicWidth, dynamicHeight, UIParent:GetWidth(), UIParent:GetHeight())
+    MC.UpdateFrameHeight()
 end
 
 MC.frameScroll = CreateFrame("ScrollFrame", "MC.frameScroll", MC.mainFrame, "UIPanelScrollFrameTemplate")
@@ -53,8 +54,9 @@ MC.frameChild:SetPoint("BOTTOMRIGHT")
 MC.frameScroll:SetScrollChild(MC.frameChild)
 
 MC.mainFrame.text = MC.frameChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-MC.mainFrame.text:SetPoint("TOPLEFT", MC.frameChild, "TOPLEFT", 10, -10)
 MC.mainFrame.text:SetWidth(MC.frameChild:GetWidth() - 20)
+MC.mainFrame.text:ClearAllPoints()
+MC.mainFrame.text:SetPoint("TOPLEFT", MC.frameChild, "TOPLEFT", 10, -10)
 MC.mainFrame.text:SetJustifyH("LEFT")
 
 function MC.InitializeFramePosition()
@@ -77,17 +79,24 @@ end
 
 function MC.UpdateFrameHeight()
     local textHeight = MC.mainFrame.text:GetStringHeight()
-    local padding = 40
+    local padding = 20
     MC.frameChild:SetHeight(textHeight + padding)
+    MC.frameScroll:UpdateScrollChildRect()
 end
+
+MC.mainFrame:SetScript("OnSizeChanged", function(self, width, height)
+    MC.frameChild:SetWidth(width - 18)
+    MC.UpdateTextWrapping()
+    MC.UpdateFrameHeight()
+end)
 
 function MC.UpdateTextWrapping()
     if MC.mainFrame.text then
-        MC.mainFrame.text:SetWidth(MC.mainFrame:GetWidth() - 20)
+        local newWidth = MC.frameChild:GetWidth() - 20
+        MC.mainFrame.text:SetWidth(newWidth)
+        MC.UpdateFrameHeight()
     end
 end
-
-MC.mainFrame:SetScript("OnSizeChanged", MC.UpdateTextWrapping)
 
 local minimapRadius = 105
 function MC.CreateMinimapButton()
@@ -244,13 +253,13 @@ local function CreateTabButton(text, index, variable)
     local buttonText = button:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     buttonText:SetText(text)
     buttonText:SetPoint("TOP", button, "TOP", 0, -5)
-    
+
     button:SetFontString(buttonText)
     button:SetNormalFontObject("GameFontHighlight")
     button:SetHighlightFontObject("GameFontHighlight")
     button:SetNormalTexture("Interface\\PaperDollInfoFrame\\UI-Character-InActiveTab")
     button:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-ActiveTab")
-    
+
     button:SetScript("OnClick", function(self)
         MC.SetActiveTab(self)
     end)
@@ -300,11 +309,11 @@ end
 
 function MC.UpdateTabVisibility()
     local tabsList = {
-        { tab = MC.weeklyTab, variable = "hideWeeklyTab" },
-        { tab = MC.dailyTab, variable = "hideDailyTab" },
-        { tab = MC.dailyrepTab, variable = "hideDailyRepTab" },
+        { tab = MC.weeklyTab,      variable = "hideWeeklyTab" },
+        { tab = MC.dailyTab,       variable = "hideDailyTab" },
+        { tab = MC.dailyrepTab,    variable = "hideDailyRepTab" },
         { tab = MC.grindMountsTab, variable = "hideGrindMountsTab" },
-        { tab = MC.eventTab, variable = "hideEventTab" }
+        { tab = MC.eventTab,       variable = "hideEventTab" }
     }
 
     for _, tabInfo in ipairs(tabsList) do
@@ -317,8 +326,8 @@ function MC.UpdateTabVisibility()
             tab:Show()
         end
     end
-    MC.UpdateTabPositions() 
-    MC.UpdateMainFrameSize() 
+    MC.UpdateTabPositions()
+    MC.UpdateMainFrameSize()
 end
 
 function MC.SetActiveTab(selectedButton)
@@ -353,14 +362,19 @@ function MC.SetActiveTab(selectedButton)
     end
 
     local tabNames = {
-        [1] = { title = "Weekly Lockouts", key = "Weekly\nLockouts", displayFunc = function() 
-            C_Timer.After(0.1, function()
-                MC.weeklyDisplay()
-            end)
-        end },
+        [1] = {
+            title = "Weekly Lockouts",
+            key = "Weekly\nLockouts",
+            displayFunc = function()
+                C_Timer.After(0.1, function()
+                    MC.weeklyDisplay()
+                end)
+            end
+        },
         [2] = { title = "Daily Lockouts", key = "Daily\nLockouts", displayFunc = MC.dailiesDisplay },
         [3] = { title = "Daily Grind Reputation Tracker", key = "Daily Rep\nGrinds", displayFunc = MC.repsDisplay },
-        [4] = { title = "Grind When You Have Time", key = "Anytime\nGrinds", displayFunc = function() MC.mainFrame.text:SetText("Coming Soon!") end },
+        [4] = { title = "Grind When You Have Time", key = "Anytime\nGrinds", displayFunc = function() MC.mainFrame.text
+                :SetText("Coming Soon!") end },
         [5] = { title = "Limited Time - Event Mounts", key = "Event\nGrinds", displayFunc = MC.events }
     }
 
@@ -371,7 +385,6 @@ function MC.SetActiveTab(selectedButton)
         MasterCollectorSV.lastActiveTab = selectedTab.key
         selectedTab.displayFunc()
     end
-
     MC.UpdateFrameHeight()
 end
 
