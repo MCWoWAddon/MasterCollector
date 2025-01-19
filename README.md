@@ -14,54 +14,54 @@ Key Features:
 
 Reset Timers
 
-    Daily, Weekly reset timers are displayed on relevant tabs to help you stay on track.
+- Daily, Weekly reset timers are displayed on relevant tabs to help you stay on track.
 
 Mount Tracking Modules
 
-    Tracks mounts up to and including Dragonflight content, with some TWW tracking included.
-    Shadowlands Cross-Covenant Tracking: Keep progress across all four covenants simultaneously including Renown Levels & Reservoir Anima level.
+- Tracks mounts up to and including Dragonflight content, with some TWW tracking included.
+- Shadowlands Cross-Covenant Tracking: Keep progress across all four covenants simultaneously including Renown Levels & Reservoir Anima level.
 
 Event Timers
 
-    Includes timers for major events like Darkmoon Faire, Timewalking, Legion Invasions, Warfronts, BFA Faction Assaults, SL Maw Events and more.
+- Includes timers for major events like Darkmoon Faire, Timewalking, Legion Invasions, Warfronts, BFA Faction Assaults, SL Maw Events and more.
 
 Daily & Weekly Lockouts
 
-    Track rares, reputation grinds, and daily/weekly activities across expansions.
-    Includes unique mounts like Argent Tournament, Venomtide Raptor, Loyal Gorger, Blanchy, and many others.
+- Track rares, reputation grinds, and daily/weekly activities across expansions.
+- Includes unique mounts like Argent Tournament, Venomtide Raptor, Loyal Gorger, Blanchy, and many others.
 
 Customizable UI
 
-    Hideable UI with a click of the minimap button when not required. Even the minimap button is hideable!
-    Filters allow you to display only what you want to track.
-    Sizing, Location, Color, Font Size & Opacity changing to suit the users needs.
+- Hideable UI with a click of the minimap button when not required. Even the minimap button is hideable!
+- Filters allow you to display only what you want to track.
+- Sizing, Location, Color, Font Size & Opacity changing to suit the users needs.
 
 Localization
 
-    Weekly Lockouts are available in multiple WoW-supported languages.
+- Weekly Lockouts are available in multiple WoW-supported languages.
 
 Additional Features
 
-    Auto-skip cutscenes.
-    Integration with Rarity for tracking mount attempts.
-    LFR Wing Progress tracking.
-    Full support for daily/weekly lockouts and meta achievements.
+- Auto-skip cutscenes.
+- Integration with Rarity for tracking mount attempts.
+- LFR Wing Progress tracking.
+- Full support for daily/weekly lockouts and meta achievements.
 
 Recent Updates:
 
 New Mounts & Activities:
 
-    Added Argent Tournament and Brunnhildar Village tracking (WotLK).
-    Dragonflight Content
-        Tracks Dragonflight events, reputation, rares, and daily/weekly activities like Grand Hunts, Siege on Dragonbane Keep, Dreamsurges, Superbloom and Renown rewards.
+- Added Argent Tournament and Brunnhildar Village tracking (WotLK).
+- Dragonflight Content
+   - Tracks Dragonflight events, reputation, rares, and daily/weekly activities like Grand Hunts, Siege on Dragonbane Keep, Dreamsurges, Superbloom and Renown rewards.
 
 Fixes:
 
-    Resolved various bugs, including correct event displays and reputation tracking.
+- Resolved various bugs, including correct event displays and reputation tracking.
 
 Future Plans:
 
-    Expand tracking to include all mounts, pets, and toys, creating a complete collection management tool. 
-    Serve as a centralized hub, bridging multiple sources of information to meet all your collecting needs.
-    Introduce waypoint plotting with TomTom Integration for easier navigation to rare spawns and activities.
-    Develop a Mount Planner to optimize collection routes and improve efficiency.
+- Expand tracking to include all mounts, pets, and toys, creating a complete collection management tool. 
+- Serve as a centralized hub, bridging multiple sources of information to meet all your collecting needs.
+- Introduce waypoint plotting with TomTom Integration for easier navigation to rare spawns and activities.
+- Develop a Mount Planner to optimize collection routes and improve efficiency.
