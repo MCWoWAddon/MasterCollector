@@ -6,63 +6,62 @@
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/N4N7F7NP4)
 
-Ever wanted a checklist that appears right on your character screen and automatically marks off your progress? No need for extra addons, spreadsheets, or task lists for each character? Then this is for you! Master Collector introduces the world's first mount tracker checklist for daily & weekly things to do!
+MasterCollector Addon for World of Warcraft
+
+Tired of juggling multiple addons, spreadsheets, websites, and task lists for mount collecting? MasterCollector is the ultimate checklist addon that gives you a clear snapshot of exactly where you are in your collecting journey. Offering the first-of-its-kind mount tracking for daily, weekly & event activities, this addon simplifies your path to becoming the ultimate collector. Designed by a fellow World of Warcraft collector with other collectors in mind, MasterCollector is your all-in-one solution!
 
 Key Features:
 
-*   **NEW**! Daily & Weekly Timer till reset at the top of relevant tabs to keep track of when everything resets!
+Reset Timers
 
-*   **NEW!** Existing modules are now tracking most mounts up to **AND** including Shadowlands content!
-    *   Some Dragonflight content has been included, with Renown Tracking not showing mounts just yet.
+    Daily, Weekly reset timers are displayed on relevant tabs to help you stay on track.
 
-*   **NEW! SHADOWLANDS** **CROSS COVENANT TRACKING!**
-    *   If opting for Shadowlands Covenants to be shown in Filters, you can keep track of your current covenant level in all 4 covenants simulatenously. On first use, you will need to switch to all 4 different covenants for the addon to store the data and away you go! One of the first addons that can do this!
+Mount Tracking Modules
 
-*   **NEW!** Integration with existing modules for Shadowlands Mount Meta Achievements including Back to the Beyond, Breaking the Chains & more!
+    Tracks mounts up to and including Dragonflight content, with some TWW tracking included.
+    Shadowlands Cross-Covenant Tracking: Keep progress across all four covenants simultaneously including Renown Levels & Reservoir Anima level.
 
-*   **NEW**! Event Timers for various events working across EU & NA including:
-    *   Calendar Events including Darkmoon Faire, Hallows End and many more! (more getting added in the future)
-    *   Free For All, Not for Me PVP World Quest Timer
-    *   Legion Invasion Timer
-    *   Arathi & Darkshore Warfront Timers
-    *   Battle for Azeroth Faction Assault Timers
-    *   Nazjatar Summon from the Depths Timer (**EU TIMER MAY BE INCORRECT, NEED AN EXISTING SPAWN TIMER)**
-    *   Shadowlands The Maw Covenant Assault, Beastwarrens Hunts & Tormentors of Torghast Timers
+Event Timers
 
-*   **NEW**! Shadowlands integration with Daily Lockouts including:
-    *   Covenant Specific Rares
-    *   General Non-covenant Specific Rares
-    *   Maldraxxus Callings
+    Includes timers for major events like Darkmoon Faire, Timewalking, Legion Invasions, Warfronts, BFA Faction Assaults, SL Maw Events and more.
 
-*   **NEW**! Daily Activities in Daily Lockouts Tab
-    *   Classic Daily Activities including Venomtide Raptor & Winterspring Saber Tracking (**EXPERIMENTAL**)
+Daily & Weekly Lockouts
 
-    *   Battle for Azeroth Daily Activities (**EXPERIMENTAL**) including:
-        *   Kua'fon
-        *   Mechagon Spider
-        *   Torcali
-        *   Friendly Alpaca feeding
-        *   Shadowbarb Drone
+    Track rares, reputation grinds, and daily/weekly activities across expansions.
+    Includes unique mounts like Argent Tournament, Venomtide Raptor, Loyal Gorger, Blanchy, and many others.
 
-    *   Shadowlands Daily Activities (**EXPERIMENTAL**) including:
-        *   Loyal Gorger
-        *   Blanchy
-        *   Maelie (**THIS NPC CANNOT CHECK EXISTING TRACKING)**
-        *   Darkmaul
+Customizable UI
 
-*   **UPDATED! Weekly Lockout ONLY** Localization: Enjoy portions of the addon in WoW’s various local languages for a seamless experience. (Unfortunately I do not have the ability to translate other modules in other languages)
-*   Garrison Invasion Mounts
-*   Daily Lockouts for Rares
-*   Rarity Integration for Mount Attempts!
-*   Pulls Daily Lockouts for older Heroic Dungeons & Mythic Necrotic Wake
-*   Pulls All Mount Related Daily Reputation Grinds with conditions for currencies such as Apexis Crystals and Tol Barad Commendations.
-*   Customisable UI with filtering to show exactly what you like!
-*   LFR Wings: Specific names and details for LFR wings make it easy to track your progress.
-*   Pulls All Weekly Lockouts: Automatically fetches and displays all weekly lockouts you haven’t completed, showing which mounts you can still collect.
+    Hideable UI with a click of the minimap button when not required. Even the minimap button is hideable!
+    Filters allow you to display only what you want to track.
+    Sizing, Location, Color, Font Size & Opacity changing to suit the users needs.
 
-Future Updates:
+Localization
 
-*   Expanded Tracking: Plans to include versions that track DF & TWW mounts, Other Reputation Grinds, Event Mounts, Quest Mounts and more!
-*   Additional Features: Future expansions will add support for pets and toys to make your collection tracking even more comprehensive.
+    Weekly Lockouts are available in multiple WoW-supported languages.
 
-Download Master Collector now and start your journey towards becoming the ultimate mount collector in Azeroth!
+Additional Features
+
+    Auto-skip cutscenes.
+    Integration with Rarity for tracking mount attempts.
+    LFR Wing Progress tracking.
+    Full support for daily/weekly lockouts and meta achievements.
+
+Recent Updates:
+
+New Mounts & Activities:
+
+    Added Argent Tournament and Brunnhildar Village tracking (WotLK).
+    Dragonflight Content
+        Tracks Dragonflight events, reputation, rares, and daily/weekly activities like Grand Hunts, Siege on Dragonbane Keep, Dreamsurges, Superbloom and Renown rewards.
+
+Fixes:
+
+    Resolved various bugs, including correct event displays and reputation tracking.
+
+Future Plans:
+
+    Expand tracking to include all mounts, pets, and toys, creating a complete collection management tool. 
+    Serve as a centralized hub, bridging multiple sources of information to meet all your collecting needs.
+    Introduce waypoint plotting with TomTom Integration for easier navigation to rare spawns and activities.
+    Develop a Mount Planner to optimize collection routes and improve efficiency.
