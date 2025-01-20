@@ -290,11 +290,11 @@ function MC.repsDisplay()
     }
 
     local DFRenownMountReq = {
-        [2507] = { { 1615, 25 }, { 1616, 25 }, { 1825, 25 } },
-        [2511] = { { 1657, 25 }, { 1659, 25 }, { 1653, 30 }, { 1655, 30 }, { 1825, 30 } },
-        [2564] = { { 1738, 18 }, { 1825, 20 } },
-        [2574] = { { 1809, 17 }, { 1811, 17 }, { 1825, 20 } },
-        [2503] = { { 1825, 30 } },
+        [2507] = { { 1615, 25, 750 }, { 1616, 25, 750 }, { 1825, 25 } },
+        [2511] = { { 1657, 25, 750 }, { 1659, 25, 750 }, { 1653, 30, 1000 }, { 1655, 30, 1000 }, { 1825, 30 } },
+        [2564] = { { 1738, 18, 800 }, { 1825, 20 } },
+        [2574] = { { 1809, 17, 1200 }, { 1811, 17, 1200 }, { 1825, 20 } },
+        [2503] = { { 1825, 25 } },
         [2510] = { { 1825, 30 } },
     }
 
@@ -544,9 +544,12 @@ function MC.repsDisplay()
                             end
 
                             for _, mountInfo in ipairs(DFRenownMountReq[factionID]) do
-                                local mountID, requiredRenownLevel = unpack(mountInfo)
-                                local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal
-                                    .GetMountInfoByID(mountID)
+                                local mountID, requiredRenownLevel, requiredCurrency = unpack(mountInfo)
+                                local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
+                                local currentDFSupplies = C_CurrencyInfo.GetCurrencyInfo(2003).quantity
+                                local fileDFSupplies = C_CurrencyInfo.GetCurrencyInfo(2003).iconFileID
+                                local iconDFSupplies = CreateTextureMarkup(fileDFSupplies,
+                                        32, 32, 16, 16, 0, 1, 0, 1)
                                 local buyorearntxt = ""
 
                                 if mountID == 1825 then
@@ -559,41 +562,23 @@ function MC.repsDisplay()
                                         table.insert(uncollectedMounts, mountName)
                                     end
                                 else
-                                    mountsText = mountsText ..
-                                        string.format("         - %s (Requires Renown %d)\n%s", mountName,
-                                            requiredRenownLevel, buyorearntxt)
                                     if not isCollected then
                                         table.insert(uncollectedMounts, mountName)
                                     end
 
-                                    if (mountID == 1615 or mountID == 1616) and C_QuestLog.IsQuestFlaggedCompleted(70821) then
-                                        local _, _, _, _, _, _, _, _, _, _, isCollected1 = C_MountJournal
-                                            .GetMountInfoByID(1615)
-                                        local _, _, _, _, _, _, _, _, _, _, isCollected2 = C_MountJournal
-                                            .GetMountInfoByID(1616)
-                                        if (isCollected1 and not isCollected2) or (not isCollected1 and isCollected2) then
-                                            buyorearntxt =
-                                            "One is a quest reward, the other is purchased from vendor for 5x Iridescent Plume, 20x Contoured Fowlfeather\n"
-                                        end
-                                    elseif (mountID == 1657 or mountID == 1659) and C_QuestLog.IsQuestFlaggedCompleted(70972) then
-                                        local _, _, _, _, _, _, _, _, _, _, isCollected1 = C_MountJournal
-                                            .GetMountInfoByID(1657)
-                                        local _, _, _, _, _, _, _, _, _, _, isCollected2 = C_MountJournal
-                                            .GetMountInfoByID(1659)
-                                        if (isCollected1 and not isCollected2) or (not isCollected1 and isCollected2) then
-                                            buyorearntxt =
-                                            "One is a quest reward, the other is purchased from vendor for 2x Mastodon Tusk, 2x Aquatic Maw\n"
-                                        end
-                                    elseif (mountID == 1653 or mountID == 1655) and C_QuestLog.IsQuestFlaggedCompleted(72328) then
-                                        local _, _, _, _, _, _, _, _, _, _, isCollected1 = C_MountJournal
-                                            .GetMountInfoByID(1653)
-                                        local _, _, _, _, _, _, _, _, _, _, isCollected2 = C_MountJournal
-                                            .GetMountInfoByID(1655)
-                                        if (isCollected1 and not isCollected2) or (not isCollected1 and isCollected2) then
-                                            buyorearntxt =
-                                            "One is a quest reward, the other is purchased from vendor for 5x Mastodon Tusk, 5x Aquatic Maw\n"
-                                        end
+                                    local mountData = {
+                                        [1615] = { pairID = 1616, questID = 70821, text = MC.goldHex .. "         1 mount is a quest reward; the other costs 5x Iridescent Plume, 20x Contoured Fowlfeather|r\n" },
+                                        [1657] = { pairID = 1659, questID = 70972, text = MC.goldHex .. "         1 mount is a quest reward; the other costs 2x Mastodon Tusk, 2x Aquatic Maw|r\n" },
+                                        [1653] = { pairID = 1655, questID = 72328, text = MC.goldHex .. "\n         1 mount is a quest reward; the other costs 5x Mastodon Tusk, 5x Aquatic Maw|r\n" }
+                                    }
+
+                                    local mountsInfo = mountData[mountID]
+                                    if mountsInfo and C_QuestLog.IsQuestFlaggedCompleted(mountsInfo.questID) then
+                                        buyorearntxt = mountsInfo.text
                                     end
+
+                                    mountsText = mountsText .. string.format("%s         - %s (Requires Renown %d)\n", buyorearntxt, mountName, requiredRenownLevel) .. string.rep(" ", 6) .. MC.goldHex .. "   " ..
+                                    currentDFSupplies .. " / " .. requiredCurrency .. " Dragon Isles Supplies " .. iconDFSupplies .. " Required|r\n"
                                 end
                             end
                         end
@@ -1462,7 +1447,7 @@ function MC.repsDisplay()
     if displayText == "" then
         displayText = MC.goldHex .. "We are all done here.... FOR NOW!|r"
     end
-    
+
     if MC.mainFrame and MC.mainFrame.text then
         MC.mainFrame.text:SetText(displayText)
     end

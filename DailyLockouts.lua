@@ -1391,6 +1391,51 @@ function MC.dailiesDisplay()
             end
 
             if MasterCollectorSV.showSLDailies then
+                local NFprogressOutput = ""
+                for _, value in ipairs(dailyNFActivities) do
+                    local achievement = value[1]
+                    local NFmountID = value[2]
+                    local currency = value[3]
+                    local NFmountName = C_MountJournal.GetMountInfoByID(NFmountID)
+                    local achieveName = select(2, GetAchievementInfo(achievement))
+                    local achievementComplete = select(4, GetAchievementInfo(achievement))
+                    local iconCovenantAnima = C_CurrencyInfo.GetCurrencyInfo(1813).iconFileID
+                    local iconSize = CreateTextureMarkup(iconCovenantAnima, 32, 32, 16, 16, 0, 1, 0, 1)
+
+                    local function GetCharacterKey()
+                        local name, realm = UnitName("player"), GetRealmName()
+                        return name .. "-" .. realm
+                    end
+                
+                    local characterKey = GetCharacterKey()
+                    local function CalculateTotalAnima(characterKey)
+                        local totalAnima = 0
+                        local characterData = MasterCollectorSV[characterKey]
+                
+                        if characterData and characterData.covenants then
+                            for _, covenant in ipairs(characterData.covenants) do
+                                totalAnima = totalAnima + (covenant.covenantAnima or 0)
+                            end
+                        end
+                
+                        return totalAnima
+                    end
+                
+                    local totalAnima = CalculateTotalAnima(characterKey)
+
+                    if MasterCollectorSV.hideBossesWithMountsObtained and not achievementComplete then
+                        NFprogressOutput = NFprogressOutput .. MC.goldHex ..  "     Night Fae Covenant Star Lake Ampitheatre Daily\n         Achievement Required: " .. achieveName .. "|r\n"
+                    elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+                        NFprogressOutput = NFprogressOutput .. MC.goldHex ..  "     Night Fae Covenant Star Lake Ampitheatre Daily\n         Achievement Required: " .. achieveName .. "|r\n"
+                    end
+
+                    if MasterCollectorSV.showMountName then
+                        NFprogressOutput = NFprogressOutput .. (string.format("         Mount: %s\n", NFmountName))
+                        NFprogressOutput = NFprogressOutput .. MC.goldHex .. "         " ..
+                        totalAnima .. " / " .. currency .. " Anima " .. iconSize .. " Required|r\n"
+                    end
+                end
+
                 for _, entry in ipairs(dailySLActivities) do
                     local questIDs = entry[1]
                     local mountID = entry[2][1]
@@ -1460,6 +1505,8 @@ function MC.dailiesDisplay()
                         table.insert(output, line)
                     end
                 end
+
+                table.insert(output, "" .. NFprogressOutput)
 
                 if MasterCollectorSV.hideBossesWithMountsObtained and mountsUnobtained then
                     return output
@@ -1915,7 +1962,7 @@ function MC.dailiesDisplay()
 
         local SLdailyActivitiesProgress = QuerySLDailyActivities()
         if SLdailyActivitiesProgress ~= nil then
-            lockoutText = lockoutText .. "\n" .. table.concat(SLdailyActivitiesProgress, "\n") .. "\n"
+            lockoutText = lockoutText .. "\n" .. table.concat(SLdailyActivitiesProgress, "\n")
         end
 
         local covenantRares = covenantRareMounts()
@@ -1930,7 +1977,7 @@ function MC.dailiesDisplay()
 
         local BfaDailyActivitiesProgress = QueryBfADailyActivities()
         if BfaDailyActivitiesProgress ~= nil then
-            lockoutText = lockoutText .. "\n" .. table.concat(BfaDailyActivitiesProgress, "\n") .. "\n"
+            lockoutText = lockoutText .. "\n" .. table.concat(BfaDailyActivitiesProgress, "\n")
         end
 
         local WoDDailyActivitiesProgress = QueryWoDDailyActivities()
