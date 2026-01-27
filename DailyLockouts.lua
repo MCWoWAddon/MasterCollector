@@ -114,7 +114,6 @@ function MC.dailiesDisplay()
     }
 
     local rareOrder = {
-        "DF Rares",
         "SL Rares (non-Covenant Specific)",
         "BfA Vale of Eternal Blossoms Rares",
         "BfA Uldum Rares",
@@ -497,10 +496,6 @@ function MC.dailiesDisplay()
         local lockoutText = ""
         local whiteColor = "|cffffffff"
 
-        local difficulties = {
-            [2] = "Heroic", [23] = "Mythic"
-        }
-
         for _, expansion in ipairs(lockoutOrder) do
             local dungeons = lockouts[expansion]
             if dungeons then
@@ -530,7 +525,7 @@ function MC.dailiesDisplay()
                                     local allDifficultiesKilled = true
 
                                     for _, difficulty in ipairs({ difficultyID }) do
-                                        local difficultyName = difficulties[difficulty] or "Unknown"
+                                        local difficultyName = GetDifficultyInfo(difficultyID)
                                         local isDifficultyKilled = isInstanceBossKilled(dungeonID, bossID, difficulty)
                                         local color = isDifficultyKilled and MC.greenHex or MC.redHex
 
@@ -608,8 +603,7 @@ function MC.dailiesDisplay()
                     (expansion == "BfA Nazjatar Rares" and not MasterCollectorSV.showNazRares) or
                     (expansion == "BfA Uldum Rares" and not MasterCollectorSV.showUldumRares) or
                     (expansion == "BfA Vale of Eternal Blossoms Rares" and not MasterCollectorSV.showValeRares) or
-                    (expansion == "SL Rares (non-Covenant Specific)" and not MasterCollectorSV.showSLRares) or
-                    (expansion == "DF Rares" and not MasterCollectorSV.showDFRares) then
+                    (expansion == "SL Rares (non-Covenant Specific)" and not MasterCollectorSV.showSLRares) then
                     shouldProcessExpansion = false
                 end
 
@@ -623,6 +617,7 @@ function MC.dailiesDisplay()
                         local factionRestriction = rareData[6]
                         local allKilled = true
                         local individualRaresText = ""
+                        local hasUncollectedMounts = false
 
                         if type(questIDs) ~= "table" then
                             questIDs = { questIDs }
@@ -659,13 +654,15 @@ function MC.dailiesDisplay()
                             mountName = mountInfo[1] or "Unknown Mount"
                             isCollected = mountInfo[11]
 
-                            local shouldShow = true
+                            local shouldShow = not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected
 
-                            shouldShow = not (MasterCollectorSV.hideBossesWithMountsObtained and isCollected) and
-                                (not isCollected or not (MasterCollectorSV.showBossesWithNoLockout and allKilled))
+                            if shouldShow and MasterCollectorSV.showBossesWithNoLockout and allKilled then
+                                shouldShow = false
+                            end
 
                             if not isCollected then
                                 table.insert(uncollectedMounts, mountName)
+                                hasUncollectedMounts = true
                             end
 
                             if shouldShow then
@@ -680,9 +677,6 @@ function MC.dailiesDisplay()
                                         rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts,
                                             dropChanceDenominator)
                                         dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
-                                    else
-                                        rarityAttemptsText = ""
-                                        dropChanceText = ""
                                     end
                                 end
                                 table.insert(mountTexts,
@@ -691,11 +685,13 @@ function MC.dailiesDisplay()
                             end
                         end
 
-                        if not (MasterCollectorSV.showBossesWithNoLockout and allKilled) then
-                            if not factionRestriction or (factionRestriction == playerFaction .. " Only") then
-                                expansionText = expansionText .. individualRaresText .. "\n"
-                                if MasterCollectorSV.showMountName and #mountTexts > 0 then
-                                    expansionText = expansionText .. table.concat(mountTexts, "\n") .. "\n"
+                        if not MasterCollectorSV.hideBossesWithMountsObtained or hasUncollectedMounts then
+                            if not (MasterCollectorSV.showBossesWithNoLockout and allKilled) then
+                                if not factionRestriction or (factionRestriction == playerFaction .. " Only") then
+                                    expansionText = expansionText .. individualRaresText .. "\n"
+                                    if MasterCollectorSV.showMountName and #mountTexts > 0 then
+                                        expansionText = expansionText .. table.concat(mountTexts, "\n") .. "\n"
+                                    end
                                 end
                             end
                         end
@@ -1288,15 +1284,10 @@ function MC.dailiesDisplay()
 
         local function QueryBfADailyActivities()
             local output = {}
-            local mountsUnobtained = false
-            table.insert(output, MC.goldHex .. "BfA Daily Activities|r")
-
-            if not dailyBfaActivities or #dailyBfaActivities == 0 then
-                table.insert(output, MC.goldHex .. "No activities found.|r")
-                return output
-            end
+            local hasActivities = false
 
             if MasterCollectorSV.showBfaDailies then
+                table.insert(output, MC.goldHex .. "BfA Daily Activities|r")
                 for _, entry in ipairs(dailyBfaActivities) do
                     local questIDs = entry[1]
                     local mountID = entry[2][1]
@@ -1314,83 +1305,74 @@ function MC.dailiesDisplay()
                         end
                     end
 
-                    if not isCollected then
-                        mountsUnobtained = true
-                    end
-
-                    if isCollected then
-                        completedDays = requiredDays
-                    else
-                        if #questIDs == 2 then
-                            local dailyQuestID = questIDs[2]
-                            if isCompleted then
-                                completedDays = requiredDays
+                    if not (isCollected and MasterCollectorSV.hideBossesWithMountsObtained) then
+                        if isCollected then
+                            completedDays = requiredDays
+                        else
+                            if #questIDs == 2 then
+                                local dailyQuestID = questIDs[2]
+                                if isCompleted then
+                                    completedDays = requiredDays
+                                else
+                                    for _ = 1, requiredDays do
+                                        if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) then
+                                            completedDays = completedDays + 1
+                                        end
+                                    end
+                                end
+                            elseif kuafonQuestIDs ~= nil and #kuafonQuestIDs > 0 then
+                                if isCompleted then
+                                    completedDays = requiredDays
+                                else
+                                    local completedQuestSet = {}
+                                    for _, dailyQuestID in ipairs(kuafonQuestIDs) do
+                                        if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) and not completedQuestSet[dailyQuestID] then
+                                            completedDays = completedDays + 1
+                                            completedQuestSet[dailyQuestID] = true
+                                        end
+                                    end
+                                end
                             else
+                                local dailyQuestID = questIDs[1]
                                 for _ = 1, requiredDays do
                                     if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) then
                                         completedDays = completedDays + 1
                                     end
                                 end
                             end
-                        elseif kuafonQuestIDs ~= nil and #kuafonQuestIDs > 0 then
-                            if isCompleted then
-                                completedDays = requiredDays
-                            else
-                                local completedQuestSet = {}
-                                for _, dailyQuestID in ipairs(kuafonQuestIDs) do
-                                    if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) and not completedQuestSet[dailyQuestID] then
-                                        completedDays = completedDays + 1
-                                        completedQuestSet[dailyQuestID] = true
-                                    end
-                                end
-                            end
+                        end
+
+                        local entryOutput = {}
+                        table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
+                        hasActivities = true
+
+                        if MasterCollectorSV.showMountName then
+                            table.insert(entryOutput,
+                                "         Mount: " ..
+                                (mountName or "Unknown Mount") ..
+                                " (Progress: " .. completedDays .. " / " .. requiredDays .. " Days)")
                         else
-                            local dailyQuestID = questIDs[1]
-                            for _ = 1, requiredDays do
-                                if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) then
-                                    completedDays = completedDays + 1
-                                end
-                            end
+                            table.insert(entryOutput,
+                                "         Progress: " .. completedDays .. " / " .. requiredDays .. " Days")
+                        end
+
+                        for _, line in ipairs(entryOutput) do
+                            table.insert(output, line)
                         end
                     end
-
-                    local entryOutput = {}
-                    table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
-
-                    if MasterCollectorSV.showMountName then
-                        table.insert(entryOutput,
-                            "         Mount: " ..
-                            (mountName or "Unknown Mount") ..
-                            " (Progress: " .. completedDays .. " / " .. requiredDays .. " Days)")
-                    else
-                        table.insert(entryOutput,
-                            "         Progress: " .. completedDays .. " / " .. requiredDays .. " Days")
-                    end
-
-                    for _, line in ipairs(entryOutput) do
-                        table.insert(output, line)
-                    end
                 end
-
-                if MasterCollectorSV.hideBossesWithMountsObtained and mountsUnobtained then
-                    return output
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    return output
-                end
+            end
+            if hasActivities then
+                return output
             end
         end
 
         local function QuerySLDailyActivities()
             local output = {}
-            local mountsUnobtained = false
-            table.insert(output, MC.goldHex .. "SL Daily Activities|r")
-
-            if not dailySLActivities or #dailySLActivities == 0 then
-                table.insert(output, MC.goldHex .. "No activities found.|r")
-                return output
-            end
+            local hasActivities = false
 
             if MasterCollectorSV.showSLDailies then
+                table.insert(output, MC.goldHex .. "SL Daily Activities|r")
                 local NFprogressOutput = ""
                 for _, value in ipairs(dailyNFActivities) do
                     local achievement = value[1]
@@ -1406,33 +1388,38 @@ function MC.dailiesDisplay()
                         local name, realm = UnitName("player"), GetRealmName()
                         return name .. "-" .. realm
                     end
-                
+
                     local characterKey = GetCharacterKey()
+
                     local function CalculateTotalAnima(characterKey)
                         local totalAnima = 0
                         local characterData = MasterCollectorSV[characterKey]
-                
+
                         if characterData and characterData.covenants then
                             for _, covenant in ipairs(characterData.covenants) do
                                 totalAnima = totalAnima + (covenant.covenantAnima or 0)
                             end
                         end
-                
                         return totalAnima
                     end
-                
+
                     local totalAnima = CalculateTotalAnima(characterKey)
 
                     if MasterCollectorSV.hideBossesWithMountsObtained and not achievementComplete then
+                        hasActivities = true
                         NFprogressOutput = NFprogressOutput .. MC.goldHex ..  "     Night Fae Covenant Star Lake Ampitheatre Daily\n         Achievement Required: " .. achieveName .. "|r\n"
                     elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+                        hasActivities = true
                         NFprogressOutput = NFprogressOutput .. MC.goldHex ..  "     Night Fae Covenant Star Lake Ampitheatre Daily\n         Achievement Required: " .. achieveName .. "|r\n"
                     end
 
                     if MasterCollectorSV.showMountName then
                         NFprogressOutput = NFprogressOutput .. (string.format("         Mount: %s\n", NFmountName))
-                        NFprogressOutput = NFprogressOutput .. MC.goldHex .. "         " ..
-                        totalAnima .. " / " .. currency .. " Anima " .. iconSize .. " Required|r\n"
+                        NFprogressOutput = NFprogressOutput .. MC.goldHex .. "         " .. totalAnima .. " / " .. currency .. " Anima " .. iconSize .. " Required|r\n"
+                    end
+
+                    if not (achievementComplete and MasterCollectorSV.hideBossesWithMountsObtained) then
+                        table.insert(output, "" .. NFprogressOutput)
                     end
                 end
 
@@ -1452,67 +1439,61 @@ function MC.dailiesDisplay()
                         end
                     end
 
-                    if not isCollected then
-                        mountsUnobtained = true
-                    end
-
-                    if isCollected then
-                        completedDays = requiredDays
-                    else
-                        if #questIDs > 1 then
-                            for index, questID in ipairs(questIDs) do
-                                if C_QuestLog.IsQuestFlaggedCompleted(questID) then
-                                    completedDays = index
-                                else
-                                    break
+                    if not (isCollected and MasterCollectorSV.hideBossesWithMountsObtained) then
+                        hasActivities = true
+                        if isCollected then
+                            completedDays = requiredDays
+                        else
+                            if #questIDs > 1 then
+                                for index, questID in ipairs(questIDs) do
+                                    if C_QuestLog.IsQuestFlaggedCompleted(questID) then
+                                        completedDays = index
+                                    else
+                                        break
+                                    end
                                 end
-                            end
-                        elseif #questIDs == 2 then
-                            local dailyQuestID = questIDs[2]
-                            if isCompleted then
-                                completedDays = requiredDays
+                            elseif #questIDs == 2 then
+                                local dailyQuestID = questIDs[2]
+                                if isCompleted then
+                                    completedDays = requiredDays
+                                else
+                                    for _ = 1, requiredDays do
+                                        if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) then
+                                            completedDays = completedDays + 1
+                                        end
+                                    end
+                                end
                             else
+                                local dailyQuestID = questIDs[1]
                                 for _ = 1, requiredDays do
                                     if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) then
                                         completedDays = completedDays + 1
                                     end
                                 end
                             end
+                        end
+
+                        local entryOutput = {}
+                        table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
+
+                        if MasterCollectorSV.showMountName then
+                            table.insert(entryOutput,
+                                "         Mount: " ..
+                                (mountName or "Unknown Mount") ..
+                                " (Progress: " .. completedDays .. " / " .. requiredDays .. " Days)")
                         else
-                            local dailyQuestID = questIDs[1]
-                            for _ = 1, requiredDays do
-                                if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) then
-                                    completedDays = completedDays + 1
-                                end
-                            end
+                            table.insert(entryOutput,
+                                "         Progress: " .. completedDays .. " / " .. requiredDays .. " Days")
+                        end
+
+                        for _, line in ipairs(entryOutput) do
+                            table.insert(output, line)
                         end
                     end
-
-                    local entryOutput = {}
-                    table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
-
-                    if MasterCollectorSV.showMountName then
-                        table.insert(entryOutput,
-                            "         Mount: " ..
-                            (mountName or "Unknown Mount") ..
-                            " (Progress: " .. completedDays .. " / " .. requiredDays .. " Days)")
-                    else
-                        table.insert(entryOutput,
-                            "         Progress: " .. completedDays .. " / " .. requiredDays .. " Days")
-                    end
-
-                    for _, line in ipairs(entryOutput) do
-                        table.insert(output, line)
-                    end
                 end
-
-                table.insert(output, "" .. NFprogressOutput)
-
-                if MasterCollectorSV.hideBossesWithMountsObtained and mountsUnobtained then
-                    return output
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    return output
-                end
+            end
+            if hasActivities then
+                return output
             end
         end
 
@@ -1949,55 +1930,28 @@ function MC.dailiesDisplay()
                 return outputText
             end
         end
+        local activities = {
+            { query = QueryDFDailyActivities,               concat = true },
+            { query = queryDFDreamInfusionMounts,           concat = false },
+            { query = QuerySLDailyActivities,               concat = true },
+            { query = covenantRareMounts,                   concat = false },
+            { query = MC.DisplayCurrentCallings,            concat = false },
+            { query = QueryBfADailyActivities,              concat = true },
+            { query = QueryWoDDailyActivities,              concat = false },
+            { query = QueryArgentDailyActivities,           concat = false },
+            { query = QueryWOTLKBrunnhildarDailyActivities, concat = false },
+            { query = QueryClassicDailyActivities,          concat = true },
+        }
 
-        local DFdailyActivitiesProgress = QueryDFDailyActivities()
-        if DFdailyActivitiesProgress ~= nil then
-            lockoutText = lockoutText .. "\n" .. table.concat(DFdailyActivitiesProgress, "\n")
-        end
-
-        local DFDreamInfusionMounts = queryDFDreamInfusionMounts()
-        if DFDreamInfusionMounts ~= nil then
-            lockoutText = lockoutText .. "\n" .. DFDreamInfusionMounts .. "\n"
-        end
-
-        local SLdailyActivitiesProgress = QuerySLDailyActivities()
-        if SLdailyActivitiesProgress ~= nil then
-            lockoutText = lockoutText .. "\n" .. table.concat(SLdailyActivitiesProgress, "\n")
-        end
-
-        local covenantRares = covenantRareMounts()
-        if covenantRares ~= nil then
-            lockoutText = lockoutText .. "\n" .. covenantRares
-        end
-
-        local callingsUpdate = MC.DisplayCurrentCallings()
-        if callingsUpdate ~= nil then
-            lockoutText = lockoutText .. "\n" .. callingsUpdate
-        end
-
-        local BfaDailyActivitiesProgress = QueryBfADailyActivities()
-        if BfaDailyActivitiesProgress ~= nil then
-            lockoutText = lockoutText .. "\n" .. table.concat(BfaDailyActivitiesProgress, "\n")
-        end
-
-        local WoDDailyActivitiesProgress = QueryWoDDailyActivities()
-        if WoDDailyActivitiesProgress ~= nil then
-            lockoutText = lockoutText .. "\n" .. WoDDailyActivitiesProgress
-        end
-
-        local ArgentDailyActivitiesProgress = QueryArgentDailyActivities()
-        if ArgentDailyActivitiesProgress ~= nil then
-            lockoutText = lockoutText .. "\n" .. ArgentDailyActivitiesProgress
-        end
-
-        local BrunnhildarDailyActivitiesProgress = QueryWOTLKBrunnhildarDailyActivities()
-        if BrunnhildarDailyActivitiesProgress ~= nil then
-            lockoutText = lockoutText .. "\n" .. BrunnhildarDailyActivitiesProgress
-        end
-
-        local ClassicDailyActivitiesProgress = QueryClassicDailyActivities()
-        if ClassicDailyActivitiesProgress ~= nil then
-            lockoutText = lockoutText .. "\n" .. table.concat(ClassicDailyActivitiesProgress, "\n") .. "\n"
+        for _, activity in ipairs(activities) do
+            local result = activity.query()
+            if result ~= nil then
+                if activity.concat and type(result) == "table" then
+                    lockoutText = lockoutText .. "\n" .. table.concat(result, "\n")
+                else
+                    lockoutText = lockoutText .. "\n" .. result
+                end
+            end
         end
 
         if lockoutText == "" then

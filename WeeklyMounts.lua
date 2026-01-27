@@ -188,17 +188,6 @@ function MC.weeklyDisplay()
             { type = "worldBoss", key = "showWoDWorldBosses",      name = "WoD World Bosses" },
             { type = "worldBoss", key = "showPandariaWorldBosses", name = "Pandaria World Bosses" }
         },
-        difficultyNames = {
-            [3] = "10P",
-            [4] = "25P",
-            [5] = "10P (H)",
-            [6] = "25P (H)",
-            [14] = "N",
-            [15] = "H",
-            [16] = "M",
-            [17] = "LFR",
-            [23] = "Mythic"
-        },
         raidsWithoutDifficultyCheck = {
             [362] = true, -- Throne of Thunder
             [317] = true, -- Mogu'shan Vaults
@@ -279,20 +268,20 @@ function MC.weeklyDisplay()
     end
 
     local function isDunegorgerAvailable(bossID)
-        local serverTime = GetServerTime()
-        local nextReset = tostring(date("%d-%m-%Y %H:%M", serverTime + GetQuestResetTime()))
+        local realmTime = GetServerTime()
+        local nextReset = tostring(date("%d-%m-%Y %H:%M", realmTime + GetQuestResetTime()))
         local resetHour = tonumber(string.sub(nextReset, 12, 13))
         local resetMinute = tonumber(string.sub(nextReset, 15, 16))
         local startDate = { year = 2024, month = 7, day = 23, hour = resetHour, minute = resetMinute }
 
-        -- Check if server time is a day ahead for NA-OCE players
+        -- Check if realm time is a day ahead for NA-OCE players
         local dayAhead = false
         if resetHour < 7 then
             dayAhead = true
         end
 
         local function getWeekNumberSince(startTime)
-            local currentServerTime = GetServerTime() -- Get server time as Unix timestamp
+            local currentRealmTime = realmTime -- Get realm time as Unix timestamp
             local secondsInWeek = 7 * 24 * 60 * 60
 
             -- Set start time 1 day ahead if on NA-OCE
@@ -300,7 +289,7 @@ function MC.weeklyDisplay()
                 startTime = startTime + 86400
             end
 
-            return math.floor((currentServerTime - startTime) / secondsInWeek)
+            return math.floor((currentRealmTime - startTime) / secondsInWeek)
         end
 
         local function isDunegorgerKraulokUp()
@@ -504,7 +493,7 @@ function MC.weeklyDisplay()
                                     local difficultyOutputs = {}
 
                                     for _, difficulty in ipairs(difficulties) do
-                                        local difficultyName = aura_env.difficultyNames[difficulty] or "Unknown"
+                                        local difficultyName = GetDifficultyInfo(difficulty)
                                         local isKilled = isInstanceBossKilled(instanceID, bossID, difficulty)
                                         local color = isKilled and MC.greenHex or MC.redHex
 
@@ -525,7 +514,7 @@ function MC.weeklyDisplay()
                                     local allDifficultiesKilled = true
                                     local difficultyOutputs = {}
                                     for _, difficulty in ipairs(difficulties) do
-                                        local difficultyName = aura_env.difficultyNames[difficulty] or "Unknown"
+                                        local difficultyName = GetDifficultyInfo(difficulty)
                                         local isKilled = isInstanceBossKilled(instanceID, bossID, difficulty)
                                         local color = isKilled and MC.greenHex or MC.redHex
 

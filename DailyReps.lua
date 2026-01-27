@@ -356,8 +356,8 @@ function MC.repsDisplay()
         local characterData = MasterCollectorSV[characterKey]
 
         if characterData and characterData.covenants then
-            for _, covenant in ipairs(characterData.covenants) do
-                totalAnima = totalAnima + (covenant.covenantAnima or 0)
+            for _, covenant in pairs(characterData.covenants) do
+                totalAnima = totalAnima + covenant.covenantAnima
             end
         end
 
@@ -553,11 +553,13 @@ function MC.repsDisplay()
                                 local buyorearntxt = ""
 
                                 if mountID == 1825 then
-                                    local _, achieveName = GetAchievementInfo(19466)
-                                    mountsText = mountsText ..
-                                        string.format(
-                                            "\n         %s Renown %s Required for %s for A World Awoken Meta Achievement|r\n         Mount: %s\n\n",
-                                            MC.goldHex, requiredRenownLevel, achieveName, mountName)
+                                    local _, achieveName, _, earned = GetAchievementInfo(19466)
+                                    if not earned then
+                                        mountsText = mountsText ..
+                                            string.format(
+                                                "\n         %s Renown %s Required for %s for A World Awoken Meta Achievement|r\n         Mount: %s\n\n",
+                                                MC.goldHex, requiredRenownLevel, achieveName, mountName)
+                                    end
                                     if not isCollected then
                                         table.insert(uncollectedMounts, mountName)
                                     end
@@ -1154,10 +1156,10 @@ function MC.repsDisplay()
                                                 .. "Professional Mount: ") .. "\n" or "")
                                 elseif factionID == 2517 or factionID == 2518 then
                                     if MasterCollectorSV.showMountName and #mountNames > 0 then
-                                        local _, achieveName = GetAchievementInfo(19466)
+                                        local _, achieveName, _, earned = GetAchievementInfo(19466)
                                         local output = ""
                                         for _, mountName in ipairs(mountNames) do
-                                            if mountName == "Taivan" then
+                                            if mountName == "Taivan" and not earned then
                                                 output = output ..
                                                     MC.goldHex ..
                                                     string.rep(" ", 9) ..
@@ -1165,7 +1167,7 @@ function MC.repsDisplay()
                                                     achieveName ..
                                                     " for A World Awoken Meta Achievement|r\n         Mount: " ..
                                                     mountName .. "\n"
-                                            else
+                                            elseif not earned then
                                                 output = output ..
                                                     string.rep(" ", 9) ..
                                                     "True Friend Items Purchasable for Mount: " .. mountName .. "\n"
@@ -1174,41 +1176,49 @@ function MC.repsDisplay()
                                         factionText = factionText .. output
                                     end
                                 elseif factionID == 2553 then
-                                    local _, achieveName = GetAchievementInfo(19466)
-                                    factionText = factionText ..
-                                        (MasterCollectorSV.showMountName and #mountNames > 0 and string.rep(" ", 9) .. "\n"
-                                            .. MC.goldHex .. string.rep(" ", 9) .. "Legend Required for " .. achieveName
-                                            .. " for A World Awoken Meta Achievement|r\n         Mount: " ..
-                                            table.concat(mountNames, "\n" .. string.rep(" ", 9) .. MC.goldHex .. string.rep(" ", 9)
-                                                .. "Legend Required for " .. achieveName
-                                                .. " for A World Awoken Meta Achievement|r\n         Mount: ") .. "\n\n" or "")
+                                    local _, achieveName, _, earned = GetAchievementInfo(19466)
+                                    if not earned then
+                                        factionText = factionText ..
+                                            (MasterCollectorSV.showMountName and #mountNames > 0 and string.rep(" ", 9) .. "\n"
+                                                .. MC.goldHex .. string.rep(" ", 9) .. "Legend Required for " .. achieveName
+                                                .. " for A World Awoken Meta Achievement|r\n         Mount: " ..
+                                                table.concat(mountNames, "\n" .. string.rep(" ", 9) .. MC.goldHex .. string.rep(" ", 9)
+                                                    .. "Legend Required for " .. achieveName
+                                                    .. " for A World Awoken Meta Achievement|r\n         Mount: ") .. "\n\n" or "")
+                                    end
                                 elseif factionID == 2544 then
-                                    local _, achieveName = GetAchievementInfo(19466)
-                                    factionText = factionText ..
-                                        (MasterCollectorSV.showMountName and #mountNames > 0 and string.rep(" ", 9) .. "\n"
-                                            .. MC.goldHex .. string.rep(" ", 9) .. "Esteemed Required for " .. achieveName
-                                            .. " for A World Awoken Meta Achievement|r\n         Mount: " ..
-                                            table.concat(mountNames, "\n" .. string.rep(" ", 9) .. MC.goldHex .. string.rep(" ", 9)
-                                                .. "Esteemed Required for " .. achieveName
-                                                .. " for A World Awoken Meta Achievement|r\n         Mount: ") .. "\n\n" or "")
+                                    local _, achieveName, _, earned = GetAchievementInfo(19466)
+                                    if not earned then
+                                        factionText = factionText ..
+                                            (MasterCollectorSV.showMountName and #mountNames > 0 and string.rep(" ", 9) .. "\n"
+                                                .. MC.goldHex .. string.rep(" ", 9) .. "Esteemed Required for " .. achieveName
+                                                .. " for A World Awoken Meta Achievement|r\n         Mount: " ..
+                                                table.concat(mountNames, "\n" .. string.rep(" ", 9) .. MC.goldHex .. string.rep(" ", 9)
+                                                    .. "Esteemed Required for " .. achieveName
+                                                    .. " for A World Awoken Meta Achievement|r\n         Mount: ") .. "\n\n" or "")
+                                    end
                                 elseif factionID == 2550 then
-                                    local _, achieveName = GetAchievementInfo(19466)
-                                    factionText = factionText ..
-                                        (MasterCollectorSV.showMountName and #mountNames > 0 and string.rep(" ", 9) .. "\n"
-                                            .. MC.goldHex .. string.rep(" ", 9) .. "Maximum Required for " .. achieveName
-                                            .. " for A World Awoken Meta Achievement|r\n         Mount: " ..
-                                            table.concat(mountNames, "\n" .. string.rep(" ", 9) .. MC.goldHex .. string.rep(" ", 9)
-                                                .. "Maximum Required for " .. achieveName
-                                                .. " for A World Awoken Meta Achievement|r\n         Mount: ") .. "\n\n" or "")
+                                    local _, achieveName _, achieved = GetAchievementInfo(19466)
+                                    if not achieved then
+                                        factionText = factionText ..
+                                            (MasterCollectorSV.showMountName and #mountNames > 0 and string.rep(" ", 9) .. "\n"
+                                                .. MC.goldHex .. string.rep(" ", 9) .. "Maximum Required for " .. achieveName
+                                                .. " for A World Awoken Meta Achievement|r\n         Mount: " ..
+                                                table.concat(mountNames, "\n" .. string.rep(" ", 9) .. MC.goldHex .. string.rep(" ", 9)
+                                                    .. "Maximum Required for " .. achieveName
+                                                    .. " for A World Awoken Meta Achievement|r\n         Mount: ") .. "\n\n" or "")
+                                    end
                                 elseif factionID == 2526 then
-                                    local _, achieveName = GetAchievementInfo(19466)
-                                    factionText = factionText ..
-                                        (MasterCollectorSV.showMountName and #mountNames > 0 and string.rep(" ", 9) .. "\n"
-                                            .. MC.goldHex .. string.rep(" ", 9) .. "Exalted Required for " .. achieveName
-                                            .. " for A World Awoken Meta Achievement|r\n         Mount: " ..
-                                            table.concat(mountNames, "\n" .. string.rep(" ", 9) .. MC.goldHex .. string.rep(" ", 9)
-                                                .. "Exalted Required for " .. achieveName
-                                                .. " for A World Awoken Meta Achievement|r\n         Mount: ") .. "\n\n" or "")
+                                    local _, achieveName _, achieved = GetAchievementInfo(19466)
+                                    if not achieved then
+                                        factionText = factionText ..
+                                            (MasterCollectorSV.showMountName and #mountNames > 0 and string.rep(" ", 9) .. "\n"
+                                                .. MC.goldHex .. string.rep(" ", 9) .. "Exalted Required for " .. achieveName
+                                                .. " for A World Awoken Meta Achievement|r\n         Mount: " ..
+                                                table.concat(mountNames, "\n" .. string.rep(" ", 9) .. MC.goldHex .. string.rep(" ", 9)
+                                                    .. "Exalted Required for " .. achieveName
+                                                    .. " for A World Awoken Meta Achievement|r\n         Mount: ") .. "\n\n" or "")
+                                    end
                                 elseif factionID == 1031 or factionID == 1015 then
                                     local cost = C_CurrencyInfo.GetCoinTextureString(2000000)
                                     if MasterCollectorSV.showMountName and #mountNames > 0 then

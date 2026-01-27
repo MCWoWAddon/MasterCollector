@@ -41,7 +41,7 @@ function MC.events()
     end
 
     local playerRegion = GetCurrentRegion()
-    local serverTime = GetServerTime()
+    local realmTime = GetServerTime()
 
     local function FormatTime(seconds)
         if not seconds then
@@ -164,9 +164,9 @@ function MC.events()
         local baseTime = playerRegion == 1 and 1727901000 or (playerRegion == 3 and 1729870200)
         local interval = 66600 -- 18.5 hrs in seconds
         local duration = 21600 -- 6 hrs in seconds
-        local elapsedTime = (serverTime - baseTime) % interval
-        local nextInvasionTime = serverTime - elapsedTime + interval
-        local currentMapIndex = math.floor((serverTime - baseTime) / interval) % #mapIDs + 1
+        local elapsedTime = (realmTime - baseTime) % interval
+        local nextInvasionTime = realmTime - elapsedTime + interval
+        local currentMapIndex = math.floor((realmTime - baseTime) / interval) % #mapIDs + 1
         local className = UnitClass("player")
         local invasionText = ""
         local timeLeft, currentMapName
@@ -240,7 +240,7 @@ function MC.events()
                     "Legion Invasion Active: |r" ..
                     FormatTime(duration - elapsedTime) .. "\n    Required for " .. achieveName .. " Achievement\n\n"
             else
-                local timeUntilNext = nextInvasionTime - serverTime
+                local timeUntilNext = nextInvasionTime - realmTime
                 local nextMapIndex = (currentMapIndex % #mapIDs) + 1
                 local _, nextMapName = GetInvasionInfo(mapIDs[nextMapIndex])
                 invasionText = MC.goldHex ..
@@ -307,9 +307,9 @@ function MC.events()
         local baseTime = playerRegion == 1 and 1728061200 or (playerRegion == 3 and 1728439200)
         local interval = 68400 -- 19 hrs in seconds
         local duration = 25200 -- 7 hrs in seconds
-        local elapsedTime = (serverTime - baseTime) % interval
-        local nextAssaultTime = serverTime - elapsedTime + interval
-        local cyclesPassed = math.floor((serverTime - baseTime) / interval)
+        local elapsedTime = (realmTime - baseTime) % interval
+        local nextAssaultTime = realmTime - elapsedTime + interval
+        local cyclesPassed = math.floor((realmTime - baseTime) / interval)
         local currentMapIndex = (cyclesPassed % #mapIDs) + 1
         local playerFaction = UnitFactionGroup("player")
 
@@ -402,7 +402,7 @@ function MC.events()
             if elapsedTime < duration then
                 assaultText = MC.goldHex .. "Faction Assault Active: |r" .. FormatTime(duration - elapsedTime) .. "\n"
             else
-                local timeUntilNext = nextAssaultTime - serverTime
+                local timeUntilNext = nextAssaultTime - realmTime
                 local nextMapIndex = (currentMapIndex % #mapIDs) + 1
                 local _, nextMapName = GetAssaultInfo(mapIDs[nextMapIndex])
                 local mountNamesString = getMountNamesByFaction(playerFaction)
@@ -433,9 +433,9 @@ function MC.events()
         }
 
         local baseTime = playerRegion == 1 and 1727794800 or (playerRegion == 3 and 1737514800)
-        local fullRotationInterval = 1296000 -- 15 days in seconds
+        local fullRotationInterval = 1210000 -- 14 days in seconds
         local huntDuration = 302400          -- 3 days and 12 hours in seconds
-        local elapsedTimeInRotation = (serverTime - baseTime) % fullRotationInterval
+        local elapsedTimeInRotation = (realmTime - baseTime) % fullRotationInterval
         local currentHuntIndex = (math.floor(elapsedTimeInRotation / huntDuration) % #huntNames) + 1
         local elapsedTimeInHunt = elapsedTimeInRotation % huntDuration
         local timeRemainingInHunt = huntDuration - elapsedTimeInHunt
@@ -624,7 +624,7 @@ function MC.events()
         local baseTime = playerRegion == 1 and 1728255660 or
             (playerRegion == 3 and 1728255660) -- Replace with EU base time when known
         local eventInterval = 10800            -- 3 hours in seconds
-        local elapsedTimeInRotation = (serverTime - baseTime) % eventInterval
+        local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent = eventInterval - elapsedTimeInRotation
         local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1238)
         local _, achieveName = GetAchievementInfo(13638)
@@ -650,7 +650,7 @@ function MC.events()
         local eventInterval = 3600
         local activeDuration = 900 -- 15 minutes active in seconds
         local _, achieveName, _, earned = GetAchievementInfo(19485)
-        local elapsedTimeInRotation = (serverTime - baseTime) % eventInterval
+        local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent
         local eventIsActive = elapsedTimeInRotation < activeDuration
         local playerParaflakes = C_CurrencyInfo.GetCurrencyInfo(2594).quantity
@@ -746,7 +746,7 @@ function MC.events()
                 else
                     local baseTime = playerRegion == 1 and 1733036400 or (playerRegion == 3 and 1733047200)
                     local eventInterval = 18000 -- 5 hours in seconds
-                    local elapsedTimeInRotation = (serverTime - baseTime) % eventInterval
+                    local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
                     local timeUntilNextEvent = eventInterval - elapsedTimeInRotation
 
                     eventText = MC.goldHex .. "Next The Storm's Fury Event: |r" .. FormatTime(timeUntilNextEvent) .. "\n"
@@ -776,7 +776,7 @@ function MC.events()
         local eventInterval = 7200
         local activeDuration = 3600
         local _, achieveName, _, earned = GetAchievementInfo(19483)
-        local elapsedTimeInRotation = (serverTime - baseTime) % eventInterval
+        local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent
         local eventIsActive = elapsedTimeInRotation < activeDuration
 
@@ -812,7 +812,7 @@ function MC.events()
 
             if MasterCollectorSV.hideBossesWithMountsObtained then
                 local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1825)
-                if not collected then
+                if not collected and not earned then
                     return eventText
                 end
             else
@@ -826,7 +826,7 @@ function MC.events()
         local eventInterval = 5400
         local activeDuration = 900
         local _, achieveName, _, earned = GetAchievementInfo(19482)
-        local elapsedTimeInRotation = (serverTime - baseTime) % eventInterval
+        local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent
         local eventIsActive = elapsedTimeInRotation < activeDuration
 
@@ -862,11 +862,67 @@ function MC.events()
 
             if MasterCollectorSV.hideBossesWithMountsObtained then
                 local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1825)
-                if not collected then
+                if not collected and not earned then
                     return eventText
                 end
             else
                 return eventText
+            end
+        end
+    end
+
+    local function ZaralekZones()
+        local zones = {
+            "Caldera",        -- Zone 1 (Always active)
+            "Glimmerogg",     -- Zone 2
+            "Nal Ks'Kol",     -- Zone 3
+            "Loamm",          -- Zone 4
+            "Aberrus"         -- Zone 5
+        }
+
+        local inactiveRotation = {3, 4, 5, 2}  -- Zone 1 is always active
+        local daysSinceBase = (date("*t").yday - 1) % #inactiveRotation
+        local inactiveZone = inactiveRotation[daysSinceBase + 1]
+        local activeZones = {}
+
+        for i, zone in ipairs(zones) do
+            if i ~= inactiveZone then
+                table.insert(activeZones, zone)
+            end
+        end
+
+        if MasterCollectorSV.showZCZones then
+            local eventText = MC.goldHex .. "Zaralek Active Zones: |r" .. table.concat(activeZones, ", ") .. "\n"
+
+            if inactiveZone ~= 2 then
+                local mountName = C_MountJournal.GetMountInfoByID(1732)
+                local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1732)
+                local rarityAttemptsText = ""
+                local dropChanceText = ""
+
+                if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                    if MasterCollectorSV.showRarityDetail then
+                        local dropChanceDenominator = 100
+                        local attempts = GetRarityAttempts("Cobalt Shalewing") or 0
+                        local chance = 1 / dropChanceDenominator
+                        local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+
+                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts,
+                            dropChanceDenominator)
+                        dropChanceText = string.format(" = %.2f%%)\n", cumulativeChance)
+                    end
+                end
+
+                if MasterCollectorSV.showMountName then
+                    eventText = eventText .. MC.goldHex .. "    Karokta is Active!\n    |rMount: " .. mountName .. rarityAttemptsText .. dropChanceText
+                end
+
+                if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
+                    return eventText
+                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+                    return eventText
+                end
+
             end
         end
     end
@@ -954,7 +1010,7 @@ function MC.events()
 
             if MasterCollectorSV.hideBossesWithMountsObtained then
                 local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1825)
-                if not collected then
+                if not collected and not earned then
                     return eventText
                 end
             else
@@ -1110,7 +1166,7 @@ function MC.events()
 
             if MasterCollectorSV.hideBossesWithMountsObtained then
                 local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1825)
-                if not collected then
+                if not collected and not earned then
                     return eventText
                 end
             else
@@ -1159,7 +1215,7 @@ function MC.events()
             local eventText = ""
             local baseTime = playerRegion == 1 and 1733205600 or (playerRegion == 3 and 1733209200)
             local eventInterval = 1800
-            local elapsedTimeInRotation = (serverTime - baseTime) % eventInterval
+            local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
             local timeUntilNextEvent = eventInterval - elapsedTimeInRotation
             local playerEleOverflow = C_CurrencyInfo.GetCurrencyInfo(2118).quantity
             local iconEleOverflow = C_CurrencyInfo.GetCurrencyInfo(2118).iconFileID
@@ -1289,7 +1345,7 @@ function MC.events()
     local function FroststoneVaultStorm()
         local baseTime = playerRegion == 1 and 1679576400 or (playerRegion == 3 and 1679572800)
         local eventInterval = 7200 -- 2 hours in seconds
-        local elapsedTimeInRotation = (serverTime - baseTime) % eventInterval
+        local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent = eventInterval - elapsedTimeInRotation
         local achieveMountName = C_MountJournal.GetMountInfoByID(1238)
         local _, achieveName, _, earned = GetAchievementInfo(17540)
@@ -1323,7 +1379,7 @@ function MC.events()
 
             if MasterCollectorSV.hideBossesWithMountsObtained then
                 local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1825)
-                if not collected then
+                if not collected and not earned then
                     return eventText
                 end
             else
@@ -1418,7 +1474,7 @@ function MC.events()
         local baseTime = playerRegion == 1 and 1733265000 or (playerRegion == 3 and 1733265000)
         local eventInterval = 3600 -- 1 hour in seconds
         local activeDuration = 1500
-        local elapsedTimeInRotation = (serverTime - baseTime) % eventInterval
+        local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent
         local eventIsActive = elapsedTimeInRotation < activeDuration
 
@@ -1529,7 +1585,7 @@ function MC.events()
         local baseTime = playerRegion == 1 and 1733263200 or (playerRegion == 3 and 1733263200)
         local eventInterval = 3600 -- 1 hour in seconds
         local activeDuration = 900
-        local elapsedTimeInRotation = (serverTime - baseTime) % eventInterval
+        local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent
         local eventIsActive = elapsedTimeInRotation < activeDuration
 
@@ -1563,7 +1619,7 @@ function MC.events()
                 end
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
+            if MasterCollectorSV.hideBossesWithMountsObtained and (not collected and not earned) then
                 return eventText
             elseif not MasterCollectorSV.hideBossesWithMountsObtained then
                 return eventText
@@ -1576,7 +1632,7 @@ function MC.events()
             (playerRegion == 3 and 1733265000) -- Replace with EU base time when known
         local eventInterval = 3600             -- 1 hour in seconds
         local activeDuration = 600
-        local elapsedTimeInRotation = (serverTime - baseTime) % eventInterval
+        local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent
         local eventIsActive = elapsedTimeInRotation < activeDuration
 
@@ -1668,7 +1724,7 @@ function MC.events()
             (playerRegion == 3 and 1728255660) -- Replace with EU base time when known
         local eventInterval = 10800            -- 3 hours in seconds
         local activeDuration = 1800
-        local elapsedTimeInRotation = (serverTime - baseTime) % eventInterval
+        local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent
         local eventIsActive = elapsedTimeInRotation < activeDuration
 
@@ -1737,7 +1793,7 @@ function MC.events()
         end
 
         local eventInterval = 7200
-        local elapsedTime = (serverTime - baseTime)
+        local elapsedTime = (realmTime - baseTime)
         local rotationSize = #tormentorRotation
         local currentRotationIndex = ((rotationIndex - 1 + math.floor(elapsedTime / eventInterval)) % rotationSize) + 1
 
@@ -1867,7 +1923,7 @@ function MC.events()
             end
 
             if contributionState and contributionState ~= 4 then
-                local timeRemaining = timeOfNextStateChange and (timeOfNextStateChange - serverTime) or nil
+                local timeRemaining = timeOfNextStateChange and (timeOfNextStateChange - realmTime) or nil
                 local timeRemainingText = timeRemaining and SecondsToTime(math.max(timeRemaining, 0)) or
                     "Awaiting Resources"
                 local controlText
@@ -1969,13 +2025,152 @@ function MC.events()
         end
     end
 
+    local function GetActiveNzothAssaults()
+        local majorAssaults = {
+            [57157] = "Uldum, The Black Empire Assault",
+            [56064] = "Vale of Eternal Blossoms, The Black Empire Assault"
+        }
+
+        local minorAssaults = {
+            [55350] = "Amathet Advance - Uldum",
+            [56308] = "Aqir Unearthed - Uldum",
+            [57008] = "Mogu, The Warring Clans - Vale",
+            [57728] = "Mantid, The Endless Swarm - Vale"
+        }
+
+        local assaultMounts = {
+            { { 57363 }, { 1328 }, "Xinlao",                           33,  "Xinlao",                  57008 },
+            { { 57344 }, { 1297 }, "Clutch of Ha-Li",                  33,  "Ha-Li",                   57008 },
+            { { 57345 }, { 1327 }, "Ren's Stalwart Hound",             33,  "Houndlord Ren",           57008 },
+            { { 57346 }, { 1313 }, "Pristine Cloud Serpent Scale",     50,  "Rei Lun",                 57008 },
+            { { 57259 }, { 1314 }, "Reins of the Drake of the Four Winds", 100, "Ishak of the Four Winds", 57157 },
+            { { 58696 }, { 1319 }, "Malevolent Drone",                 100, "Corpse Eater",            56308 },
+            { { 57273 }, { 1317 }, "Waste Marauder",                   33,  "Rotfeaster",              55350 }
+        }
+
+        local detectedMajor = "Unknown Major Assault"
+        local detectedMinor = "Unknown Minor Assault"
+        local majorTimeLeft = nil
+        local minorTimeLeft = nil
+        local majorMounts = {}
+        local minorMounts = {}
+
+        for questID, assaultName in pairs(majorAssaults) do
+            if C_TaskQuest.IsActive(questID) then
+                detectedMajor = assaultName
+                majorTimeLeft = C_TaskQuest.GetQuestTimeLeftSeconds(questID)
+
+                for _, mountData in ipairs(assaultMounts) do
+                    if mountData[6] == questID then
+                        local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountData[2][1])
+
+                        if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
+                            table.insert(majorMounts, { mountName, mountData[4], isCollected })
+                        end
+                    end
+                end
+
+                break
+            end
+        end
+
+        for questID, assaultName in pairs(minorAssaults) do
+            if C_TaskQuest.IsActive(questID) then
+                detectedMinor = assaultName
+                minorTimeLeft = C_TaskQuest.GetQuestTimeLeftSeconds(questID)
+
+                for _, mountData in ipairs(assaultMounts) do
+                    if mountData[6] == questID then
+                        local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountData[2][1])
+
+                        if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
+                            table.insert(minorMounts, { mountName, mountData[4], isCollected })
+                        end
+                    end
+                end
+                break
+            end
+        end
+
+        local showMajor = not MasterCollectorSV.hideBossesWithMountsObtained or #majorMounts > 0
+        local showMinor = not MasterCollectorSV.hideBossesWithMountsObtained or #minorMounts > 0
+
+        if not MasterCollectorSV.showNzothAssaults or (showMajor and not showMinor) then
+            return
+        end
+
+        local assaultDisplay = MC.goldHex .. "Current Nzoth Assaults:\n|r"
+        local hasContent = false
+
+        if showMajor then
+            assaultDisplay = assaultDisplay .. "    Major: |r" .. detectedMajor .. "\n"
+            hasContent = true
+            if majorTimeLeft then
+                assaultDisplay = assaultDisplay .. "    Time Remaining: " .. FormatTime(majorTimeLeft) .. "\n"
+            end
+
+            if #majorMounts > 0 then
+                for _, mountData in ipairs(majorMounts) do
+                    local mountName, dropChance, itemName = unpack(mountData)
+                    local rarityAttemptsText = ""
+                    local dropChanceText = ""
+
+                    if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                        if MasterCollectorSV.showRarityDetail and dropChance then
+                            local chance = 1 / dropChance
+                            local attempts = GetRarityAttempts(itemName) or 0
+                            local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                            rarityAttemptsText = string.format("  (Attempts: %d/%s", attempts, dropChance)
+                            dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                        end
+                    end
+                    if MasterCollectorSV.showMountName then
+                        assaultDisplay = assaultDisplay .. "    Mount: |r" .. mountName .. rarityAttemptsText .. dropChanceText .. "\n"
+                    end
+                end
+            end
+        end
+
+        if showMinor then
+            assaultDisplay = assaultDisplay .. "\n" .. "    Minor: |r" .. detectedMinor .. "\n"
+            hasContent = true
+            if minorTimeLeft then
+                assaultDisplay = assaultDisplay .. "    Time Remaining: " .. FormatTime(minorTimeLeft) .. "\n"
+            end
+
+            if #minorMounts > 0 then
+                for _, mountData in ipairs(minorMounts) do
+                    local mountName, dropChance, itemName = unpack(mountData)
+                    local rarityAttemptsText = ""
+                    local dropChanceText = ""
+
+                    if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                        if MasterCollectorSV.showRarityDetail and dropChance then
+                            local chance = 1 / dropChance
+                            local attempts = GetRarityAttempts(itemName) or 0
+                            local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                            rarityAttemptsText = string.format("  (Attempts: %d/%s", attempts, dropChance)
+                            dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                        end
+                    end
+                    if MasterCollectorSV.showMountName then
+                        assaultDisplay = assaultDisplay .. "    Mount: |r" .. mountName .. rarityAttemptsText .. dropChanceText .. "\n"
+                    end
+                end
+            end
+        end
+        if hasContent then
+            return assaultDisplay
+        end
+    end
+
     local function isDunegorgerAvailable()
-        local nextReset = tostring(date("%d-%m-%Y %H:%M", serverTime + GetQuestResetTime()))
+        local nextReset = tostring(date("%d-%m-%Y %H:%M", realmTime + GetQuestResetTime()))
         local resetHour = tonumber(string.sub(nextReset, 12, 13))
         local resetMinute = tonumber(string.sub(nextReset, 15, 16))
         local startDate = { year = 2024, month = 7, day = 23, hour = resetHour, minute = resetMinute }
 
-        -- Check if server time is a day ahead for NA-OCE players
+        -- Check if realm time is a day ahead for NA-OCE players
         local dayAhead = false
         if resetHour < 7 then
             dayAhead = true
@@ -1989,7 +2184,7 @@ function MC.events()
                 startTime = startTime + 86400
             end
 
-            return math.floor((serverTime - startTime) / secondsInWeek)
+            return math.floor((realmTime - startTime) / secondsInWeek)
         end
 
         local function isDunegorgerKraulokUp()
@@ -2047,6 +2242,24 @@ function MC.events()
             { "World Boss: Dunegorger Kraulok",     { 1250 },                        { "Slightly Damp Pile of Fur" },                                                                                                   { 100 } }
         }
 
+        local oceRealms = {
+            ["Aman'Thul"] = true,
+            ["Barthilas"] = true,
+            ["Caelestrasz"] = true,
+            ["Dath'Remar"] = true,
+            ["Dreadmaul"] = true,
+            ["Frostmourne"] = true,
+            ["Gundrak"] = true,
+            ["Jubei'Thos"] = true,
+            ["Khaz'goroth"] = true,
+            ["Nagrand"] = true,
+            ["Saurfang"] = true,
+            ["Thaurissan"] = true
+        }
+
+        local realmName = GetRealmName()
+        local isOCERealm = oceRealms[realmName]
+
         local monthInfo = C_Calendar.GetMonthInfo(0)
         local dayCount = monthInfo.numDays
         local currentCalendarTime = C_DateAndTime.GetCurrentCalendarTime()
@@ -2061,6 +2274,11 @@ function MC.events()
         }
 
         local currentTime = time(currentTimeTable)
+
+        if isOCERealm then
+            currentTime = currentTime - (18 * 60 * 60)
+        end
+
         local activeEvents = {}
         local output = ""
         local activeTimewalkingEvent = GetActiveTimewalkingEvent()
@@ -2089,7 +2307,7 @@ function MC.events()
                                     if MasterCollectorSV.showRarityDetail then
                                         local chance = 1 / dropChanceDenominator
                                         local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                        rarityAttemptsText = string.format("\n    (Attempts: %d/%s", attempts,
+                                        rarityAttemptsText = string.format("  (Attempts: %d/%s", attempts,
                                             dropChanceDenominator)
                                         dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                                     end
@@ -2161,8 +2379,7 @@ function MC.events()
 
                                     local mountsToShow = {}
                                     for j, mountID in ipairs(eventInfo[2]) do
-                                        local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal
-                                            .GetMountInfoByID(mountID)
+                                        local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
 
                                         if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
                                             local rarityAttemptsText, dropChanceText = "", ""
@@ -2173,7 +2390,7 @@ function MC.events()
                                                 if MasterCollectorSV.showRarityDetail then
                                                     local chance = 1 / dropChanceDenominator
                                                     local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                                    rarityAttemptsText = string.format("\n    (Attempts: %d/%s", attempts,
+                                                    rarityAttemptsText = string.format("  (Attempts: %d/%s", attempts,
                                                         dropChanceDenominator)
                                                     dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                                                 end
@@ -2224,6 +2441,7 @@ function MC.events()
         GetLegionInvasionStatus,
         GetActiveWarfrontStatus,
         GetFactionAssaultStatus,
+        GetActiveNzothAssaults,
         GetSummonFromTheDepthsStatus,
         GetCovenantAssaultStatus,
         GetBeastwarrensHuntStatus,
@@ -2233,6 +2451,7 @@ function MC.events()
         DragonbaneKeepSiege,
         IskaaraCommunityFeast,
         GrandHunts,
+        ZaralekZones,
         Dreamsurges,
         SuffusionCamp,
         ElementalStorms,

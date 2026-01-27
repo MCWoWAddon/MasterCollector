@@ -100,6 +100,7 @@ function MC.UpdateTextWrapping()
     end
 end
 
+local ADDON_NAME = ...
 local minimapRadius = 105
 function MC.CreateMinimapButton()
     if MasterCollectorSV.hideMinimapButton then
@@ -119,22 +120,28 @@ function MC.CreateMinimapButton()
         minimapButton.icon:SetTexture("Interface\\ICONS\\70_professions_scroll_03")
         minimapButton.icon:SetMask("Interface\\CharacterFrame\\TempPortraitAlphaMask")
         minimapButton:SetPoint("CENTER", Minimap, "CENTER", minimapRadius, 0)
-        minimapButton:SetScript("OnClick", function()
-            if MC.mainFrame:IsVisible() then
-                MC.mainFrame:Hide()
-                MasterCollectorSV.frameVisible = false
-            else
-                MC.mainFrame:Show()
-                MasterCollectorSV.frameVisible = true
-                if MasterCollectorSV.lastActiveTab == "Event\nGrinds" then
-                    MC.RefreshMCEvents()
+        minimapButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+        minimapButton:SetScript("OnClick", function(self,button)
+            if button == "LeftButton" then
+                if MC.mainFrame:IsVisible() then
+                    MC.mainFrame:Hide()
+                    MasterCollectorSV.frameVisible = false
+                else
+                    MC.mainFrame:Show()
+                    MasterCollectorSV.frameVisible = true
+                    if MasterCollectorSV.lastActiveTab == "Event\nGrinds" then
+                        MC.RefreshMCEvents()
+                    end
                 end
+            elseif button == "RightButton" then
+                Settings.OpenToCategory(MC.mainOptionsCategory:GetID())
             end
         end)
         minimapButton:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
-            GameTooltip:SetText("Master Collector", 1, 1, 1)
-            GameTooltip:AddLine("Click to toggle Master Collector frame", nil, nil, nil, true)
+            GameTooltip:SetText("|T" .. C_AddOns.GetAddOnMetadata(ADDON_NAME, "IconTexture") .. ":0|t " .. C_AddOns.GetAddOnMetadata(ADDON_NAME, "Title"))
+            GameTooltip:AddLine("Left Click: Show/Hide Master Collector", nil, nil, nil, true)
+            GameTooltip:AddLine("Right Click: Open Options", nil, nil, nil, true)
             GameTooltip:Show()
         end)
 
@@ -375,8 +382,7 @@ function MC.SetActiveTab(selectedButton)
         },
         [2] = { title = "Daily Lockouts", key = "Daily\nLockouts", displayFunc = MC.dailiesDisplay },
         [3] = { title = "Daily Grind Reputation Tracker", key = "Daily Rep\nGrinds", displayFunc = MC.repsDisplay },
-        [4] = { title = "Grind When You Have Time", key = "Anytime\nGrinds", displayFunc = function() MC.mainFrame.text
-                :SetText("Coming Soon!") end },
+        [4] = { title = "Grind When You Have Time", key = "Anytime\nGrinds", displayFunc = MC.grinds }, -- function() MC.mainFrame.text:SetText("Coming Soon!") end },
         [5] = { title = "Limited Time - Event Mounts", key = "Event\nGrinds", displayFunc = MC.events }
     }
 
@@ -402,3 +408,11 @@ local function OnCommandButtonClick()
 end
 
 MC.optionsButton:SetScript("OnClick", OnCommandButtonClick)
+MC.optionsButton:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:AddLine("Click to Open Options", nil, nil, nil, true)
+    GameTooltip:Show()
+end)
+MC.optionsButton:SetScript("OnLeave", function()
+    GameTooltip:Hide()
+end)

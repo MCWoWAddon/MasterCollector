@@ -8,7 +8,6 @@ MC.txtFrameTitle = MC.mainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal
 MC.txtFrameTitle:SetPoint("TOP", MC.mainFrame, "TOP", 0, -10)
 
 MC.mainFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-MC.mainFrame:RegisterEvent("PLAYER_LEAVING_WORLD")
 MC.mainFrame:RegisterEvent("UPDATE_INSTANCE_INFO")
 MC.mainFrame:RegisterEvent("ENCOUNTER_END")
 MC.mainFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -16,6 +15,7 @@ MC.mainFrame:RegisterEvent("ADDON_LOADED")
 MC.mainFrame:RegisterEvent("COVENANT_CHOSEN")
 MC.mainFrame:RegisterEvent("CINEMATIC_START")
 MC.mainFrame:RegisterEvent("PLAY_MOVIE")
+MC.mainFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 
 MC.defaultValues = {
     fontSize = 12.00,
@@ -109,11 +109,12 @@ MC.defaultValues = {
     showDFRaids = true,
     showDFDailies = true,
     cinematicSkip = false,
-    showDFRares = true,
+    showZCZones = true,
     showDFOtherReps = true,
     showArgentDailies = true,
     showBrunnhildarDailies = true,
-    showWoDDailies = true
+    showWoDDailies = true,
+    showNzothAssaults = true
 }
 
 MasterCollectorSV = MasterCollectorSV or {}
@@ -201,11 +202,12 @@ MC.checkboxNames = {
     "showDFRaids",
     "showDFDailies",
     "cinematicSkip",
-    "showDFRares",
+    "showZCZones",
     "showDFOtherReps",
     "showArgentDailies",
     "showBrunnhildarDailies",
-    "showWoDDailies"
+    "showWoDDailies",
+    "showNzothAssaults"
 }
 
 function MC.OnSlashCommand(msg)
@@ -226,6 +228,41 @@ function MC.colorsToHex(color)
     return string.format("|cff%02x%02x%02x", color[1] * 255, color[2] * 255, color[3] * 255)
 end
 
+local ADDON_NAME = ...
+
+AddonCompartmentFrame:RegisterAddon({
+    text = C_AddOns.GetAddOnMetadata(ADDON_NAME, "Title"),
+    icon = C_AddOns.GetAddOnMetadata(ADDON_NAME, "IconTexture"),
+    registerForAnyClick = true,
+    notCheckable = true,
+    func = function(_, inputData)
+        if inputData.buttonName == "RightButton" then
+            Settings.OpenToCategory(MC.mainOptionsCategory:GetID())
+        else
+            if MC.mainFrame:IsVisible() then
+                MC.mainFrame:Hide()
+                MasterCollectorSV.frameVisible = false
+            else
+                MC.mainFrame:Show()
+                MasterCollectorSV.frameVisible = true
+                if MasterCollectorSV.lastActiveTab == "Event\nGrinds" then
+                    MC.RefreshMCEvents()
+                end
+            end
+        end
+    end,
+    funcOnEnter = function(menuItem)
+        GameTooltip:SetOwner(menuItem, "ANCHOR_CURSOR")
+        GameTooltip:SetText("|T" .. C_AddOns.GetAddOnMetadata(ADDON_NAME, "IconTexture") .. ":0|t " .. C_AddOns.GetAddOnMetadata(ADDON_NAME, "Title"))
+        GameTooltip:AddLine("Left Click: Show/Hide Master Collector", nil, nil, nil, true)
+        GameTooltip:AddLine("Right Click: Open Options", nil, nil, nil, true)
+        GameTooltip:Show()
+    end,
+    funcOnLeave = function()
+        GameTooltip:Hide()
+    end,
+})
+
 function MC.InitializeColors()
     -- Initialize the hex values from saved variables
     local goldColor = MasterCollectorSV["goldFontColor"] or { 1, 1, 1 }
@@ -237,9 +274,17 @@ function MC.InitializeColors()
     MC.redHex = MC.colorsToHex(redColor)
 end
 
+local function handleGrindsUpdate()
+    if MasterCollectorSV.frameVisible then
+        if MasterCollectorSV.lastActiveTab == "Event\nGrinds" then
+            MC.RefreshMCEvents()
+        end
+    end
+end
+
 local cinematicHandled = false
-MC.mainFrame:SetScript("OnEvent", function(self, event, addonname)
-    if event == "ADDON_LOADED" and addonname == "MasterCollector" then
+MC.mainFrame:SetScript("OnEvent", function(self, event, ...)
+    if event == "ADDON_LOADED" and ... == "MasterCollector" then
         for key, value in pairs(MC.defaultValues) do
             if MasterCollectorSV[key] == nil then
                 MasterCollectorSV[key] = value
@@ -255,22 +300,29 @@ MC.mainFrame:SetScript("OnEvent", function(self, event, addonname)
         MC.UpdateMainFrameSize()
         MC.InitializeColors()
 
+        if MC.UpdateSavedInstances then
+            MC.UpdateSavedInstances()
+        end
+
         print(string.format(
             "|cffffff00MasterCollector|r: Cinematic skipping is %s.",
             MasterCollectorSV.cinematicSkip and "|cff00ff00enabled|r" or "|cffff0000disabled|r"
         ))
     end
 
-    if event == "PLAYER_ENTERING_WORLD" or event == "UPDATE_INSTANCE_INFO" or event == "ENCOUNTER_END"
-        or event == "PLAYER_REGEN_ENABLED" or event == "COVENANT_CHOSEN" or event == "ZONE_CHANGED_NEW_AREA" then
+    if event == "PLAYER_ENTERING_WORLD" or event == "UPDATE_INSTANCE_INFO" or event == "ENCOUNTER_END" or
+    event == "PLAYER_REGEN_ENABLED" or event == "ZONE_CHANGED_NEW_AREA" or event == "COVENANT_CHOSEN" then
         MC.InitializeColors()
         MC.weeklyDisplay()
         MC.repsDisplay()
         MC.dailiesDisplay()
-        --MC.UpdateActiveIslands()
-        if MasterCollectorSV.frameVisible and MasterCollectorSV.lastActiveTab == "Event\nGrinds" then
-            MC.RefreshMCEvents()
-        end
+        handleGrindsUpdate()
+    end
+
+    if MC.UpdateSavedInstances and (event == "PLAYER_ENTERING_WORLD" or event == "ENCOUNTER_END" or
+        event == "UPDATE_INSTANCE_INFO") then
+        MC.UpdateSavedInstances()
+        MC.grinds()
     end
 
     if event == "CINEMATIC_START" or event == "PLAY_MOVIE" then
