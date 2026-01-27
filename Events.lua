@@ -9,13 +9,12 @@ function MC.events()
 
     if MC.mainFrame and MC.mainFrame.text then
         local font, _, flags = GameFontNormal:GetFont()
-        MC.mainFrame.text:SetFont(font, fontSize, flags)
+        MC.mainFrame.text:SetFont("P", font, fontSize, flags)
     end
 
     function MC.RefreshMCEvents()
         if MasterCollectorSV.frameVisible and MasterCollectorSV.lastActiveTab == "Event\nGrinds" then
-            MC.events() -- Call MC.events() to refresh the timer
-            -- Schedule the next refresh after 60 seconds
+            MC.events()
             C_Timer.After(60, MC.RefreshMCEvents)
         end
     end
@@ -85,9 +84,9 @@ function MC.events()
         local mountID
 
         if faction == "Alliance" then
-            mountID = 775 -- Alliance mount ID
+            mountID = 775
         elseif faction == "Horde" then
-            mountID = 784 -- Horde mount ID
+            mountID = 784
         end
 
         local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
@@ -102,18 +101,14 @@ function MC.events()
                         local questId = info and info.questID
                         if questID and HaveQuestData(questId) and QuestUtils_IsQuestWorldQuest(questId) then
                             if questId == questID then
-                                local mapName = C_Map.GetMapInfo(mapID) and C_Map.GetMapInfo(mapID).name or
-                                    "Fetching Map Failed, Retrying in 60 Seconds."
+                                local mapName = C_Map.GetMapInfo(mapID) and C_Map.GetMapInfo(mapID).name or "Fetching Map Failed, Retrying in 60 Seconds."
                                 local duration = C_TaskQuest.GetQuestTimeLeftSeconds(questId)
 
-                                WQtext = WQtext ..
-                                    "    " ..
-                                    mapName ..
-                                    ": " .. questName .. "\n    Time Remaining: " .. FormatTime(duration) .. "\n"
+                                WQtext = WQtext .. string.format("%s%s: %s\n%sTime Remaining: %s\n", string.rep(" ", 4), mapName, questName, string.rep(" ", 4), FormatTime(duration))
                                 foundWQ = true
 
                                 if MasterCollectorSV.showMountName then
-                                    WQtext = WQtext .. string.format("    Mount: %s\n", mountName or "Unknown Mount")
+                                    WQtext = WQtext .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n", string.rep(" ", 4), MC.blueHex, mountID, mountName)
                                 end
                             end
                         end
@@ -129,9 +124,7 @@ function MC.events()
                 end
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
-                return WQtext
-            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                 return WQtext
             end
         end
@@ -156,7 +149,7 @@ function MC.events()
             ["Warlock"] = { 898, 930, 931 },
             ["Priest"] = { 861 },
             ["Mage"] = { 860 },
-            ["Demon Hunter"] = { 868 },
+            ["Demon Hunter"] = { 868 }
         }
 
         local allCollected = true
@@ -180,11 +173,12 @@ function MC.events()
             for _, mountID in ipairs(mountIDs) do
                 local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
                 if mountName then
+                    local link = string.format("%s|Hmount:%d|h[%s]|h|r", MC.blueHex, mountID, mountName)
                     if not collected then
                         allCollected = false
-                        table.insert(uncollectedMounts, mountName)
+                        table.insert(uncollectedMounts, link)
                     end
-                    table.insert(mountNames, mountName)
+                    table.insert(mountNames, link)
                 end
             end
 
@@ -211,47 +205,29 @@ function MC.events()
                 if timeLeft and timeLeft > 0 then
                     local nextMapIndex = (currentMapIndex % #mapIDs) + 1
                     local _, nextMapName = GetInvasionInfo(mapIDs[nextMapIndex])
-                    invasionText = MC.goldHex ..
-                        "Current Legion Invasion: |r" ..
-                        currentMapName ..
-                        " (" ..
-                        FormatTime(timeLeft) .. " left)" .. "\n    Required for " .. achieveName .. " Achievement\n\n"
+                    invasionText = string.format("%sCurrent Legion Invasion: |r%s (%s Remaining)\n%sRequired for %s Achievement\n\n", MC.goldHex, currentMapName, FormatTime(timeLeft), string.rep(" ", 4), achieveName)
 
                     if MasterCollectorSV.showMountName then
-                        invasionText = invasionText ..
-                            "    Mounts for " .. className .. ": " .. mountNamesString .. "\n\n"
+                        invasionText = invasionText .. string.format("%sClass Mounts (%s): %s\n\n", string.rep(" ", 4), className, mountNamesString)
                     end
 
-                    invasionText = invasionText ..
-                        MC.goldHex ..
-                        "Next Legion Invasion: |r" ..
-                        (nextMapName or "Fetching Map Failed, Retrying in 60 Seconds.") .. "\n"
-
-                    if not achieved and MasterCollectorSV.hideBossesWithMountsObtained then
-                        return invasionText
-                    elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                        return invasionText
-                    end
+                    invasionText = invasionText .. string.format("%sNext Legion Invasion: |r%s\n", MC.goldHex, (nextMapName or "Fetching Map Failed, Retrying in 60 Seconds."))
+                    break
                 end
             end
 
-            if elapsedTime < duration then
-                invasionText = MC.goldHex ..
-                    "Legion Invasion Active: |r" ..
-                    FormatTime(duration - elapsedTime) .. "\n    Required for " .. achieveName .. " Achievement\n\n"
-            else
-                local timeUntilNext = nextInvasionTime - realmTime
-                local nextMapIndex = (currentMapIndex % #mapIDs) + 1
-                local _, nextMapName = GetInvasionInfo(mapIDs[nextMapIndex])
-                invasionText = MC.goldHex ..
-                    "Next Legion Invasion: |r" ..
-                    (nextMapName or "Fetching Map Failed, Retrying in 60 Seconds.") ..
-                    " in " .. FormatTime(timeUntilNext) .. "\n"
+            if not invasionText then
+                if elapsedTime < duration then
+                    invasionText = string.format("%sLegion Invasion Active: |r%s\n%sRequired for %s Achievement\n\n", MC.goldHex, FormatTime(duration - elapsedTime), string.rep(" ", 4), achieveName)
+                else
+                    local timeUntilNext = nextInvasionTime - realmTime
+                    local nextMapIndex = (currentMapIndex % #mapIDs) + 1
+                    local _, nextMapName = GetInvasionInfo(mapIDs[nextMapIndex])
+                    invasionText = string.format("%sNext Legion Invasion: |r%s in %s\n", MC.goldHex, (nextMapName or "Fetching Map Failed, Retrying in 60 Seconds."), FormatTime(timeUntilNext))
+                end
             end
 
-            if not achieved and MasterCollectorSV.hideBossesWithMountsObtained then
-                return invasionText
-            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not achieved then
                 return invasionText
             end
         end
@@ -358,10 +334,7 @@ function MC.events()
                 local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
 
                 if mountName then
-                    local line = mountName ..
-                        " " ..
-                        MC.goldHex ..
-                        playerCurrency .. " / " .. cost .. " Service Medals " .. iconSize .. " Required|r\n"
+                    local line = string.format("%s%s|Hmount:%d|h[%s]|h|r %s%s / %s Service Medals %s Required|r\n", string.rep(" ", 4), MC.blueHex, mountID, mountName, MC.goldHex, playerCurrency, cost, iconSize)
 
                     if not collected then
                         allCollected = false
@@ -372,9 +345,9 @@ function MC.events()
             end
 
             if not allCollected then
-                return table.concat(uncollectedMounts, "    ")
+                return table.concat(uncollectedMounts, string.rep(" ", 4))
             else
-                return table.concat(mountDetails, "    ")
+                return table.concat(mountDetails, string.rep(" ", 4))
             end
         end
 
@@ -383,55 +356,40 @@ function MC.events()
                 timeLeft, currentMapName = GetAssaultInfo(mapID)
                 if timeLeft and timeLeft > 0 then
                     local mountNamesString = getMountNamesByFaction(playerFaction)
-                    assaultText = MC.goldHex ..
-                        "Current Faction Assault: |r" .. currentMapName .. " (" .. FormatTime(timeLeft) .. " Remaining\n"
+                    assaultText = string.format("%sCurrent Faction Assault: |r%s (%s Remaining)\n", MC.goldHex, currentMapName, FormatTime(timeLeft))
 
                     if MasterCollectorSV.showMountName then
-                        assaultText = assaultText ..
-                            "    Mounts for " .. playerFaction .. ": " .. mountNamesString
+                        assaultText = assaultText .. string.format("%sMounts for %s:\n%s%s", string.rep(" ", 4), playerFaction, string.rep(" ", 4), mountNamesString)
                     end
 
-                    if MasterCollectorSV.hideBossesWithMountsObtained and not allCollected then
-                        return assaultText
-                    elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+                    if not MasterCollectorSV.hideBossesWithMountsObtained or not allCollected then
                         return assaultText
                     end
                 end
             end
 
             if elapsedTime < duration then
-                assaultText = MC.goldHex .. "Faction Assault Active: |r" .. FormatTime(duration - elapsedTime) .. "\n"
+                assaultText = string.format("%sFaction Assault Active: |r%s\n", MC.goldHex, FormatTime(duration - elapsedTime))
             else
                 local timeUntilNext = nextAssaultTime - realmTime
                 local nextMapIndex = (currentMapIndex % #mapIDs) + 1
                 local _, nextMapName = GetAssaultInfo(mapIDs[nextMapIndex])
                 local mountNamesString = getMountNamesByFaction(playerFaction)
-                assaultText = MC.goldHex ..
-                    "Next Faction Assault: |r" ..
-                    (nextMapName or "Fetching Map Failed, Retrying in 60 Seconds.") ..
-                    " in " .. FormatTime(timeUntilNext) .. "\n"
+                assaultText = string.format("%sNext Faction Assault: |r%s in %s\n", MC.goldHex, (nextMapName or "Fetching Map Failed, Retrying in 60 Seconds."), FormatTime(timeUntilNext))
 
                 if MasterCollectorSV.showMountName then
-                    assaultText = assaultText .. "    Mounts for " .. playerFaction .. ": " .. mountNamesString
+                    assaultText = assaultText .. string.format("%sMounts for %s: \n%s%s", string.rep(" ", 4), playerFaction, string.rep(" ", 4), mountNamesString)
                 end
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained and not allCollected then
-                return assaultText
-            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not allCollected then
                 return assaultText
             end
         end
     end
 
     local function GetBeastwarrensHuntStatus()
-        local huntNames = {
-            "Shadehounds",
-            "Soul Eaters",
-            "Death Elementals",
-            "Winged Soul Eaters"
-        }
-
+        local huntNames = {"Shadehounds", "Soul Eaters", "Death Elementals", "Winged Soul Eaters"}
         local baseTime = playerRegion == 1 and 1727794800 or (playerRegion == 3 and 1737514800)
         local fullRotationInterval = 1210000 -- 14 days in seconds
         local huntDuration = 302400          -- 3 days and 12 hours in seconds
@@ -439,67 +397,46 @@ function MC.events()
         local currentHuntIndex = (math.floor(elapsedTimeInRotation / huntDuration) % #huntNames) + 1
         local elapsedTimeInHunt = elapsedTimeInRotation % huntDuration
         local timeRemainingInHunt = huntDuration - elapsedTimeInHunt
-        local shadehoundsMountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1304)
-        local achieveMountName = C_MountJournal.GetMountInfoByID(1504)
+        local shadehoundsMountID = 1304
+        local shadehoundsMountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(shadehoundsMountID)
+        local achieveMountID = 1504
+        local achieveMountName = C_MountJournal.GetMountInfoByID(achieveMountID)
         local _, achieveName, _, achieved = GetAchievementInfo(14738)
         local dropChanceDenominator = 50
         local attempts = GetRarityAttempts(shadehoundsMountName) or 0
-        local rarityAttemptsText = ""
-        local dropChanceText = ""
+        local rarityAttemptsText, dropChanceText = "", ""
 
         if MasterCollectorSV.showRarityDetail then
             local chance = 1 / dropChanceDenominator
             local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-            rarityAttemptsText = string.format("\n     (Attempts: %d/%s", attempts, dropChanceDenominator)
+            rarityAttemptsText = string.format("%s(Attempts: %d/%s", string.rep(" ", 4), attempts, dropChanceDenominator)
             dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
         end
 
         if MasterCollectorSV.showBeastwarrensHuntTimer then
             local huntText = ""
+
             if timeRemainingInHunt > 0 then
-                huntText = MC.goldHex ..
-                    "Current Maw Beastwarrens Hunt: |r" ..
-                    huntNames[currentHuntIndex] ..
-                    "\n" .. "     Time Remaining: " .. FormatTime(timeRemainingInHunt) .. "\n"
+                huntText = string.format("%sCurrent Maw Beastwarrens Hunt: |r%s\n%sTime Remaining: %s\n", MC.goldHex, huntNames[currentHuntIndex], string.rep(" ", 5), FormatTime(timeRemainingInHunt))
 
                 if MasterCollectorSV.showMountName then
                     if huntNames[currentHuntIndex] == "Shadehounds" and (not MasterCollectorSV.hideBossesWithMountsObtained or not collected) then
-                        huntText = huntText ..
-                            "    " .. shadehoundsMountName .. rarityAttemptsText .. dropChanceText .. "\n"
+                        huntText = huntText .. string.format("%s%s|Hmount:%d|h[%s]|h|r%s%s\n", string.rep(" ", 4), MC.blueHex, shadehoundsMountID, shadehoundsMountName, rarityAttemptsText, dropChanceText)
                     end
 
-                    if not achieved then
-                        huntText = huntText ..
-                            "\n    " ..
-                            MC.goldHex ..
-                            achieveName ..
-                            " yet to be Completed for Breaking the Chains Meta Achievement|r\n    Mount: " ..
-                            achieveMountName .. "\n"
-                    else
-                        huntText = huntText ..
-                            "\n    " ..
-                            MC.goldHex ..
-                            achieveName ..
-                            " for Breaking the Chains Meta Achievement |r\n    Mount: " .. achieveMountName .. "\n"
-                    end
+                    huntText = huntText .. string.format("\n%s%s%s%s%sMount: %s|Hmount:%d|h[%s]|h|r\n", string.rep(" ", 4), MC.goldHex, achieveName, (achieved and " for Breaking the Chains Meta Achievement Complete|r\n" or " yet to be Completed for Breaking the Chains Meta Achievement|r\n"),
+                    string.rep(" ", 4), MC.blueHex, achieveMountID, achieveMountName)
                 end
             end
 
             local nextHuntIndex = (currentHuntIndex % #huntNames) + 1
-            huntText = huntText ..
-                "\n" .. MC.goldHex .. "Next Maw Beastwarrens Hunt: |r" .. huntNames[nextHuntIndex] .. "\n"
-            if MasterCollectorSV.showMountName then
-                if huntNames[nextHuntIndex] == "Shadehounds" and not MasterCollectorSV.hideBossesWithMountsObtained then
-                    huntText = huntText ..
-                        "     Mount: " .. shadehoundsMountName .. rarityAttemptsText .. dropChanceText .. "\n"
-                elseif huntNames[nextHuntIndex] == "Shadehounds" and not collected then
-                    huntText = huntText ..
-                        "     Mount: " .. shadehoundsMountName .. rarityAttemptsText .. dropChanceText .. "\n"
-                end
+            huntText = huntText .. string.format("%s\nNext Maw Beastwarrens Hunt: |r%s\n", MC.goldHex, huntNames[nextHuntIndex])
+
+            if MasterCollectorSV.showMountName and huntNames[nextHuntIndex] == "Shadehounds" then
+                huntText = huntText .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r%s%s\n", string.rep(" ", 5), MC.blueHex, shadehoundsMountID, shadehoundsMountName, rarityAttemptsText, dropChanceText)
             end
-            if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
-                return huntText
-            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                 return huntText
             end
         end
@@ -522,8 +459,10 @@ function MC.events()
         local currentAssaultID
         local currentAssaultSecondsLeft
         local _, achieveName, _, achieved = GetAchievementInfo(15035)
-        local achieve1MountName = C_MountJournal.GetMountInfoByID(1504)
-        local achieve2MountName = C_MountJournal.GetMountInfoByID(2114)
+        local achieve1MountID = 1504
+        local achieve2MountID = 2114
+        local achieve1MountName = C_MountJournal.GetMountInfoByID(achieve1MountID)
+        local achieve2MountName = C_MountJournal.GetMountInfoByID(achieve2MountID)
 
         for assaultID in pairs(assaultIDs) do
             local secondsLeft = C_AreaPoiInfo.GetAreaPOISecondsLeft(assaultID)
@@ -541,17 +480,9 @@ function MC.events()
                 local mountID = mountIDs[currentAssaultID]
                 if mountID then
                     local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
-                    if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
+                    if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                         if not questCompleted then
-                            return MC.goldHex .. "Current Maw Assault: |r\n" ..
-                                "    Please complete Chapter 2 of the Chains of Domination questline, Maw Walkers.\n"
-                        else
-                            return MC.goldHex .. "Fetching Maw Assault Status... Standby |r\n"
-                        end
-                    elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                        if not questCompleted then
-                            return MC.goldHex .. "Current Maw Assault: |r\n" ..
-                                "    Please complete Chapter 2 of the Chains of Domination questline, Maw Walkers.\n"
+                            return string.format("%sCurrent Maw Assault: |r\n%sPlease complete Chapter 2 of the Chains of Domination questline, Maw Walkers.\n", MC.goldHex, string.rep(" ", 4))
                         else
                             return MC.goldHex .. "Fetching Maw Assault Status... Standby |r\n"
                         end
@@ -567,56 +498,30 @@ function MC.events()
             local mountID = mountIDs[currentAssaultID]
             if mountID then
                 local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
-                local assaultDisplay = MC.goldHex ..
-                    "Current Maw Assault: |r" ..
-                    assaultName .. "\n" .. "    Time Remaining: " .. FormatTime(currentAssaultSecondsLeft) .. "\n"
+                local assaultDisplay = string.format("%sCurrent Maw Assault: |r%s%s\nTime Remaining: %s\n", MC.goldHex, assaultName, string.rep(" ", 4), FormatTime(currentAssaultSecondsLeft))
                 local attempts = GetRarityAttempts(mountName) or 0
 
                 if MasterCollectorSV.showRarityDetail then
                     local chance = 1 / dropChanceDenominator
                     local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                    rarityAttemptsText = string.format("     (Attempts: %d/%s", attempts, dropChanceDenominator)
+                    rarityAttemptsText = string.format("%s(Attempts: %d/%s", string.rep(" ", 5), attempts, dropChanceDenominator)
                     dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                 end
 
                 if MasterCollectorSV.showMountName then
-                    assaultDisplay = assaultDisplay ..
-                        "    Mount: |r" .. mountName .. "\n" .. rarityAttemptsText .. dropChanceText .. "\n"
-                    if not achieved then
-                        assaultDisplay = assaultDisplay ..
-                            "\n    " ..
-                            MC.goldHex ..
-                            achieveName ..
-                            " yet to be Completed for Breaking the Chains Meta Achievement|r\n     Mount: " ..
-                            achieve1MountName .. "\n"
-                        assaultDisplay = assaultDisplay ..
-                            "\n    " ..
-                            MC.goldHex ..
-                            achieveName ..
-                            " yet to be Completed for Back from the Beyond Meta Achievement|r\n     Mount: " ..
-                            achieve2MountName .. "\n"
-                    elseif achieved then
-                        assaultDisplay = assaultDisplay ..
-                            "\n    " ..
-                            MC.goldHex ..
-                            achieveName ..
-                            " for Breaking the Chains Meta Achievement|r\n     Mount: " .. achieve1MountName .. "\n"
-                        assaultDisplay = assaultDisplay ..
-                            "\n    " ..
-                            MC.goldHex ..
-                            achieveName ..
-                            " for Back from the Beyond Meta Achievement|r\n     Mount: " .. achieve2MountName .. "\n"
-                    end
+                    assaultDisplay = assaultDisplay .. string.format("%sMount: |r%s|Hmount:%d|h[%s]|h|r\n%s%s\n", string.rep(" ", 4), MC.blueHex, mountID, mountName, rarityAttemptsText, dropChanceText)
+
+                    local statusBreaking = achieved and " for Breaking the Chains Meta Achievement Complete|r\n" or " yet to be Completed for Breaking the Chains Meta Achievement|r\n"
+                    local statusBeyond = achieved and " for Back from the Beyond Meta Achievement Complete|r\n" or " yet to be Completed for Back from the Beyond Meta Achievement|r\n"
+
+                    assaultDisplay = assaultDisplay .. string.format("%s\n%s%s%s%sMount: %s|Hmount:%d|h[%s]|h|r\n\n%s%s%s%sMount: %s|Hmount:%d|h[%s]|h|r\n", string.rep(" ", 4), MC.goldHex, achieveName, statusBreaking, string.rep(" ", 4), MC.blueHex, achieve1MountID, achieve1MountName,
+                        string.rep(" ", 4), MC.goldHex, achieveName, statusBeyond, string.rep(" ", 4), MC.blueHex, achieve2MountID, achieve2MountName)
                 end
 
-                if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
-                    return assaultDisplay
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                     return assaultDisplay
                 end
             end
-        else
-            return nil
         end
     end
 
@@ -626,20 +531,18 @@ function MC.events()
         local eventInterval = 10800            -- 3 hours in seconds
         local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent = eventInterval - elapsedTimeInRotation
-        local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1238)
+        local depthsMountID = 1238
+        local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(depthsMountID)
         local _, achieveName = GetAchievementInfo(13638)
 
         if MasterCollectorSV.showSummonDepthsTimer then
-            local eventText = MC.goldHex .. "Next Summon from the Depths: |r" .. FormatTime(timeUntilNextEvent) .. "\n"
+            local eventText = string.format("%sNext Summon from the Depths: |r%s\n", MC.goldHex, FormatTime(timeUntilNextEvent))
 
             if MasterCollectorSV.showMountName then
-                eventText = eventText ..
-                    string.format("    %s Achievement Mount: %s\n", achieveName, mountName or "Unknown Mount")
+                eventText = eventText .. string.format("%sAchievement Mount: %s|Hmount:%d|h[%s]|h|r\n%s%sRequired for %s Achievement|r\n", string.rep(" ", 4), MC.blueHex, depthsMountID, mountName, string.rep(" ", 4), MC.goldHex, achieveName)
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
-                return eventText
-            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                 return eventText
             end
         end
@@ -677,14 +580,12 @@ function MC.events()
         if MasterCollectorSV.showTimeRiftsTimer then
             local eventText
             if eventIsActive then
-                eventText = MC.goldHex ..
-                    "Time Rift Active! Ends in: |r" .. FormatTime(timeUntilNextEvent) .. " Remaining\n"
+                eventText = string.format("%sTime Rift Active!|r%sTime Remaining\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             else
-                eventText = MC.goldHex .. "Next Time Rift: |r" .. FormatTime(timeUntilNextEvent) .. "\n"
+                eventText = string.format("%sNext Time Rift: |r%s\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             end
 
-            local achieveText = string.format("\n%s    %s %s for A World Awoken Meta Achievement|r\n", MC.goldHex,
-                achieveName, not earned and "yet to be Completed" or "")
+            local achieveText = string.format("\n%s%s%s %s for A World Awoken Meta Achievement%s|r\n", MC.goldHex, string.rep(" ", 4), achieveName, not earned and "yet to be Completed" or "", earned and " Complete" or "")
             local uncollectedMounts = {}
             local mountOutput = ""
             local achieveMountOutput = ""
@@ -694,24 +595,19 @@ function MC.events()
                 local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
                 if mountID == 1618 then
                     if MasterCollectorSV.showMountName and mountName then
-                        local mountText = "    Mount: " .. mountName .. "\n"
+                        local mountText =  string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n", string.rep(" ", 4), MC.blueHex, mountID, mountName)
                         achieveMountOutput = achieveText .. mountText
                     end
                 else
                     if not collected then
-                        allMountsCollected = false -- Found an uncollected mount
+                        allMountsCollected = false
                         if MasterCollectorSV.hideBossesWithMountsObtained then
                             table.insert(uncollectedMounts, mountID)
                         end
                     end
                     if MasterCollectorSV.showMountName and mountName then
                         if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
-                            mountOutput = mountOutput ..
-                                "    Mount: " ..
-                                mountName ..
-                                " " ..
-                                MC.goldHex ..
-                                playerParaflakes .. " / 3000 " .. " Paracausal Flakes " .. iconSize .. " Required|r\n"
+                            mountOutput = mountOutput .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r %s%s / 3000 Paracausal Flakes %s Required|r\n", string.rep(" ", 4), MC.blueHex, mountID, mountName, MC.goldHex, playerParaflakes, iconSize)
                         end
                     end
                 end
@@ -731,11 +627,16 @@ function MC.events()
     local function TheStormsFuryEvent()
         local questID = 74378
         local questName = C_TaskQuest.GetQuestInfoByQuestID(questID)
-        local eventText = string.format("%sActive %s Event:|r ", MC.goldHex, questName)
-        local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1478)
+        local eventText = string.format("%s%s Event Active!|r ", MC.goldHex, questName)
+        local stormsfuryMountID = 1478
+        local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(stormsfuryMountID)
         local playerEleOverflow = C_CurrencyInfo.GetCurrencyInfo(2118).quantity
         local iconEleOverflow = C_CurrencyInfo.GetCurrencyInfo(2118).iconFileID
         local iconSize = CreateTextureMarkup(iconEleOverflow, 32, 32, 16, 16, 0, 1, 0, 1)
+        local baseTime = playerRegion == 1 and 1733036400 or (playerRegion == 3 and 1733047200)
+        local eventInterval = 18000 -- 5 hours in seconds
+        local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
+        local timeUntilNextEvent = eventInterval - elapsedTimeInRotation
 
         if MasterCollectorSV.showStormsFuryTimer then
             if questID and HaveQuestData(questID) and QuestUtils_IsQuestWorldQuest(questID) then
@@ -744,28 +645,15 @@ function MC.events()
                 if duration then
                     eventText = eventText .. FormatTime(duration) .. " Remaining\n"
                 else
-                    local baseTime = playerRegion == 1 and 1733036400 or (playerRegion == 3 and 1733047200)
-                    local eventInterval = 18000 -- 5 hours in seconds
-                    local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
-                    local timeUntilNextEvent = eventInterval - elapsedTimeInRotation
-
-                    eventText = MC.goldHex .. "Next The Storm's Fury Event: |r" .. FormatTime(timeUntilNextEvent) .. "\n"
+                    eventText = string.format("%sNext The Storm's Fury Event: |r%s\n", MC.goldHex, FormatTime(timeUntilNextEvent))
                 end
 
                 if MasterCollectorSV.showMountName then
-                    eventText = eventText ..
-                        "    Mount: " ..
-                        mountName ..
-                        "\n    " ..
-                        MC.goldHex ..
-                        playerEleOverflow ..
-                        " / 3000 " .. " Elemental Overflow " .. iconSize .. " & 150 Essence of the Storm Required|r\n"
+                    eventText = eventText .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n%s%s%s / 3000 Elemental Overflow %s & 150 Essence of the Storm Required|r\n", string.rep(" ", 4), MC.blueHex, stormsfuryMountID, mountName, string.rep(" ", 4), MC.goldHex, playerEleOverflow, iconSize)
                 end
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
-                return eventText
-            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                 return eventText
             end
         end
@@ -779,6 +667,8 @@ function MC.events()
         local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent
         local eventIsActive = elapsedTimeInRotation < activeDuration
+        local siegeMountID = 1651
+        local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(siegeMountID)
 
         if eventIsActive then
             timeUntilNextEvent = activeDuration - elapsedTimeInRotation
@@ -789,33 +679,17 @@ function MC.events()
         if MasterCollectorSV.showDragonbaneKeepTimer then
             local eventText
             if eventIsActive then
-                eventText = MC.goldHex ..
-                    "Siege of Dragonbane Keep Active! Ends in: |r" .. FormatTime(timeUntilNextEvent) .. " Remaining\n"
+                eventText = string.format("%sSiege of Dragonbane Keep Active!|r %s Remaining\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             else
-                eventText = MC.goldHex .. "Next Siege of Dragonbane Keep: |r" .. FormatTime(timeUntilNextEvent) .. "\n"
+                eventText = string.format("%sNext Siege of Dragonbane Keep: |r%s\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             end
 
             if MasterCollectorSV.showMountName then
-                local mountName = C_MountJournal.GetMountInfoByID(1651)
-                if not earned then
-                    eventText = eventText ..
-                        string.format(
-                            "\n%s    %s yet to be Completed for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex,
-                            achieveName, mountName)
-                else
-                    eventText = eventText ..
-                        string.format("\n%s    %s for A World Awoken Meta Achievement|r\n    Mount: %s\n", MC.goldHex,
-                            achieveName, mountName)
-                end
+                eventText = eventText .. string.format("\n%s%s%s%s|r\n%sMount: %s|Hmount:%d|h[%s]|h|r\n", MC.goldHex, string.rep(" ", 4), achieveName, (earned and " for A World Awoken Meta Achievement Complete" or " yet to be Completed for for A World Awoken Meta Achievement"),
+                string.rep(" ", 4), MC.blueHex, siegeMountID, mountName)
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained then
-                local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1825)
-                if not collected and not earned then
-                    return eventText
-                end
-            else
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                 return eventText
             end
         end
@@ -829,6 +703,8 @@ function MC.events()
         local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent
         local eventIsActive = elapsedTimeInRotation < activeDuration
+        local feastMountID = 1633
+        local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(feastMountID)
 
         if eventIsActive then
             timeUntilNextEvent = activeDuration - elapsedTimeInRotation
@@ -839,33 +715,17 @@ function MC.events()
         if MasterCollectorSV.showFeastTimer then
             local eventText
             if eventIsActive then
-                eventText = MC.goldHex ..
-                    "Iskaara Community Feast Active! Ends in: |r" .. FormatTime(timeUntilNextEvent) .. " Remaining\n"
+                eventText = string.format("%sIskaara Community Feast Active!|r %s Remaining\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             else
-                eventText = MC.goldHex .. "Next Iskaara Community Feast: |r" .. FormatTime(timeUntilNextEvent) .. "\n"
+                eventText = string.format("%sNext Iskaara Community Feast: |r%s\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             end
 
             if MasterCollectorSV.showMountName then
-                local mountName = C_MountJournal.GetMountInfoByID(1633)
-                if not earned then
-                    eventText = eventText ..
-                        string.format(
-                            "\n%s    %s yet to be Completed for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex,
-                            achieveName, mountName)
-                else
-                    eventText = eventText ..
-                        string.format("\n%s    %s for A World Awoken Meta Achievement|r\n    Mount: %s\n", MC.goldHex,
-                            achieveName, mountName)
-                end
+                eventText = eventText .. string.format("\n%s%s%s%s|r\n%sMount: %s|Hmount:%d|h[%s]|h|r\n", MC.goldHex, string.rep(" ", 4), achieveName, (earned and " for A World Awoken Meta Achievement Complete" or " yet to be Completed for for A World Awoken Meta Achievement"),
+                string.rep(" ", 4), MC.blueHex, feastMountID, mountName)
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained then
-                local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1825)
-                if not collected and not earned then
-                    return eventText
-                end
-            else
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                 return eventText
             end
         end
@@ -892,13 +752,12 @@ function MC.events()
         end
 
         if MasterCollectorSV.showZCZones then
-            local eventText = MC.goldHex .. "Zaralek Active Zones: |r" .. table.concat(activeZones, ", ") .. "\n"
+            local eventText = string.format("%sZaralek Active Zones: %s|r\n", MC.goldHex, table.concat(activeZones, ", "))
 
             if inactiveZone ~= 2 then
-                local mountName = C_MountJournal.GetMountInfoByID(1732)
-                local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1732)
-                local rarityAttemptsText = ""
-                local dropChanceText = ""
+                local zaralekMountID = 1732
+                local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(zaralekMountID)
+                local rarityAttemptsText, dropChanceText = "", ""
 
                 if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
                     if MasterCollectorSV.showRarityDetail then
@@ -907,22 +766,18 @@ function MC.events()
                         local chance = 1 / dropChanceDenominator
                         local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
 
-                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts,
-                            dropChanceDenominator)
+                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
                         dropChanceText = string.format(" = %.2f%%)\n", cumulativeChance)
                     end
                 end
 
                 if MasterCollectorSV.showMountName then
-                    eventText = eventText .. MC.goldHex .. "    Karokta is Active!\n    |rMount: " .. mountName .. rarityAttemptsText .. dropChanceText
+                    eventText = eventText .. string.format("%s%sKarokta is Active!|r\n%sMount: %s|Hmount:%d|h[%s]|h|r%s%s", MC.goldHex, string.rep(" ", 4), string.rep(" ", 4), MC.blueHex, zaralekMountID, mountName, rarityAttemptsText, dropChanceText)
                 end
 
-                if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
-                    return eventText
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                     return eventText
                 end
-
             end
         end
     end
@@ -961,6 +816,8 @@ function MC.events()
 
         local activeMapID, _, activeHuntName = GetActiveHunt()
         local _, achieveName, _, earned = GetAchievementInfo(19481)
+        local huntMountID = 1474
+        local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(huntMountID)
 
         if MasterCollectorSV.showHuntsTimer then
             local eventText
@@ -971,49 +828,26 @@ function MC.events()
                 if secondsLeft then
                     local mapInfo = C_Map.GetMapInfo(mapID)
                     local mapName = mapInfo and mapInfo.name or "Unknown Map"
-                    secondsLeftMessage = string.format("%s\n    Time Remaining: %s\n    ", mapName,
-                        FormatTime(secondsLeft))
+                    secondsLeftMessage = string.format("%s\n%sTime Remaining: %s\n%s", mapName, string.rep(" ", 4), FormatTime(secondsLeft), string.rep(" ", 4))
                 end
             end
 
             if secondsLeftMessage ~= "" then
                 if activeMapID then
-                    eventText = MC.goldHex ..
-                        "Grand Hunt Is Currently: |r" .. activeHuntName .. "\n    " .. secondsLeftMessage
+                    eventText = string.format("%sGrand Hunt Is Currently: |r%s\n%s%s", MC.goldHex, activeHuntName, string.rep(" ", 4), secondsLeftMessage)
                 else
-                    eventText = MC.goldHex ..
-                        "Grand Hunt Is Currently: |r" ..
-                        secondsLeftMessage ..
-                        MC.redHex .. "\n    Please visit Active Hunt Zone to determine exact location.|r\n"
+                    eventText = string.format("%sGrand Hunt Is Currently: |r%s\n%sPlease visit Active Hunt Zone to determine exact location.|r\n", MC.goldHex, secondsLeftMessage, MC.redHex, string.rep(" ", 4))
                 end
             else
-                eventText = MC.goldHex ..
-                    "Grand Hunt Is Currently: |r" ..
-                    MC.redHex ..
-                    "Unable to determine Dragon Isles Grand Hunt location. Please visit a Dragon Isles zone.|r\n"
+                eventText = string.format("%sGrand Hunt Is Currently: |r%sUnable to determine Dragon Isles Grand Hunt location. Please visit a Dragon Isles zone.|r\n", MC.goldHex, MC.redHex)
             end
 
             if MasterCollectorSV.showMountName then
-                local mountName = C_MountJournal.GetMountInfoByID(1474)
-                if not earned then
-                    eventText = eventText ..
-                        string.format(
-                            "\n%s    %s yet to be Completed for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex,
-                            achieveName, mountName)
-                else
-                    eventText = eventText ..
-                        string.format("\n%s    %s for A World Awoken Meta Achievement|r\n    Mount: %s\n", MC.goldHex,
-                            achieveName, mountName)
-                end
+                eventText = eventText .. string.format("\n%s%s%s%s|r\n%sMount: %s|Hmount:%d|h[%s]|h|r\n", MC.goldHex, string.rep(" ", 4), achieveName, (earned and " for A World Awoken Meta Achievement Complete" or " yet to be Completed for for A World Awoken Meta Achievement"),
+                string.rep(" ", 4), MC.blueHex, huntMountID, mountName)
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained then
-                local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1825)
-                if not collected and not earned then
-                    return eventText
-                end
-            else
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                 return eventText
             end
         end
@@ -1025,12 +859,6 @@ function MC.events()
             [2022] = { 7556, 7603 }, -- The Waking Shores
             [2025] = { 7553, 7602 }, -- Thaldraszus
             [2024] = { 7554, 7605 }  -- The Azure Span
-        }
-
-        local mountIDs = {
-            1614, -- Stormtouched Bruffalon
-            1645, -- Renewed Magmammoth
-            1671, -- Duskwing Ohuna
         }
 
         local function CalculateNextPortalTime()
@@ -1054,8 +882,7 @@ function MC.events()
                         local mapInfo = C_Map.GetMapInfo(mapID)
                         local mapName = mapInfo and mapInfo.name or "Unknown Map"
 
-                        secondsLeftMessage = secondsLeftMessage ..
-                            string.format("%s\n    Time Remaining: %s\n    ", mapName, FormatTime(secondsLeft))
+                        secondsLeftMessage = secondsLeftMessage .. string.format("%s\n%sTime Remaining: %s\n", mapName, string.rep(" ", 4), FormatTime(secondsLeft))
                         break
                     end
                 end
@@ -1064,59 +891,31 @@ function MC.events()
             local _, achieveName, _, earned = GetAchievementInfo(19008)
             local eventText = MC.goldHex .. "Dreamsurge Is Currently: |r" .. secondsLeftMessage
             local timeToNext = CalculateNextPortalTime()
-            local portalMessage = string.format("    Next Waking Dream Portal: |r%s", FormatTime(timeToNext))
+            local portalMessage = string.format("%sNext Waking Dream Portal: |r%s", string.rep(" ", 4), FormatTime(timeToNext))
+            local currencyMountID = 1671
+            local currencyMountName, _, _, _, _, _, _, _, _, _, collected1 = C_MountJournal.GetMountInfoByID(currencyMountID)
+            local wakingDreamMountID = 1645
+            local wakingDreamMountName, _, _, _, _, _, _, _, _, _, collected2 = C_MountJournal.GetMountInfoByID(wakingDreamMountID)
+            local achieveMountID = 1614
+            local achieveMountName = C_MountJournal.GetMountInfoByID(achieveMountID)
 
             if MasterCollectorSV.showMountName then
-                local currencyMountName, _, _, _, _, _, _, _, _, _, collected1 = C_MountJournal.GetMountInfoByID(1671)
-                local wakingDreamMountName, _, _, _, _, _, _, _, _, _, collected2 = C_MountJournal.GetMountInfoByID(1645)
-                local achieveMountName = C_MountJournal.GetMountInfoByID(1614)
-
-                if MasterCollectorSV.hideBossesWithMountsObtained and not collected1 then
-                    eventText = eventText ..
-                        "Mount: " ..
-                        currencyMountName ..
-                        "\n    (Requires 1000 Dreamsurge Coalescence)\n\n" .. MC.goldHex .. portalMessage .. "|r\n"
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    eventText = eventText ..
-                        "Mount: " ..
-                        currencyMountName ..
-                        "\n    (Requires 1000 Dreamsurge Coalescence)\n\n" .. MC.goldHex .. portalMessage .. "|r\n"
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not collected1 then
+                    eventText = eventText .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n%s(Requires 1000 Dreamsurge Coalescence)\n\n%s%s|r\n", string.rep(" ", 4), MC.blueHex, currencyMountID, currencyMountName, string.rep(" ", 4), MC.goldHex, portalMessage)
                 end
 
-                if MasterCollectorSV.hideBossesWithMountsObtained and not collected2 then
-                    eventText = eventText ..
-                        string.format("    Mount: %s\n    (combine 20 Elemental Remains)\n",
-                            wakingDreamMountName or "Unknown Mount")
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    eventText = eventText ..
-                        string.format("    Mount: %s\n    (combine 20 Elemental Remains)\n",
-                            wakingDreamMountName or "Unknown Mount")
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not collected2 then
+                    eventText = eventText .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n%s(combine 20 Elemental Remains)\n", string.rep(" ", 4), MC.blueHex, wakingDreamMountID, wakingDreamMountName, string.rep(" ", 4))
                 end
 
-                if not earned then
-                    eventText = eventText ..
-                        string.format(
-                            "\n%s    %s yet to be Completed for Across the Isles for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex, achieveName, achieveMountName)
-                else
-                    eventText = eventText ..
-                        string.format(
-                            "\n%s    %s for Across the Isles for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex,
-                            achieveName, achieveMountName)
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not earned then
+                    eventText = eventText .. string.format("\n%s%s%s%s|r\n%sMount: %s|Hmount:%d|h[%s]|h|r\n", MC.goldHex, string.rep(" ", 4), achieveName, (earned and " for Across the Isles for A World Awoken Meta Achievement Complete" or " yet to be Completed for Across the Isles for A World Awoken Meta Achievement"),
+                    string.rep(" ", 4), MC.blueHex, achieveMountID, achieveMountName)
                 end
-            else
-                eventText = eventText .. "\n" .. MC.goldHex .. portalMessage .. "|r\n"
             end
+            eventText = eventText .. string.format("\n%s%s|r\n", MC.goldHex, portalMessage)
 
-            if MasterCollectorSV.hideBossesWithMountsObtained then
-                for _, mountID in ipairs(mountIDs) do
-                    local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
-                    if not collected then
-                        return eventText
-                    end
-                end
-            else
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected1 or not collected2 or not earned then
                 return eventText
             end
         end
@@ -1137,39 +936,23 @@ function MC.events()
                         local mapInfo = C_Map.GetMapInfo(mapID)
                         local mapName = mapInfo and mapInfo.name or "Unknown Map"
 
-                        secondsLeftMessage = secondsLeftMessage ..
-                            string.format("%s\n    Time Remaining: %s\n    ", mapName, FormatTime(secondsLeft))
+                        secondsLeftMessage = secondsLeftMessage .. string.format("%s\n%sTime Remaining: %s\n", mapName, string.rep(" ", 4), FormatTime(secondsLeft))
                         break
                     end
                 end
             end
 
             local _, achieveName, _, earned = GetAchievementInfo(18867)
+            local achieveMountID = 1614
+            local achieveMountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(achieveMountID)
             local eventText = MC.goldHex .. "Suffusion Camp Is Currently: |r" .. secondsLeftMessage
 
             if MasterCollectorSV.showMountName then
-                local achieveMountName = C_MountJournal.GetMountInfoByID(1614)
-
-                if not earned then
-                    eventText = eventText ..
-                        string.format(
-                            "\n%s    %s yet to be Completed for Across the Isles for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex, achieveName, achieveMountName)
-                else
-                    eventText = eventText ..
-                        string.format(
-                            "\n%s    %s for Across the Isles for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex,
-                            achieveName, achieveMountName)
-                end
+                eventText = eventText .. string.format("\n%s%s%s%s|r\n%sMount: %s|Hmount:%d|h[%s]|h|r\n", MC.goldHex, string.rep(" ", 4), achieveName, (earned and " for Across the Isles for A World Awoken Meta Achievement Complete" or " yet to be Completed for Across the Isles for A World Awoken Meta Achievement"),
+                string.rep(" ", 4), MC.blueHex, achieveMountID, achieveMountName)
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained then
-                local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1825)
-                if not collected and not earned then
-                    return eventText
-                end
-            else
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                 return eventText
             end
         end
@@ -1228,10 +1011,7 @@ function MC.events()
                         if poiInfo then
                             local mapInfo = C_Map.GetMapInfo(mapID)
                             local mapName = mapInfo and mapInfo.name or "Unknown Map"
-                            table.insert(activeStorms, {
-                                name = stormType,
-                                map = mapName
-                            })
+                            table.insert(activeStorms, {name = stormType, map = mapName})
 
                             -- Set timer display to the first valid timer
                             if not timerDisplay and secondsLeft then
@@ -1254,89 +1034,45 @@ function MC.events()
             end
 
             if #activeStorms ~= 0 then
-                eventText = eventText .. MC.goldHex .. "Active Elemental Storms: |r"
+                eventText = eventText .. string.format("%sActive Elemental Storms: |r", MC.goldHex)
                 if timerDisplay then
                     eventText = eventText .. timerDisplay
                 end
                 for _, storm in ipairs(activeStorms) do
-                    eventText = eventText .. string.format("\n    %s (%s)", storm.map, storm.name)
+                    eventText = eventText .. string.format("\n%s%s (%s)", string.rep(" ", 4), storm.map, storm.name)
                 end
                 if #activeStorms < 2 then
-                    eventText = eventText ..
-                        "\n\n" ..
-                        MC.redHex .. "Unable to determine Another Storm. Please visit a Dragon Isles Zone to verify.|r"
+                    eventText = eventText .. string.format("\n\n%sUnable to determine Another Storm. Please visit a Dragon Isles Zone to verify.|r", MC.redHex)
                 end
             else
                 eventText = eventText .. MC.goldHex .. "Next Elemental Storms: |r" .. FormatTime(timeUntilNextEvent)
             end
 
             local _, achieveName, _, earned = GetAchievementInfo(16492)
+            local currencyMountID1 = 1622
+            local currencyMountID2 = 1467
+            local achieveMountID = 1621
+            local currencyMountName1, _, _, _, _, _, _, _, _, _, collected1 = C_MountJournal.GetMountInfoByID(currencyMountID1)
+            local currencyMountName2, _, _, _, _, _, _, _, _, _, collected2 = C_MountJournal.GetMountInfoByID(currencyMountID2)
+            local achieveMountName = C_MountJournal.GetMountInfoByID(1621)
+            local overflowTexture = CreateTextureMarkup(iconEleOverflow, 32, 32, 16, 16, 0, 1, 0, 1)
+
             if MasterCollectorSV.showMountName then
-                local currencyMountName1, _, _, _, _, _, _, _, _, _, collected1 = C_MountJournal.GetMountInfoByID(1622)
-                local currencyMountName2, _, _, _, _, _, _, _, _, _, collected2 = C_MountJournal.GetMountInfoByID(1467)
-                local achieveMountName = C_MountJournal.GetMountInfoByID(1621)
-
-                if MasterCollectorSV.hideBossesWithMountsObtained and not collected1 then
-                    eventText = eventText ..
-                        "\n    Mount: " ..
-                        currencyMountName1 ..
-                        MC.goldHex ..
-                        "\n    " ..
-                        playerEleOverflow ..
-                        " / 2,000 Elemental Overflow " ..
-                        CreateTextureMarkup(iconEleOverflow, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    eventText = eventText ..
-                        "\n    Mount: " ..
-                        currencyMountName1 ..
-                        MC.goldHex ..
-                        "\n    " ..
-                        playerEleOverflow ..
-                        " / 2,000 Elemental Overflow " ..
-                        CreateTextureMarkup(iconEleOverflow, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not collected1 then
+                    eventText = eventText .. string.format("\n%sMount: %s|Hmount:%d|h[%s]|h|r\n%s%s%s / 2,000 Elemental Overflow %s Required|r\n", string.rep(" ", 4), MC.blueHex, currencyMountID1, currencyMountName1, MC.goldHex, string.rep(" ", 4), playerEleOverflow, overflowTexture)
                 end
 
-                if MasterCollectorSV.hideBossesWithMountsObtained and not collected2 then
-                    eventText = eventText ..
-                        "\n    Mount: " ..
-                        currencyMountName2 ..
-                        MC.goldHex ..
-                        "\n    " ..
-                        playerEleOverflow ..
-                        " / 100,000 Elemental Overflow " ..
-                        CreateTextureMarkup(iconEleOverflow, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    eventText = eventText ..
-                        "\n    Mount: " ..
-                        currencyMountName2 ..
-                        MC.goldHex ..
-                        "\n    " ..
-                        playerEleOverflow ..
-                        " / 100,000 Elemental Overflow " ..
-                        CreateTextureMarkup(iconEleOverflow, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not collected2 then
+                    eventText = eventText .. string.format("\n%sMount: %s|Hmount:%d|h[%s]|h|r\n%s%s%s / 100,000 Elemental Overflow %s Required|r\n", string.rep(" ", 4), MC.blueHex, currencyMountID2, currencyMountName2, MC.goldHex, string.rep(" ", 4), playerEleOverflow, overflowTexture)
                 end
 
-                if not earned then
-                    eventText = eventText ..
-                        string.format(
-                            "\n%s    %s yet to be Completed for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex,
-                            achieveName, achieveMountName)
-                else
-                    eventText = eventText ..
-                        string.format("\n%s    %s for A World Awoken Meta Achievement|r\n    Mount: %s\n", MC.goldHex,
-                            achieveName, achieveMountName)
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not earned then
+                    eventText = eventText .. string.format("\n%s%s%s%s|r\n%sMount: |r%s|Hmount:%d|h[%s]|h|r\n", MC.goldHex, string.rep(" ", 4), achieveName, (earned and " for A World Awoken Meta Achievement Complete" or " yet to be Completed for A World Awoken Meta Achievement"),
+                    string.rep(" ", 4), MC.blueHex, achieveMountID, achieveMountName)
                 end
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained then
-                for _, mountID in ipairs(mountIDs) do
-                    local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
-                    if not collected then
-                        return eventText
-                    end
-                end
-            else
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected1 or not collected2 or not earned then
                 return eventText
             end
         end
@@ -1347,42 +1083,27 @@ function MC.events()
         local eventInterval = 7200 -- 2 hours in seconds
         local elapsedTimeInRotation = (realmTime - baseTime) % eventInterval
         local timeUntilNextEvent = eventInterval - elapsedTimeInRotation
-        local achieveMountName = C_MountJournal.GetMountInfoByID(1238)
+        local achieveMountID = 1825
+        local achieveMountName = C_MountJournal.GetMountInfoByID(achieveMountID)
         local _, achieveName, _, earned = GetAchievementInfo(17540)
+        local currencyMountID = 1627
+        local currencyMountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(currencyMountID)
 
         if MasterCollectorSV.showFroststoneStormTimer then
-            local eventText = MC.goldHex ..
-                "Next Froststone Vault Primal Storm: |r" .. FormatTime(timeUntilNextEvent) .. "\n"
+            local eventText = string.format("%sNext Froststone Vault Primal Storm: |r%s\n", MC.goldHex, FormatTime(timeUntilNextEvent))
 
             if MasterCollectorSV.showMountName then
-                local currencyMountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1627)
-                if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
-                    eventText = eventText ..
-                        "    Mount: " .. currencyMountName .. "\n    (combine 50 Leftover Elemental Slime)\n"
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    eventText = eventText ..
-                        "    Mount: " .. currencyMountName .. "\n    (combine 50 Leftover Elemental Slime)\n"
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
+                    eventText = eventText .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n%s(combine 50 Leftover Elemental Slime)\n", string.rep(" ", 4), MC.blueHex, currencyMountID, currencyMountName, string.rep(" ", 4))
                 end
 
-                if not earned then
-                    eventText = eventText ..
-                        string.format(
-                            "\n%s    %s yet to be Completed for You Know How to Reach Me for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex, achieveName, achieveMountName)
-                else
-                    eventText = eventText ..
-                        string.format(
-                            "\n%s    %s for You Know How to Reach Me for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex, achieveName, achieveMountName)
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not earned then
+                    eventText = eventText .. string.format("\n%s%s%s%s|r\n%sMeta Achievement Mount: %s|Hmount:%d|h[%s]|h|r\n", MC.goldHex, string.rep(" ", 4), achieveName, (earned and " You Know How to Reach Me for A World Awoken Meta Achievement Complete" or " yet to be Completed for You Know How to Reach Me for A World Awoken Meta Achievement"),
+                    string.rep(" ", 4), MC.blueHex, achieveMountID, achieveMountName)
                 end
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained then
-                local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1825)
-                if not collected and not earned then
-                    return eventText
-                end
-            else
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected or not earned then
                 return eventText
             end
         end
@@ -1411,7 +1132,8 @@ function MC.events()
 
         local _, achieveName, _, earned = GetAchievementInfo(16570)
         local WQtext = string.format("%s%s Achievement WQ/s Active:|r\n", MC.goldHex, achieveName)
-        local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1669)
+        local albumMountID = 1669
+        local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(albumMountID)
         local foundWQ = false
 
         if MasterCollectorSV.showLegendaryAlbumTimer then
@@ -1426,7 +1148,7 @@ function MC.events()
                         local questId = info and info.questID
                         if questID and HaveQuestData(questId) and QuestUtils_IsQuestWorldQuest(questId) then
                             if questId == questID then
-                                allQuestNames = allQuestNames .. "    " .. questName .. "\n"
+                                allQuestNames = string.format("%s%s%s\n", allQuestNames, string.rep(" ", 4), questName)
                                 overallDuration = C_TaskQuest.GetQuestTimeLeftSeconds(questId)
                             end
                         end
@@ -1434,7 +1156,7 @@ function MC.events()
                 end
             end
             if allQuestNames ~= "" and overallDuration then
-                WQtext = WQtext .. "    Time Remaining: " .. FormatTime(overallDuration) .. "\n\n"
+                WQtext = WQtext .. string.format("%sTime Remaining: %s\n\n", string.rep(" ", 4), FormatTime(overallDuration))
                 WQtext = WQtext .. allQuestNames .. "\n"
                 foundWQ = true
             end
@@ -1449,22 +1171,13 @@ function MC.events()
             end
 
             if MasterCollectorSV.showMountName then
-                if not earned then
-                    WQtext = WQtext ..
-                        string.format(
-                            "%s    %s yet to be Completed for Across the Isles for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex, achieveName, mountName)
-                else
-                    WQtext = WQtext ..
-                        string.format(
-                            "%s    %s for Across the Isles for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex, achieveName, mountName)
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not earned then
+                    WQtext = WQtext .. string.format("%s%s%s%s|r\n%sMount: %s|Hmount:%d|h[%s]|h|r\n", MC.goldHex, string.rep(" ", 4), achieveName, (earned and " Across the Isles for A World Awoken Meta Achievement Complete" or " yet to be Completed for Across the Isles for A World Awoken Meta Achievement"),
+                    string.rep(" ", 4), MC.blueHex, albumMountID, mountName)
                 end
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
-                return WQtext
-            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected or not earned then
                 return WQtext
             end
         end
@@ -1484,98 +1197,58 @@ function MC.events()
             timeUntilNextEvent = eventInterval - elapsedTimeInRotation
         end
 
-
-        local achieveMountName = C_MountJournal.GetMountInfoByID(1733)
-        local _, achieveName, _, earned = GetAchievementInfo(17781)
-        local dropMountName, _, _, _, _, _, _, _, _, _, collected3 = C_MountJournal.GetMountInfoByID(1735)
         local dropChanceDenominator = 33
-        local rarityAttemptsText = ""
-        local dropChanceText = ""
+        local rarityAttemptsText, dropChanceText = "", ""
         local attempts = GetRarityAttempts("Flaming Shalewing Subject 01") or 0
-
-        local mountIDs = {
-            1603, -- Subterranean Magmammoth
-            1730, -- Igneous Shalewing
-            1735, -- Cataloged Shalewing
-            1733, -- Calescent Shalewing
-        }
 
         if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
             if MasterCollectorSV.showRarityDetail then
                 local chance = 1 / dropChanceDenominator
                 local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                rarityAttemptsText = string.format("     (Attempts: %d/%s", attempts, dropChanceDenominator)
+                rarityAttemptsText = string.format("%s(Attempts: %d/%s", string.rep(" ", 5), attempts, dropChanceDenominator)
                 dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
             end
         end
 
+        local currencyMountID1 = 1603
+        local currencyMountID2 = 1730
+        local dropMountID = 1735
+        local achieveMountID = 1733
+        local currencyMountName1, _, _, _, _, _, _, _, _, _, collected1 = C_MountJournal.GetMountInfoByID(currencyMountID1)
+        local currencyMountName2, _, _, _, _, _, _, _, _, _, collected2 = C_MountJournal.GetMountInfoByID(currencyMountID2)
+        local dropMountName, _, _, _, _, _, _, _, _, _, collected3 = C_MountJournal.GetMountInfoByID(dropMountID)
+        local achieveMountName = C_MountJournal.GetMountInfoByID(achieveMountID)
+        local _, achieveName, _, earned = GetAchievementInfo(17781)
+
         if MasterCollectorSV.showResearchersUnderFireTimer then
             local eventText
             if eventIsActive then
-                eventText = MC.goldHex ..
-                    "Researchers Under Fire Active! Ends in: |r" .. FormatTime(timeUntilNextEvent) .. " Remaining\n"
+                eventText = string.format("%sResearchers Under Fire Active! %s|r Remaining\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             else
-                eventText = MC.goldHex ..
-                    "Next Researchers Under Fire Event: |r" .. FormatTime(timeUntilNextEvent) .. "\n"
+                eventText = string.format("%sNext Researchers Under Fire Event: |r", MC.goldHex, FormatTime(timeUntilNextEvent))
             end
 
             if MasterCollectorSV.showMountName then
-                local currencyMountName1, _, _, _, _, _, _, _, _, _, collected1 = C_MountJournal.GetMountInfoByID(1603)
-                local currencyMountName2, _, _, _, _, _, _, _, _, _, collected2 = C_MountJournal.GetMountInfoByID(1730)
-
-                if MasterCollectorSV.hideBossesWithMountsObtained and not collected1 then
-                    eventText = eventText ..
-                        "    Mount: " ..
-                        currencyMountName1 ..
-                        "\n    (Requires 100 Unearthed Fragrant Coin to trade for Coveted Baubles)\n"
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    eventText = eventText ..
-                        "    Mount: " ..
-                        currencyMountName1 ..
-                        "\n    (Requires 100 Unearthed Fragrant Coin to trade for Coveted Baubles)\n"
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not collected1 then
+                    eventText = eventText .. string.format("\n%sMount: %s|Hmount:%d|h[%s]|h|r\n%s(Requires 100 Unearthed Fragrant Coin to trade for Coveted Baubles)\n", string.rep(" ", 4), MC.blueHex, currencyMountID1, currencyMountName1, string.rep(" ", 4))
                 end
 
-                if MasterCollectorSV.hideBossesWithMountsObtained and not collected2 then
-                    eventText = eventText ..
-                        "\n    Mount: " ..
-                        currencyMountName2 ..
-                        "\n    (Requires 400 Unearthed Fragrant Coin to trade for Coveted Baubles)\n"
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    eventText = eventText ..
-                        "\n    Mount: " ..
-                        currencyMountName2 ..
-                        "\n    (Requires 400 Unearthed Fragrant Coin to trade for Coveted Baubles)\n"
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not collected2 then
+                    eventText = eventText .. string.format("\n%sMount: %s|Hmount:%d|h[%s]|h|r\n%s(Requires 400 Unearthed Fragrant Coin to trade for Coveted Baubles)\n", string.rep(" ", 4), MC.blueHex, currencyMountID2, currencyMountName2, string.rep(" ", 4))
                 end
 
-                if MasterCollectorSV.hideBossesWithMountsObtained and not collected3 then
-                    eventText = eventText ..
-                        "\n    Mount: " .. dropMountName .. "\n" .. rarityAttemptsText .. dropChanceText .. "\n"
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    eventText = eventText ..
-                        "\n    Mount: " .. dropMountName .. "\n" .. rarityAttemptsText .. dropChanceText .. "\n"
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not collected3 then
+                    eventText = eventText .. string.format("\n%sMount: %s|Hmount:%d|h[%s]|h|r%s%s\n", string.rep(" ", 4), MC.blueHex, dropMountID, dropMountName, rarityAttemptsText, dropChanceText)
                 end
 
-                if not earned then
-                    eventText = eventText ..
-                        string.format(
-                            "\n%s    %s yet to be Completed for Que Zara(lek), Zara(lek) for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex, achieveName, achieveMountName)
-                else
-                    eventText = eventText ..
-                        string.format(
-                            "\n%s    %s for Que Zara(lek), Zara(lek) for A World Awoken Meta Achievement|r\n    Mount: %s\n",
-                            MC.goldHex, achieveName, achieveMountName)
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not earned then
+                    eventText = eventText .. string.format("\n%s%s%s%s|r\n%sMount: %s|Hmount:%d|h[%s]|h|r\n", MC.goldHex, string.rep(" ", 4), achieveName,
+                    (earned and " for Que Zara(lek), Zara(lek) for A World Awoken Meta Achievement Complete" or " yet to be Completed for for Que Zara(lek), Zara(lek) for A World Awoken Meta Achievement"),
+                    string.rep(" ", 4), MC.blueHex, achieveMountID, achieveMountName)
                 end
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained then
-                for _, mountID in ipairs(mountIDs) do
-                    local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
-                    if not collected then
-                        return eventText
-                    end
-                end
-            else
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected1 or not collected2 or not collected3 or not earned then
                 return eventText
             end
         end
@@ -1595,33 +1268,24 @@ function MC.events()
             timeUntilNextEvent = eventInterval - elapsedTimeInRotation
         end
 
-        local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(1825)
         local _, achieveName, _, earned = GetAchievementInfo(19318)
+        local achieveMountID = 1825
+        local achieveMountName = C_MountJournal.GetMountInfoByID(achieveMountID)
 
         if MasterCollectorSV.showSuperbloomTimer then
             local eventText
             if eventIsActive then
-                eventText = MC.goldHex ..
-                    "Superbloom Active! Ends in: |r" .. FormatTime(timeUntilNextEvent) .. " Remaining\n"
+                eventText = string.format("%sSuperbloom Active! %s|r Remaining\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             else
-                eventText = MC.goldHex .. "Next Superbloom: |r" .. FormatTime(timeUntilNextEvent) .. "\n"
+                eventText = string.format("%sNext Superbloom: |r%s\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             end
 
             if MasterCollectorSV.showMountName then
-                if not earned then
-                    eventText = eventText ..
-                        string.format("\n%s    %s yet to be Completed for A World Awoken Meta Achievement|r\n",
-                            MC.goldHex,
-                            achieveName)
-                else
-                    eventText = eventText ..
-                        string.format("\n%s    %s for A World Awoken Meta Achievement|r\n", MC.goldHex, achieveName)
-                end
+                eventText = eventText .. string.format("\n%s%s%s%s|r\n%sMeta Achievement Mount: %s|Hmount:%d|h[%s]|h|r\n", MC.goldHex, string.rep(" ", 4), achieveName, (earned and " for A World Awoken Meta Achievement Complete" or " yet to be Completed for A World Awoken Meta Achievement"),
+                string.rep(" ", 4), MC.blueHex, achieveMountID, achieveMountName)
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained and (not collected and not earned) then
-                return eventText
-            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not earned then
                 return eventText
             end
         end
@@ -1642,25 +1306,22 @@ function MC.events()
             timeUntilNextEvent = eventInterval - elapsedTimeInRotation
         end
 
-        local dropMountName, _, _, _, _, _, _, _, _, _, collected1 = C_MountJournal.GetMountInfoByID(2038)
-        local currencyMountName, _, _, _, _, _, _, _, _, _, collected2 = C_MountJournal.GetMountInfoByID(1638)
+        local currencyMountID = 1638
+        local dropMountID = 2038
+        local currencyMountName, _, _, _, _, _, _, _, _, _, collected1 = C_MountJournal.GetMountInfoByID(currencyMountID)
+        local dropMountName, _, _, _, _, _, _, _, _, _, collected2 = C_MountJournal.GetMountInfoByID(dropMountID)
         local dropChanceDenominator = 200
-        local rarityAttemptsText = ""
-        local dropChanceText = ""
+        local rarityAttemptsText, dropChanceText = "", ""
         local attempts = GetRarityAttempts(dropMountName) or 0
         local playerMysteriousFragments = C_CurrencyInfo.GetCurrencyInfo(2657).quantity
         local iconMysteriousFragments = C_CurrencyInfo.GetCurrencyInfo(2657).iconFileID
-
-        local mountIDs = {
-            2038, -- Clayscale Hornstrider
-            1638, -- Explorer's Stonehide Packbeast
-        }
+        local fragmentTexture = CreateTextureMarkup(iconMysteriousFragments, 32, 32, 16, 16, 0, 1, 0, 1)
 
         if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
             if MasterCollectorSV.showRarityDetail then
                 local chance = 1 / dropChanceDenominator
                 local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                rarityAttemptsText = string.format("     (Attempts: %d/%s", attempts, dropChanceDenominator)
+                rarityAttemptsText = string.format("%s(Attempts: %d/%s", string.rep(" ", 5), attempts, dropChanceDenominator)
                 dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
             end
         end
@@ -1668,45 +1329,22 @@ function MC.events()
         if MasterCollectorSV.showBigDigTimer then
             local eventText
             if eventIsActive then
-                eventText = MC.goldHex ..
-                    "The Big Dig: Traitors Rest Event Active! Ends in: |r" ..
-                    FormatTime(timeUntilNextEvent) .. " Remaining\n"
+                eventText = string.format("%sThe Big Dig: Traitors Rest Event Active! |r%s Remaining\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             else
-                eventText = MC.goldHex ..
-                    "Next The Big Dig: Traitors Rest Event: |r" .. FormatTime(timeUntilNextEvent) .. "\n"
+                eventText = string.format("%sNext The Big Dig: Traitors Rest Event: |r%s\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             end
 
             if MasterCollectorSV.showMountName then
-                if MasterCollectorSV.hideBossesWithMountsObtained and not collected1 then
-                    eventText = eventText ..
-                        "    Mount: " ..
-                        currencyMountName ..
-                        MC.goldHex ..
-                        "\n    " ..
-                        playerMysteriousFragments ..
-                        " / 20,000 Mysterious Fragments  " ..
-                        CreateTextureMarkup(iconMysteriousFragments, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    eventText = eventText .. "    Mount: " .. currencyMountName .. MC.goldHex .. "\n    " .. playerMysteriousFragments .. " / 20,000 Mysterious Fragments  " .. CreateTextureMarkup(iconMysteriousFragments, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not collected1 then
+                    eventText = eventText .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n%s%s%s / 20,000 Mysterious Fragments %s Required|r\n", string.rep(" ", 5), MC.blueHex, currencyMountID, currencyMountName, MC.goldHex, string.rep(" ", 5), playerMysteriousFragments, fragmentTexture)
                 end
 
-                if MasterCollectorSV.hideBossesWithMountsObtained and not collected2 then
-                    eventText = eventText ..
-                        "\n    Mount: " .. dropMountName .. "\n" .. rarityAttemptsText .. dropChanceText .. "\n"
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    eventText = eventText ..
-                        "\n    Mount: " .. dropMountName .. "\n" .. rarityAttemptsText .. dropChanceText .. "\n"
+                if not MasterCollectorSV.hideBossesWithMountsObtained or not collected2 then
+                    eventText = eventText .. string.format("\n%sMount: %s|Hmount:%d|h[%s]|h|r%s%s\n", string.rep(" ", 5), MC.blueHex, dropMountID, dropMountName, rarityAttemptsText, dropChanceText)
                 end
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained then
-                for _, mountID in ipairs(mountIDs) do
-                    local _, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
-                    if not collected then
-                        return eventText
-                    end
-                end
-            else
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected1 or not collected2 then
                 return eventText
             end
         end
@@ -1727,27 +1365,23 @@ function MC.events()
             timeUntilNextEvent = eventInterval - elapsedTimeInRotation
         end
 
-
-        local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(2192)
+        local beledarMountID = 2192
+        local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(beledarMountID)
 
         if MasterCollectorSV.showBeledarShiftTimer then
             local eventText
 
             if eventIsActive then
-                eventText = MC.goldHex ..
-                    "Beledar Dark Phase Active! Ends in: |r" .. FormatTime(timeUntilNextEvent) .. " Remaining\n"
+                eventText = string.format("%sBeledar Dark Phase Active! |r%s Remaining\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             else
-                eventText = MC.goldHex ..
-                    "Next Beledar Shift to Dark Phase: |r" .. FormatTime(timeUntilNextEvent) .. "\n"
+                eventText = string.format("%sNext Beledar Shift to Dark Phase: |r%s\n", MC.goldHex, FormatTime(timeUntilNextEvent))
             end
 
             if MasterCollectorSV.showMountName then
-                eventText = eventText .. string.format("    Mount: %s\n", mountName or "Unknown Mount")
+                eventText = eventText .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n", string.rep(" ", 5), MC.blueHex, beledarMountID, mountName)
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
-                return eventText
-            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                 return eventText
             end
         end
@@ -1797,7 +1431,7 @@ function MC.events()
         local elapsedTimeInRotation = elapsedTime % eventInterval
         local timeUntilNextSpawn = eventInterval - elapsedTimeInRotation
         local currentBoss = tormentorRotation[currentRotationIndex]
-        local eventText = MC.goldHex .. "Current Tormentor: |r" .. currentBoss .. "\n\n"
+        local eventText = MC.goldHex .. "Current Tormentor: |r" .. currentBoss .. "\n"
 
         local maxNameLength = 0
         for _, name in ipairs(tormentorRotation) do
@@ -1809,8 +1443,7 @@ function MC.events()
         local fixedTimerColumn = maxNameLength + 10
         local mount1ID = 1475
         local mount2ID = 1504
-        local mount1Text = ""
-        local mount2Text = ""
+        local mount1Text, mount2Text = "", ""
         local mountName, collected = "", false
 
         if MasterCollectorSV.showTormentorsTimer then
@@ -1818,20 +1451,18 @@ function MC.events()
                 mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
                 local questCompleted = C_QuestLog.IsQuestFlaggedCompleted(63854)
                 local _, achieveName, _, achieved = GetAchievementInfo(15054)
-
+                local mountText = string.format("Mount: %s|Hmount:%d|h[%s]|h|r", MC.blueHex, mountID, mountName)
                 local eventText = ""
-                local mountText = string.format("    Mount: %s", mountName or "Unknown Mount")
 
                 local dropChanceDenominator = 50
                 local attempts = GetRarityAttempts("Chain of Bahmethra") or 0
-                local rarityAttemptsText = ""
-                local dropChanceText = ""
+                local rarityAttemptsText, dropChanceText = "", ""
 
                 if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
                     if MasterCollectorSV.showRarityDetail then
                         local chance = 1 / dropChanceDenominator
                         local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                        rarityAttemptsText = string.format("     (Attempts: %d/%s", attempts, dropChanceDenominator)
+                        rarityAttemptsText = string.format("%s(Attempts: %d/%s", string.rep(" ", 4), attempts, dropChanceDenominator)
                         dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                     end
                 end
@@ -1839,27 +1470,15 @@ function MC.events()
                 if MasterCollectorSV.showMountName then
                     if mountID == 1475 then
                         if not questCompleted then
-                            eventText = "    Tormentor's Cache Weekly to do! \n" ..
-                                mountText .. "\n" .. rarityAttemptsText .. dropChanceText .. "\n\n"
+                            eventText = string.format("%sTormentor's Cache Weekly to do!\n%s%s%s%s\n\n", string.rep(" ", 4), string.rep(" ", 4), mountText, rarityAttemptsText, dropChanceText)
                         else
-                            eventText = "    " .. mountText .. "\n" .. rarityAttemptsText .. dropChanceText .. "\n\n"
+                            eventText = string.format("%s%s%s%s\n\n", string.rep(" ", 4), mountText, rarityAttemptsText, dropChanceText)
                         end
                     end
 
                     if mountID == 1504 then
-                        if not achieved then
-                            eventText = eventText ..
-                                "    " ..
-                                MC.goldHex ..
-                                achieveName ..
-                                " yet to be Completed for Breaking the Chains Meta Achievement|r\n" ..
-                                mountText .. "\n\n"
-                        else
-                            eventText = eventText ..
-                                "    " ..
-                                MC.goldHex ..
-                                achieveName .. " for Breaking the Chains Meta Achievement|r\n" .. mountText .. "\n\n"
-                        end
+                        eventText = eventText .. string.format("%s%s%s%s%s%s\n", string.rep(" ", 4), MC.goldHex, achieveName, (achieved and " for Breaking the Chains Meta Achievement Complete|r\n" or " yet to be Completed for Breaking the Chains Meta Achievement|r\n"),
+                        string.rep(" ", 4), mountText)
                     end
                 end
                 return eventText
@@ -1868,8 +1487,7 @@ function MC.events()
             mount1Text = mountCheck(mount1ID)
             mount2Text = mountCheck(mount2ID)
             eventText = eventText .. mount1Text .. mount2Text
-
-            eventText = eventText .. MC.goldHex .. "Upcoming Tormentors:" .. "|r\n"
+            eventText = string.format("%s%sUpcoming Tormentors:|r\n", eventText, MC.goldHex)
 
             for i = 1, rotationSize do
                 local index = (currentRotationIndex + i - 1) % rotationSize + 1
@@ -1877,12 +1495,10 @@ function MC.events()
                 local name = tormentorRotation[index]
                 local padding = string.rep(" ", fixedTimerColumn - #name)
 
-                eventText = eventText .. "    " .. name .. padding .. FormatTime(timeUntilSpawn) .. "\n"
+                eventText = string.format("%s%s%s%s%s\n", eventText, string.rep(" ", 4), name, padding, FormatTime(timeUntilSpawn))
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained and not collected then
-                return eventText
-            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+            if not MasterCollectorSV.hideBossesWithMountsObtained or not collected then
                 return eventText
             end
         end
@@ -1917,13 +1533,12 @@ function MC.events()
 
             if contributionState and contributionState ~= 4 then
                 local timeRemaining = timeOfNextStateChange and (timeOfNextStateChange - realmTime) or nil
-                local timeRemainingText = timeRemaining and SecondsToTime(math.max(timeRemaining, 0)) or
-                    "Awaiting Resources"
+                local timeRemainingText = timeRemaining and SecondsToTime(math.max(timeRemaining, 0)) or "Awaiting Resources"
                 local controlText
 
                 if contributionState == 1 then
                     local oppositeFaction = (warfront.faction == "Horde") and "Alliance" or "Horde"
-                    controlText = oppositeFaction .. " still in Control    " .. warfront.faction .. " Contributing"
+                    controlText = oppositeFaction .. string.format(" still in Control%s%s Contributing", string.rep(" ", 4), warfront.faction)
                 elseif contributionState == 2 then
                     controlText = warfront.faction .. " Controlling"
                 elseif contributionState == 3 then
@@ -1932,10 +1547,7 @@ function MC.events()
                     controlText = "Unknown state"
                 end
 
-                activeWarfronts[warfront.name] = string.format(
-                    "%s%s|r\n    %s\n    Time Left till Status Change: %s\n",
-                    MC.goldHex, warfront.name, controlText, timeRemainingText
-                )
+                activeWarfronts[warfront.name] = string.format("%s%s|r\n%s%s\nTime Left till Status Change: %s\n", MC.goldHex, warfront.name, string.rep(" ", 4), controlText, string.rep(" ", 4), timeRemainingText)
             end
         end
 
@@ -1974,7 +1586,7 @@ function MC.events()
                 local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
 
                 if mountName then
-                    local line = mountName .. " " .. MC.goldHex .. playerCurrency .. " / " .. cost .. " Service Medals " .. iconSize .. " Required|r\n"
+                    local line = string.format("%s%s|Hmount:%d|h[%s]|h|r %s%s / %s Service Medals %s Required|r\n", string.rep(" ", 4), MC.blueHex, mountID, mountName, MC.goldHex, playerCurrency, cost, iconSize)
 
                     if not collected then
                         allCollected = false
@@ -1985,9 +1597,9 @@ function MC.events()
             end
 
             if not allCollected then
-                return table.concat(uncollectedMounts, "    ")
+                return table.concat(uncollectedMounts, string.rep(" ", 4))
             else
-                return table.concat(mountDetails, "    ")
+                return table.concat(mountDetails, string.rep(" ", 4))
             end
         end
 
@@ -1997,20 +1609,17 @@ function MC.events()
 
                 if warfrontText then
                     if MasterCollectorSV.showMountName then
-                        table.insert(output,
-                            warfrontText .. "    Mounts for " .. playerFaction .. ": " .. mountNamesString)
+                        table.insert(output, warfrontText .. string.format("%sMounts for %s: \n%s%s", string.rep(" ", 4), playerFaction, string.rep(" ", 4), mountNamesString))
                     else
                         table.insert(output, warfrontText)
                     end
                 else
-                    table.insert(output, "No active Warfront found for " .. warfrontName .. ".")
+                    table.insert(output, string.format("No active Warfront found for %s.", warfrontName))
                 end
             end
         end
 
-        if MasterCollectorSV.hideBossesWithMountsObtained and not allCollected then
-            return table.concat(output, "\n")
-        elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+        if not MasterCollectorSV.hideBossesWithMountsObtained or not allCollected then
             return table.concat(output, "\n")
         end
     end
@@ -2055,7 +1664,7 @@ function MC.events()
                         local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountData[2][1])
 
                         if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
-                            table.insert(majorMounts, { mountName, mountData[4], isCollected })
+                            table.insert(majorMounts, { mountData[2][1], mountName, mountData[4], isCollected })
                         end
                     end
                 end
@@ -2074,7 +1683,7 @@ function MC.events()
                         local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountData[2][1])
 
                         if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
-                            table.insert(minorMounts, { mountName, mountData[4], isCollected })
+                            table.insert(minorMounts, { mountData[2][1], mountName, mountData[4], isCollected })
                         end
                     end
                 end
@@ -2089,21 +1698,20 @@ function MC.events()
             return
         end
 
-        local assaultDisplay = MC.goldHex .. "Current Nzoth Assaults:\n|r"
+        local assaultDisplay = MC.goldHex .. "Current Nzoth Assaults:|r\n"
         local hasContent = false
 
         if showMajor then
-            assaultDisplay = assaultDisplay .. "    Major: |r" .. detectedMajor .. "\n"
+            assaultDisplay = assaultDisplay .. string.format("\n%sMajor: |r%s\n", string.rep(" ", 4), detectedMajor)
             hasContent = true
             if majorTimeLeft then
-                assaultDisplay = assaultDisplay .. "    Time Remaining: " .. FormatTime(majorTimeLeft) .. "\n"
+                assaultDisplay = assaultDisplay .. string.format("%sTime Remaining: %s\n", string.rep(" ", 4), FormatTime(majorTimeLeft))
             end
 
             if #majorMounts > 0 then
                 for _, mountData in ipairs(majorMounts) do
-                    local mountName, dropChance, itemName = unpack(mountData)
-                    local rarityAttemptsText = ""
-                    local dropChanceText = ""
+                    local mountID, mountName, dropChance, itemName = unpack(mountData)
+                    local rarityAttemptsText, dropChanceText = "", ""
 
                     if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
                         if MasterCollectorSV.showRarityDetail and dropChance then
@@ -2115,36 +1723,35 @@ function MC.events()
                         end
                     end
                     if MasterCollectorSV.showMountName then
-                        assaultDisplay = assaultDisplay .. "    Mount: |r" .. mountName .. rarityAttemptsText .. dropChanceText .. "\n"
+                        assaultDisplay = assaultDisplay .. string.format("%sMount: |r%s|Hmount:%d|h[%s]|h|r%s%s\n", string.rep(" ", 4), MC.blueHex, mountID, mountName, rarityAttemptsText, dropChanceText)
                     end
                 end
             end
         end
 
         if showMinor then
-            assaultDisplay = assaultDisplay .. "\n" .. "    Minor: |r" .. detectedMinor .. "\n"
+            assaultDisplay = assaultDisplay .. string.format("\n%sMinor: |r%s\n", string.rep(" ", 4), detectedMinor)
             hasContent = true
             if minorTimeLeft then
-                assaultDisplay = assaultDisplay .. "    Time Remaining: " .. FormatTime(minorTimeLeft) .. "\n"
+                assaultDisplay = assaultDisplay .. string.format("%sTime Remaining: %s\n", string.rep(" ", 4), FormatTime(minorTimeLeft))
             end
 
             if #minorMounts > 0 then
                 for _, mountData in ipairs(minorMounts) do
-                    local mountName, dropChance, itemName = unpack(mountData)
-                    local rarityAttemptsText = ""
-                    local dropChanceText = ""
+                    local mountID, mountName, dropChance, itemName = unpack(mountData)
+                    local rarityAttemptsText, dropChanceText  = "", ""
 
                     if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
                         if MasterCollectorSV.showRarityDetail and dropChance then
                             local chance = 1 / dropChance
                             local attempts = GetRarityAttempts(itemName) or 0
                             local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                            rarityAttemptsText = string.format("  (Attempts: %d/%s", attempts, dropChance)
+                            rarityAttemptsText = string.format("%s(Attempts: %d/%s", string.rep(" ", 4), attempts, dropChance)
                             dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                         end
                     end
                     if MasterCollectorSV.showMountName then
-                        assaultDisplay = assaultDisplay .. "    Mount: |r" .. mountName .. rarityAttemptsText .. dropChanceText .. "\n"
+                        assaultDisplay = assaultDisplay .. string.format("%sMount: |r%s|Hmount:%d|h[%s]|h|r%s%s\n", string.rep(" ", 4), MC.blueHex, mountID, mountName, rarityAttemptsText, dropChanceText)
                     end
                 end
             end
@@ -2193,16 +1800,20 @@ function MC.events()
             [744] = "Sign of the Scourge",         -- Wrath of the Lich King
             [995] = "Sign of the Twisting Nether", -- Burning Crusade
             [1453] = "Sign of the Mists",          -- Mists of Pandaria
+            [1500] = "Sign of the Destroyer",      -- Cataclysm (generic number - will change in future)
             [1971] = "Sign of Iron",               -- Warlords of Draenor
             [2274] = "Sign of the Legion",         -- Legion
+            [2500] = "Sign of the Past"            -- Classic (generic number - will change in future)
         }
 
         local timewalkingEvents = {
             [744] = "Wrath of the Lich King Timewalking",
             [995] = "Burning Crusade Timewalking",
             [1453] = "Mists of Pandaria Timewalking",
+            [1500] = "Cataclysm Timewalking",           -- (generic number - will change in future)
             [1971] = "Warlords of Draenor Timewalking",
             [2274] = "Legion Timewalking",
+            [2500] = "Classic Timewalking"              -- (generic number - will change in future)
         }
 
         for eventID, buffName in pairs(timewalkingBuffs) do
@@ -2272,6 +1883,7 @@ function MC.events()
         local activeTimewalkingEvent = GetActiveTimewalkingEvent()
         local playerTimewarpedBadges = C_CurrencyInfo.GetCurrencyInfo(1166).quantity
         local iconTimewarpedBadges = C_CurrencyInfo.GetCurrencyInfo(1166).iconFileID
+        local badgesTexture = CreateTextureMarkup(iconTimewarpedBadges, 32, 32, 16, 16, 0, 1, 0, 1) 
 
          if activeTimewalkingEvent then
             for _, eventInfo in ipairs(calendarEvents) do
@@ -2281,8 +1893,7 @@ function MC.events()
                     local mountsToShow = {}
 
                     for j, mountID in ipairs(eventInfo[2]) do
-                        local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(
-                            mountID)
+                        local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
 
                         if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
                             local rarityAttemptsText, dropChanceText = "", ""
@@ -2301,22 +1912,22 @@ function MC.events()
                                 end
                             else
                                 if mountID ~= 781 then
-                                    mountCurrency = (string.format("\n%s    %d / 5000 Timewarped Badges ", MC.goldHex, playerTimewarpedBadges)) .. CreateTextureMarkup(iconTimewarpedBadges, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
+                                    mountCurrency = string.format("\n%s%s%d / 5000 Timewarped Badges %s Required|r\n", MC.goldHex, string.rep(" ", 4), playerTimewarpedBadges, badgesTexture)
                                 end
                             end
 
                             if MasterCollectorSV.showMountName then
-                                table.insert(mountsToShow, mountName .. mountCurrency .. rarityAttemptsText .. dropChanceText)
+                                table.insert(mountsToShow, string.format("%s|Hmount:%d|h[%s]|h|r%s%s%s", MC.blueHex, mountID, mountName, mountCurrency, rarityAttemptsText, dropChanceText))
                             end
                         end
                     end
 
-                    output = output .. MC.goldHex .. activeTimewalkingEvent .. " is active!|r\n"
+                    output = output .. string.format("%s%s is active!|r\n", MC.goldHex, activeTimewalkingEvent)
 
                     if #mountsToShow > 0 then
-                        output = output .. "    Mounts:\n"
+                        output = output .. string.format("%sMounts:\n", string.rep(" ", 4))
                         for _, mount in ipairs(mountsToShow) do
-                            output = output .. "    " .. mount .. "\n"
+                            output = output .. string.format("%s%s\n", string.rep(" ", 4), mount)
                         end
                     end
                 end
@@ -2404,28 +2015,30 @@ function MC.events()
                                                     local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID)
                                                     local owned = currencyInfo.quantity
                                                     local icon = currencyInfo.iconFileID
-                                                    currencyText = string.format("\n%s    %d / %d %s ", MC.goldHex, owned, amount, currencyName) .. CreateTextureMarkup(icon, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
+                                                    local currencyTexture = CreateTextureMarkup(icon, 32, 32, 16, 16, 0, 1, 0, 1)
+                                                    currencyText = string.format("\n%s%s%d / %d %s %s Required|r\n", MC.goldHex, string.rep(" ", 4), owned, amount, currencyName, currencyTexture)
                                                 elseif currencyType == "item" and currencyID then
                                                     local itemName, _, _, _, _, _, _, _, _, icon = C_Item.GetItemInfo(currencyID)
                                                     local count = C_Item.GetItemCount(currencyID, false, false)
-                                                    currencyText = string.format("\n%s    %d / %d %s ", MC.goldHex, count, amount, itemName) .. CreateTextureMarkup(icon, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r"
+                                                    local currencyTexture = CreateTextureMarkup(icon, 32, 32, 16, 16, 0, 1, 0, 1)
+                                                    currencyText = string.format("\n%s%s%d / %d %s %s Required|r", MC.goldHex, string.rep(" ", 4), count, amount, itemName, currencyTexture)
                                                 end
                                             end
 
                                             if MasterCollectorSV.showMountName then
-                                                table.insert(mountsToShow, mountName .. rarityAttemptsText .. dropChanceText .. currencyText)
+                                                table.insert(mountsToShow, string.format("%s|Hmount:%d|h[%s]|h|r%s%s%s", MC.blueHex, mountID, mountName, rarityAttemptsText, dropChanceText, currencyText))
                                             end
                                         end
                                     end
 
                                     if #mountsToShow > 0 then
-                                        output = output .. "\n" .. MC.goldHex .. eventName .. " is active!|r\n    Mounts:\n"
+                                        output = output .. string.format("\n%s%s is active!|r\n%sMounts:\n", MC.goldHex, eventName, string.rep(" ", 4))
 
                                         for _, mount in ipairs(mountsToShow) do
-                                            output = output .. "    " .. mount .. "\n"
+                                            output = output .. string.format("%s%s\n", string.rep(" ", 4), mount)
                                         end
                                     else
-                                        output = output .. MC.goldHex .. eventName .. " is active!|r\n"
+                                        output = output .. string.format("\n%s%s is active!|r\n", MC.goldHex, eventName)
                                     end
                                 end
                             end
@@ -2488,5 +2101,6 @@ function MC.events()
 
     if MC.mainFrame and MC.mainFrame.text then
         MC.mainFrame.text:SetText(displayText)
+        MC.mainFrame.text:SetHeight(MC.mainFrame.text:GetContentHeight())
     end
 end

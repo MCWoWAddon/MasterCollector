@@ -8,29 +8,31 @@ function MC.weeklyDisplay()
 
     if MC.mainFrame and MC.mainFrame.text then
         local font, _, flags = GameFontNormal:GetFont()
-        MC.mainFrame.text:SetFont(font, fontSize, flags)
+        MC.mainFrame.text:SetFont("P", font, fontSize, flags)
     end
 
     local aura_env = {
         dungeonData = {
             ["Dungeon Mounts"] = {
-                ["DF Mythic Dungeons"] = {
+                ["The War Within Mythic Dungeons"] = {
+                    [1210] = {                                     -- Darkflame Cleft
+                        { 2561, { 2204 }, { 23 }, "Wick's Lead", 100 } -- The Darkness (Mythic)
+                    },
+                },
+                ["Dragonflight Mythic Dungeons"] = {
                     [1209] = {                                                                                                                   -- Dawn of the Infinite
                         { 2538, { 781, 264, 411, 395, 995, 397, 875, 1040, 1406, 410, 1252, 1481, 1053, 185, 69 }, { 23 }, "Reins of the Quantum Courser" } -- Chrono-Lord Deios (Mythic)
                     }
                 },
-                ["SL Mythic Dungeons"] = {
+                ["Shadowlands Mythic Dungeons"] = {
                     [1194] = {                                             -- Tazavesh, the Veiled Market
                         { 2455, { 1481 }, { 23 }, "Cartel Master's Gearglider", 50 } -- So'leah (Mythic)
+                    },
+                     [1182] = {                                            -- The Necrotic Wake
+                        { 2396, { 1406 }, { 23 }, "Marrowfang's Reins", 100 } -- Nalthor the Rimebinder (Mythic)
                     }
                 },
-                ["Legion Mythic Dungeons"] = {
-                    [860] = {                                            -- Return to Karazhan
-                        { 1835, { 875 }, { 23 }, "Midnight's Eternal Reins", 100 }, -- Attumen the Huntsman (Mythic)
-                        { nil,  { 883 }, { 23 }, "Smoldering Ember Wyrm", 5 }, -- Smoldering Ember Wyrm (Mythic)
-                    }
-                },
-                ["BfA Mythic Dungeons"] = {
+                ["Battle for Azeroth Mythic Dungeons"] = {
                     [1001] = {                                               -- Freehold
                         { 2095, { 995 }, { 23 }, "Sharkbait's Favorite Crackers", 200 } -- Harlan Sweete (Mythic)
                     },
@@ -43,10 +45,17 @@ function MC.weeklyDisplay()
                     [1178] = {                                               -- Operation: Mechagon
                         { 2355, { 1252 }, { 23 }, "Mechagon Peacekeeper", 200 } -- HK-8 Aerial Oppression Unit (Mythic)
                     }
+                },
+                ["Legion Mythic Dungeons"] = {
+                    [860] = {                                            -- Return to Karazhan
+                        { 1835, { 875 }, { 23 }, "Midnight's Eternal Reins", 100 }, -- Attumen the Huntsman (Mythic)
+                        { nil,  { 883 }, { 23 }, "Smoldering Ember Wyrm", 5 }, -- Smoldering Ember Wyrm (Mythic)
+                    }
                 }
+
             },
             ["Raid Mounts"] = {
-                ["TWW Raids"] = {
+                ["The War Within Raids"] = {
                     [1296] = {                                                        -- Liberation of Undermine
                         { 2646, { 2507 }, { 17, 14, 15, 16 }, "Prototype A.S.M.R.", 100 } -- Chrome King Gallywix (LFR, Normal, Heroic, Mythic)
                         -- { 2646, { 2487 }, { 16 }, "The Big G", 100 } -- Chrome King Gallywix (Mythic)
@@ -56,7 +65,7 @@ function MC.weeklyDisplay()
                         -- { 2602, { 2223 }, { 16 }, "Reins of the Ascended Skyrazor", 100 } -- Queen Ansurek (Mythic)
                         }
                     },
-                ["DF Raids"] = {
+                ["Dragonflight Raids"] = {
                     [1207] = {                                                        -- Amirdrassil
                         { 2519, { 1818 }, { 16 }, "Reins of Anu'relos, Flame's Guidance.", 100 } -- Fyrakk (Mythic)
                     },
@@ -65,7 +74,7 @@ function MC.weeklyDisplay()
                         { 2502, { 1546 }, { 14, 15, 16 }, "Eye of the Vengeful Hurricane", 4 }, -- Dathea, Ascended (LFR - to be added later Normal, Heroic, Mythic)
                     }
                 },
-                ["SL Raids"] = {
+                ["Shadowlands Raids"] = {
                     [1193] = {                                                            -- Sanctum of Domination
                         { 2439, { 1500 }, { 17, 14, 15, 16 }, "Sanctum Gloomcharger's Reins", 100 }, -- The Nine (LFR, Normal, Heroic, Mythic)
                         { 2441, { 1471 }, { 16 },         "Vengeance's Reins",            100 } -- Sylvanas Windrunner (Mythic)
@@ -74,7 +83,7 @@ function MC.weeklyDisplay()
                         { 2464, { 1587 }, { 16 }, "Fractal Cypher of the Zereth Overseer", 100 } -- The Jailer (Mythic)
                     }
                 },
-                ["BFA Raids"] = {
+                ["Battle for Azeroth Raids"] = {
                     [1176] = {                                    -- Battle of Dazar'alor
                         { 2334, { 1217 }, { 14, 15, 16 }, "G.M.O.D.",      100 }, -- Mekkatorque (Normal, Heroic, Mythic)
                         { 2343, { 1217 }, { 17 },     "G.M.O.D.",          100 }, -- Lady Jaina Proudmoore (LFR)
@@ -97,7 +106,7 @@ function MC.weeklyDisplay()
                         { 1737, { 633 }, { 16 },     "Fiendish Hellfire Core", 100 } -- Gul'dan (Mythic)
                     }
                 },
-                ["WoD Raids"] = {
+                ["Warlords of Draenor Raids"] = {
                     [669] = {                                       -- Hellfire Citadel
                         { 1438, { 751 }, { 16 }, "Felsteel Annihilator", 100 } -- Archimonde (Mythic)
                     },
@@ -105,7 +114,7 @@ function MC.weeklyDisplay()
                         { 959, { 613 }, { 16 }, "Ironhoof Destroyer", 100 } -- Blackhand (Mythic)
                     }
                 },
-                ["Pandaria Raids"] = {
+                ["Mists of Pandaria Raids"] = {
                     [369] = {                                                           -- Siege of Orgrimmar
                         { 869, { 559 }, { 16 }, "Kor'kron Juggernaut", 100 }            -- Garrosh Hellscream (Mythic)
                     },
@@ -117,7 +126,7 @@ function MC.weeklyDisplay()
                         { 726, { 478 }, { 3, 5, 4, 6 }, "Reins of the Astral Cloud Serpent", 100 } -- Elegon (10P, 25P, 10P (H), 25P (H))
                     }
                 },
-                ["Cata Raids"] = {
+                ["Cataclysm Raids"] = {
                     [78] = {                                                               -- Firelands
                         { 194, { 425 }, { 14, 15 }, "Flametalon of Alysrazor",  100 },     -- Alysrazor (Normal, Heroic)
                         { 198, { 415 }, { 14, 15 }, "Smoldering Egg of Millagazor", 100 }  -- Ragnaros (Normal, Heroic)
@@ -131,7 +140,7 @@ function MC.weeklyDisplay()
                         { 333, { 444 }, { 5, 6 },   "Life-Binder's Handmaiden",   100 }    -- Madness of Deathwing (10P (H), 25P (H))
                     }
                 },
-                ["WOTLK Raids"] = {
+                ["Wrath of the Lich King Raids"] = {
                     [758] = {                                                                                    -- Icecrown Citadel
                         { 1636, { 363 }, { 6 }, "Invincible's Reins", 100 }                                      -- The Lich King (25P (H))
                     },
@@ -156,7 +165,7 @@ function MC.weeklyDisplay()
                         { 1617, { 247 }, { 3, 4 }, "Reins of the Blue Drake", 100 }                              -- Malygos (10P, 25P)
                     }
                 },
-                ["BC Raids"] = {
+                ["The Burning Crusade Raids"] = {
                     [745] = {                                        -- Karazhan
                         { 1553, { 168 }, { 3 }, "Fiery Warhorse's Reins", 100 } -- Attumen the Huntsman (10P)
                     },
@@ -166,13 +175,13 @@ function MC.weeklyDisplay()
                 }
             },
             ["World Boss Mounts"] = {
-                ["BfA World Bosses"] = {
+                ["Battle for Azeroth World Bosses"] = {
                     { 2210, { 1250 }, "Slightly Damp Pile of Fur", 100 } -- Dunegorger Kraulok
                 },
-                ["WoD World Bosses"] = {
+                ["Warlords of Draenor World Bosses"] = {
                     { 1262, { 634 }, "Solar Spirehawk", 100 } -- Rukhmar
                 },
-                ["Pandaria World Bosses"] = {
+                ["Mists of Pandaria World Bosses"] = {
                     { 691, { 473 }, "Reins of the Heavenly Onyx Cloud Serpent",   100 }, -- Sha of Anger
                     { 814, { 542 }, "Reins of the Thundering Cobalt Cloud Serpent", 100 }, -- Nalak
                     { 826, { 533 }, "Reins of the Cobalt Primordial Direhorn",    100 }, -- Oondasta
@@ -181,23 +190,24 @@ function MC.weeklyDisplay()
             }
         },
         allCategories = {
-            { type = "dungeon",   key = "showDFDungeons",          name = "DF Mythic Dungeons" },
-            { type = "dungeon",   key = "showSLWeeklyDungeons",    name = "SL Mythic Dungeons" },
+            { type = "dungeon",   key = "showTWWDungeons",         name = "The War Within Mythic Dungeons" },
+            { type = "dungeon",   key = "showDFDungeons",          name = "Dragonflight Mythic Dungeons" },
+            { type = "dungeon",   key = "showSLWeeklyDungeons",    name = "Shadowlands Mythic Dungeons" },
             { type = "dungeon",   key = "showLegionDungeons",      name = "Legion Mythic Dungeons" },
-            { type = "dungeon",   key = "showBFADungeons",         name = "BfA Mythic Dungeons" },
-            { type = "raid",      key = "showTWWRaids",             name = "TWW Raids" },
-            { type = "raid",      key = "showDFRaids",             name = "DF Raids" },
-            { type = "raid",      key = "showSLRaids",             name = "SL Raids" },
-            { type = "raid",      key = "showBFARaids",            name = "BFA Raids" },
+            { type = "dungeon",   key = "showBFADungeons",         name = "Battle for Azeroth Mythic Dungeons" },
+            { type = "raid",      key = "showTWWRaids",            name = "The War Within Raids" },
+            { type = "raid",      key = "showDFRaids",             name = "Dragonflight Raids" },
+            { type = "raid",      key = "showSLRaids",             name = "Shadowlands Raids" },
+            { type = "raid",      key = "showBFARaids",            name = "Battle for Azeroth Raids" },
             { type = "raid",      key = "showLegionRaids",         name = "Legion Raids" },
-            { type = "raid",      key = "showWoDRaids",            name = "WoD Raids" },
-            { type = "raid",      key = "showPandariaRaids",       name = "Pandaria Raids" },
-            { type = "raid",      key = "showCataRaids",           name = "Cata Raids" },
-            { type = "raid",      key = "showWOTLKRaids",          name = "WOTLK Raids" },
-            { type = "raid",      key = "showBCRaids",             name = "BC Raids" },
-            { type = "worldBoss", key = "showBFAWorldBosses",      name = "BfA World Bosses" },
-            { type = "worldBoss", key = "showWoDWorldBosses",      name = "WoD World Bosses" },
-            { type = "worldBoss", key = "showPandariaWorldBosses", name = "Pandaria World Bosses" }
+            { type = "raid",      key = "showWoDRaids",            name = "Warlords of Draenor Raids" },
+            { type = "raid",      key = "showPandariaRaids",       name = "Mists of Pandaria Raids" },
+            { type = "raid",      key = "showCataRaids",           name = "Cataclysm Raids" },
+            { type = "raid",      key = "showWOTLKRaids",          name = "Wrath of the Lich King Raids" },
+            { type = "raid",      key = "showBCRaids",             name = "The Burning Crusade Raids" },
+            { type = "worldBoss", key = "showBFAWorldBosses",      name = "Battle for Azeroth World Bosses" },
+            { type = "worldBoss", key = "showWoDWorldBosses",      name = "Warlords of Draenor World Bosses" },
+            { type = "worldBoss", key = "showPandariaWorldBosses", name = "Mists of Pandaria World Bosses" }
         },
         raidsWithoutDifficultyCheck = {
             [362] = true, -- Throne of Thunder
@@ -260,7 +270,7 @@ function MC.weeklyDisplay()
             [1193] = 2221,                                -- Sanctum of Domination
             [875] = 1494,                                 -- Tomb of Sargeras
             [946] = 1610,                                 -- Antorus, the Burning Throne
-            [1176] = faction == "Horde" and 1950 or 1947, --Battle of Dazar'alor based on faction
+            [1176] = faction == "Horde" and 1950 or 1947, -- Battle of Dazar'alor based on faction
         }
         local dungeonID = instanceIDToLFGDungeonID[instanceID]
         local info = dungeonID and C_LFGInfo.GetDungeonInfo(dungeonID)
@@ -390,9 +400,7 @@ function MC.weeklyDisplay()
             local hours = math.floor((secondsUntilWeeklyReset % 86400) / 3600)
             local minutes = math.floor((secondsUntilWeeklyReset % 3600) / 60)
 
-            displayText = displayText ..
-            string.format("%sTime until weekly reset: |r%02d Days %02d Hrs %02d Min\n\n", MC.goldHex, days, hours,
-                minutes)
+            displayText = displayText .. string.format("%sTime until weekly reset: |r%02d Days %02d Hrs %02d Min\n\n", MC.goldHex, days, hours, minutes)
         end
     end
 
@@ -448,55 +456,45 @@ function MC.weeklyDisplay()
                             if bossName == "Chrono-Lord Deios" then
                                 mountNames = { "Quantum Corser - Multiple Mounts" }
                             else
+                                mountNames = {}
                                 for _, mountID in ipairs(mountIDsArray) do
                                     if not isMountObtained({ mountID }) then
                                         local mountName = C_MountJournal.GetMountInfoByID(mountID)
                                         if mountName then
+                                            local linkedMount = string.format("%s|Hmount:%d|h[%s]|h|r", MC.blueHex, mountID, mountName)
                                             if mountID == 1546 then
-                                                table.insert(mountNames, itemName .. " for Mount: " .. mountName)
+                                                table.insert(mountNames, itemName .. " for Mount: " .. linkedMount)
                                             else
-                                                table.insert(mountNames, mountName)
+                                                table.insert(mountNames, linkedMount)
                                             end
                                         end
                                     end
                                 end
                             end
 
-                            local rarityAttemptsText = ""
-                            local dropChanceText = ""
+                            local rarityAttemptsText, dropChanceText = "", ""
                             if itemName then
                                 local item = GetItemData(itemName)
                                 if item then
-                                    local attempts = GetRarityAttempts(itemName) or "N/A"
-                                    local dropChanceDenominator = item.dropChanceDenominator
-                                    local chance = 0
-                                    local cumulativeChance = 0
+                                    local attempts = tonumber(GetRarityAttempts(itemName)) or 0
+                                    local denom = tonumber(item.dropChanceDenominator)
 
-                                    if dropChanceDenominator and dropChanceDenominator ~= "N/A" and attempts ~= "N/A" then
-                                        attempts = tonumber(attempts) or 0
-                                        chance = 1 / dropChanceDenominator
-                                        cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                                    if denom and denom > 0 and attempts > 0 then
+                                        local chance = 1 / denom
+                                        local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
 
-                                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts,
-                                            dropChanceDenominator)
+                                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, denom)
                                         dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
-                                    else
-                                        rarityAttemptsText = ""
-                                        dropChanceText = ""
                                     end
-                                else
-                                    rarityAttemptsText = ""
-                                    dropChanceText = ""
                                 end
                             end
 
                             local mountsText = ""
                             if #mountNames > 0 and MasterCollectorSV.showMountName then
                                 if bossID == 2500 or bossID == 2502 then
-                                    mountsText = "\n          Item: " .. table.concat(mountNames, ", ")
+                                    mountsText = string.format("\n%sItem: %s", string.rep(" ", 10), table.concat(mountNames, ", "))
                                 else
-                                    mountsText = "\n          Mount: " ..
-                                    table.concat(mountNames, ", ") .. rarityAttemptsText .. dropChanceText
+                                    mountsText = string.format("\n%sMount: %s%s%s", string.rep(" ", 10), table.concat(mountNames, ", "), rarityAttemptsText, dropChanceText)
                                 end
                             end
                             if not skipBoss then
@@ -510,7 +508,8 @@ function MC.weeklyDisplay()
                                         local isKilled = isInstanceBossKilled(instanceID, bossID, difficulty)
                                         local color = isKilled and MC.greenHex or MC.redHex
 
-                                        table.insert(difficultyOutputs, color .. difficultyName .. "|r")
+                                        table.insert(difficultyOutputs, string.format("%s|Hdifficulty:%d:%d|h%s|h|r", color, instanceID, difficulty, difficultyName))
+
                                         if not isKilled then
                                             allDifficultiesKilled = false
                                         end
@@ -519,9 +518,7 @@ function MC.weeklyDisplay()
                                     difficultiesText = table.concat(difficultyOutputs, " / ")
                                     if not (MasterCollectorSV.showBossesWithNoLockout and allDifficultiesKilled) then
                                         local bossColor = allDifficultiesKilled and MC.greenHex or MC.redHex
-                                        instanceText = instanceText ..
-                                        "      - " ..
-                                        bossColor .. bossName .. " (" .. difficultiesText .. ")|r" .. mountsText .. "\n"
+                                        instanceText = instanceText .. string.format("%s- %s|Hjournal:1:%d:0:0:0|h%s|h|r (%s)|r%s\n", string.rep(" ", 6), bossColor, bossID, bossName, difficultiesText, mountsText)
                                     end
                                 else
                                     local allDifficultiesKilled = true
@@ -534,10 +531,9 @@ function MC.weeklyDisplay()
                                         if difficulty == 17 then
                                             local wingName = getLFRWingName(instanceID)
                                             wingName = wingName or "Unknown Wing"
-                                            table.insert(difficultyOutputs,
-                                                color .. difficultyName .. " - " .. wingName .. "|r")
+                                            table.insert(difficultyOutputs, color .. difficultyName .. " - " .. wingName .. "|r")
                                         else
-                                            table.insert(difficultyOutputs, color .. difficultyName .. "|r")
+                                            table.insert(difficultyOutputs, string.format("%s|Hdifficulty:%d:%d|h%s|h|r", color, instanceID, difficulty, difficultyName))
                                         end
 
                                         if not isKilled then
@@ -549,9 +545,7 @@ function MC.weeklyDisplay()
 
                                     if not (MasterCollectorSV.showBossesWithNoLockout and allDifficultiesKilled) then
                                         local bossColor = allDifficultiesKilled and MC.greenHex or MC.redHex
-                                        instanceText = instanceText ..
-                                        "      - " ..
-                                        bossColor .. bossName .. " (" .. difficultiesText .. ")|r" .. mountsText .. "\n"
+                                        instanceText = instanceText .. string.format("%s- %s|Hjournal:1:%d:0:0:0|h%s|h|r (%s)|r%s\n", string.rep(" ", 6), bossColor, bossID, bossName, difficultiesText, mountsText)
                                     end
                                 end
                             end
@@ -559,13 +553,13 @@ function MC.weeklyDisplay()
                     end
                 end
                 if instanceText ~= "" then
-                    subtitleText = subtitleText .. "   - " .. MC.goldHex .. instanceName .. "|r\n"
+                    subtitleText = subtitleText .. string.format("%s- %s%s|r\n", string.rep(" ", 3), MC.goldHex, instanceName)
                     subtitleText = subtitleText .. instanceText
                 end
             end
         end
         if subtitleText ~= "" then
-            displayText = displayText .. MC.goldHex .. category.name .. "|r\n"
+            displayText = displayText .. string.format("%s%s|r\n", MC.goldHex, category.name)
             displayText = displayText .. subtitleText
         end
     end
@@ -579,7 +573,7 @@ function MC.weeklyDisplay()
                     local bossName = getBossName(bossID)
                     local mountIDsArray = bossData[2]
                     local itemName = bossData[3]
-                    local dropChanceDenominator = bossData[4]
+                    local denom = bossData[4]
                     local skipBoss = isMountObtained(mountIDsArray) or isBossFiltered(bossName)
                     if not skipBoss then
                         local mountNames = {}
@@ -587,35 +581,39 @@ function MC.weeklyDisplay()
                             if not isMountObtained({ mountID }) then
                                 local mountName = C_MountJournal.GetMountInfoByID(mountID)
                                 if mountName then
-                                    table.insert(mountNames, mountName)
+                                    table.insert(mountNames, {id = mountID, name = mountName})
                                 end
                             end
                         end
 
-                        local rarityAttemptsText = ""
-                        local dropChanceText = ""
+                        local rarityAttemptsText, dropChanceText = "", ""
                         if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
                             if itemName and MasterCollectorSV.showRarityDetail then
                                 local attempts = GetRarityAttempts(itemName) or 0
                                 local dropChance = Rarity.Statistics.GetRealDropPercentage(itemName) or 0
                                 local cumulativeChance = 0
 
-                                if dropChance and dropChance > 0 and attempts ~= 0 then
-                                    dropChanceDenominator = math.floor(1 / dropChance)
+                                if dropChance and dropChance > 0 and attempts > 0 then
+                                    denom = math.floor(1 / dropChance)
                                     cumulativeChance = 100 * (1 - math.pow(1 - dropChance, attempts))
                                 end
-                                rarityAttemptsText = string.format(" (Attempts: %s/%s", attempts, dropChanceDenominator)
+                                rarityAttemptsText = string.format(" (Attempts: %s/%s", attempts, denom)
                                 dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                             end
-                        else
-                            rarityAttemptsText = ""
-                            dropChanceText = ""
                         end
 
                         local mountsText = ""
+                        local linkedMounts = {}
+
+                        for _, mountnameData in ipairs(mountNames) do
+                            local id = mountnameData.id or 0
+                            local name = mountnameData.name or "Unknown Mount"
+                            local link = string.format("%s|Hmount:%d|h[%s]|h|r", MC.blueHex, id, name)
+                            table.insert(linkedMounts, link)
+                        end
+
                         if #mountNames > 0 and MasterCollectorSV.showMountName then
-                            mountsText = "\n          Mount: " ..
-                            table.concat(mountNames, ", ") .. rarityAttemptsText .. dropChanceText
+                            mountsText = string.format("\n%sMount: %s%s%s", string.rep(" ", 10), table.concat(linkedMounts, ", "), rarityAttemptsText, dropChanceText)
                         end
                         local isKilled
                         local showBoss = true
@@ -631,8 +629,8 @@ function MC.weeklyDisplay()
                                 color = MC.greenHex
                             end
                             if not (MasterCollectorSV.showBossesWithNoLockout and isKilled) then
-                                subtitleText = subtitleText ..
-                                "      - " .. color .. bossName .. "|r" .. mountsText .. "\n"
+                                local bossLink = string.format("|Hjournal:1:%d:0:0:0|h%s|h", bossID, bossName)
+                                subtitleText = subtitleText .. string.format("%s- %s%s|r%s\n", string.rep(" ", 6), color, bossLink, mountsText)
                             end
                         end
                     end
@@ -640,7 +638,7 @@ function MC.weeklyDisplay()
             end
         end
         if subtitleText ~= "" then
-            displayText = displayText .. MC.goldHex .. category.name .. "|r\n"
+            displayText = displayText .. string.format("%s%s|r\n", MC.goldHex, category.name)
             displayText = displayText .. subtitleText
         end
     end
@@ -670,7 +668,7 @@ function MC.weeklyDisplay()
                     if type(mountID) == "number" and not isMountObtained({ mountID }) then
                         local mountName = C_MountJournal.GetMountInfoByID(mountID)
                         if mountName then
-                            table.insert(mountNames, mountName)
+                            table.insert(mountNames, {id = mountID, name = mountName})
                         end
                     end
                 end
@@ -692,25 +690,31 @@ function MC.weeklyDisplay()
                 end
 
                 local mountsText = ""
+                local linkedMounts = {}
+
+                for _, mountnameData in ipairs(mountNames) do
+                    local id = mountnameData.id or 0
+                    local name = mountnameData.name or "Unknown Mount"
+                    local link = string.format("%s|Hmount:%d|h[%s]|h|r", MC.blueHex, id, name)
+                    table.insert(linkedMounts, link)
+                end
+
                 if #mountNames > 0 and MasterCollectorSV.showMountName then
-                    mountsText = "          Mount: " ..
-                    table.concat(mountNames, ", ") .. rarityAttemptsText .. dropChanceText
+                    mountsText = string.format("%sMount: %s%s%s\n", string.rep(" ", 10), table.concat(linkedMounts, ", "), rarityAttemptsText, dropChanceText)
                 end
                 if mountsText ~= "" then
-                    subtitleText = subtitleText .. mountsText .. "\n"
+                    subtitleText = subtitleText .. mountsText
                 end
             end
         end
 
         if subtitleText ~= "" then
-            displayText = displayText .. MC.goldHex .. "Garrison Invasion Mounts|r\n" .. subtitleText
+            displayText = displayText .. string.format("%sGarrison Invasion Mounts|r\n%s", MC.goldHex, subtitleText)
         end
     end
 
     local function DFWeeklyActivities()
-        if not MasterCollectorSV.showDFWeeklies then
-            return
-        end
+        if not MasterCollectorSV.showDFWeeklies then return end
 
         local subtitleText = ""
         for _, mountData in ipairs(DFweeklies) do
@@ -732,8 +736,7 @@ function MC.weeklyDisplay()
                 questName = mountData[5] or C_QuestLog.GetTitleForQuestID(questID)
                 if questName then
                     if questID == dreamseedsNote then
-                        questName = questName ..
-                        " Quest\n   (1 x Seedbloom awarded - Need The Dream Wardens Renown 18 to buy mounts)"
+                        questName = questName .. string.format(" Quest\n%s(1 x Seedbloom awarded - Need The Dream Wardens Renown 18 to buy mounts)", string.rep(" ", 3))
                     end
                     break
                 end
@@ -749,35 +752,33 @@ function MC.weeklyDisplay()
                         if mountName then
                             if mountID == 1736 then
                                 if questName == "Sniffenseeking Map" then
-                                    questName = questName .. "\n      (for Barter Boulders/Bricks)"
+                                    questName = questName .. string.format("\n%s(for Barter Boulders/Bricks)", string.rep(" ", 6))
                                 end
+
+                                local extra
+
                                 if renownLevel < 12 then
-                                    table.insert(mountNames,
-                                        "          Mount: " .. mountName .. " (Requires 170 Barter Bricks)")
+                                    extra = "(Requires 170 Barter Bricks)"
                                 else
-                                    table.insert(mountNames,
-                                        "          Mount: " .. mountName .. " (Requires 85 Barter Boulders)")
+                                    extra = "(Requires 85 Barter Boulders)"
                                 end
+
+                                table.insert(mountNames, {id = mountID, name = mountName, extra = extra})
+
                             elseif mountID == 1733 then
                                 local _, achieveName1 = GetAchievementInfo(17832)
                                 local _, achieveName2 = GetAchievementInfo(17785)
-                                table.insert(mountNames,
-                                    MC.goldHex ..
-                                    "\n      " ..
-                                    achieveName1 ..
-                                    " for " ..
-                                    achieveName2 ..
-                                    " for A World Awoken Meta Achievement|r\n" .. "          Mount: " .. mountName)
+                                local extra = string.format("%s\n%s%s for %s for A World Awoken Meta Achievement|r", MC.goldHex, string.rep(" ", 6), achieveName1, achieveName2)
+                                table.insert(mountNames, {id = mountID, name = mountName, extra = extra})
+
                             else
-                                table.insert(mountNames, "          Mount: " .. mountName)
+                                table.insert(mountNames, {id = mountID, name = mountName})
                             end
                         end
                     end
                 end
 
-                local rarityAttemptsText = ""
-                local dropChanceText = ""
-
+                local rarityAttemptsText, dropChanceText = "", ""
                 if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
                     if itemName and dropChanceDenominator then
                         local attempts = GetRarityAttempts(itemName) or 0
@@ -792,17 +793,30 @@ function MC.weeklyDisplay()
                 end
 
                 local mountsText = ""
+                local linkedMounts = {}
+                for _, mountData in ipairs(mountNames) do
+                    local id = mountData.id or 0
+                    local name = mountData.name or "Unknown Mount"
+                    local link = string.format("%s|Hmount:%d|h[%s]|h|r", MC.blueHex, id, name)
+
+                    if mountData.extra then
+                        link = link .. string.format(" %s", mountData.extra)
+                    end
+
+                    table.insert(linkedMounts, string.format("%sMount: %s", string.rep(" ", 10), link))
+                end
+
                 if #mountNames > 0 and MasterCollectorSV.showMountName then
-                    mountsText = table.concat(mountNames, "\n") .. rarityAttemptsText .. dropChanceText
+                    mountsText = table.concat(linkedMounts, "\n") .. rarityAttemptsText .. dropChanceText
                 end
                 if mountsText ~= "" then
-                    subtitleText = subtitleText .. MC.goldHex .. "   - " .. questName .. "|r\n" .. mountsText .. "\n"
+                    subtitleText = subtitleText .. string.format("%s%s- %s|r\n%s\n", MC.goldHex, string.rep(" ", 3), questName, mountsText)
                 end
             end
         end
 
         if subtitleText ~= "" then
-            displayText = displayText .. MC.goldHex .. "Dragonflight Weekly Activities|r\n" .. subtitleText
+            displayText = displayText .. string.format("%sDragonflight Weekly Activities|r\n%s",MC.goldHex, subtitleText)
         end
     end
 
@@ -831,12 +845,13 @@ function MC.weeklyDisplay()
         end
 
         if not contentAdded then
-            displayText = displayText .. MC.goldHex .. "We are all done here.... FOR NOW!|r"
+            displayText = displayText .. string.format("%sWe are all done here.... FOR NOW!|r", MC.goldHex)
         end
     end
 
-    MC.mainFrame.text:SetText(displayCategories())
     if MC.mainFrame and MC.mainFrame.text then
+        displayCategories()
         MC.mainFrame.text:SetText(displayText)
+        MC.mainFrame.text:SetHeight(MC.mainFrame.text:GetContentHeight())
     end
 end

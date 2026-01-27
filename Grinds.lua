@@ -10,7 +10,7 @@ function MC.grinds()
 
     if MC.mainFrame and MC.mainFrame.text then
         local font, _, flags = GameFontNormal:GetFont()
-        MC.mainFrame.text:SetFont(font, fontSize, flags)
+        MC.mainFrame.text:SetFont("P", font, fontSize, flags)
     end
 
     local function GetRarityAttempts(itemName)
@@ -47,7 +47,7 @@ function MC.grinds()
             { 115, { 395 }, 1, "Reins of the Drake of the North Wind", 100 } -- Altarius (Normal)
         },
         [67] = {                                                             -- The Stonecore
-            { 111, { 393 }, 1, "Reins of the Vitreous Stone Drake", 100 }    -- Slabhide (Normal)
+            { 111, { 397 }, 1, "Reins of the Vitreous Stone Drake", 100 }    -- Slabhide (Normal)
         }
     }
 
@@ -94,8 +94,7 @@ function MC.grinds()
             if not (isCollected and MasterCollectorSV.hideBossesWithMountsObtained) then
                 if MasterCollectorSV.showMountName then
                     outputModified = true
-                    output = output ..
-                    string.format("    Mount: %s %s%s\n", mountName, rarityAttemptsText, dropChanceText)
+                    output = output .. string.format("%sMount:|r%s|Hmount:%d|h[%s]|h|r%s%s\n", string.rep(" ", 4), MC.blueHex, mountID, mountName, rarityAttemptsText, dropChanceText)
                 end
             end
         end
@@ -116,10 +115,7 @@ function MC.grinds()
         if liveLocks >= 9 then
             local now = time()
             if now - lastWarningTime > 60 then
-                print(string.format(
-                    "|cffffff00Warning:|r You've entered %d instances recently. You are nearing the 10-instance per hour limit.",
-                    liveLocks
-                ))
+                print(string.format("|cffffff00Warning:|r You've entered %d instances recently. You are nearing the 10-instance per hour limit.", liveLocks))
                 lastWarningTime = now
             end
         end
@@ -154,7 +150,7 @@ function MC.grinds()
         if not mapID then
             return nil
         end
-        
+
         local islandMapIDs = {
             [1036] = "The Dread Chain",
             [1035] = "Molten Cay",
@@ -323,12 +319,12 @@ function MC.grinds()
                 if lockType == "Realm"  then
                     table.insert(instanceTextList, string.format("%sRealm Lockouts:|r %d / %d (Less in %s)", MC.goldHex, lockCount, 10, FormatTime(minResetTime - currentTime)))
                     for _, lock in ipairs(lockList) do
-                        table.insert(instanceTextList, string.format("    %s %s  (%s)", lock.name, lock.difficulty, lock.character))
+                        table.insert(instanceTextList, string.format("%s%s %s  (%s)", string.rep(" ", 4), lock.name, lock.difficulty, lock.character))
                     end
                 else
                     table.insert(instanceTextList, string.format("%s\nCharacter Lockouts:|r %d", MC.goldHex, lockCount))
                     for _, lock in ipairs(lockList) do
-                        table.insert(instanceTextList, string.format("    %s %s (Reset in %s)", lock.name, lock.difficulty, FormatTime(lock.reset - currentTime)))
+                        table.insert(instanceTextList, string.format("%s%s %s (Reset in %s)", string.rep(" ", 4), lock.name, lock.difficulty, FormatTime(lock.reset - currentTime)))
                     end
                 end
             else
@@ -398,9 +394,9 @@ function MC.grinds()
 
                     if not (MasterCollectorSV.showBossesWithNoLockout and isDefeated) then
                         local bossColor = isDefeated and MC.greenHex or MC.redHex
-                        local difficultiesText = string.format("%s(%s)|r", bossColor, difficultyName)
+                        local difficultiesText = string.format("%s|Hdifficulty:%d:%d|h%s|h|r", bossColor, dungeonID, difficultyID, difficultyName)
 
-                        dungeonText = dungeonText .. string.format("    - %s%s|r %s\n", bossColor, bossName, difficultiesText)
+                        dungeonText = dungeonText .. string.format("%s- %s|Hjournal:1:%d:0:0:0|h%s|h|r (%s)\n", string.rep(" ", 4), bossColor, bossID, bossName, difficultiesText)
 
                         if mountIDs then
                             for _, mountID in ipairs(mountIDs) do
@@ -414,16 +410,13 @@ function MC.grinds()
                                         if dropChanceDenominator and dropChanceDenominator ~= 0 then
                                             local chance = 1 / dropChanceDenominator
                                             local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                            rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts,
-                                                dropChanceDenominator)
+                                            rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
                                             dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                                         end
                                     end
                                 end
                                 if MasterCollectorSV.showMountName then
-                                    dungeonText = dungeonText ..
-                                        string.format("      - %sMount: %s%s%s|r\n", whiteColor, mountName,
-                                            rarityAttemptsText, dropChanceText)
+                                    dungeonText = dungeonText .. string.format("%s- Mount:|r%s|Hmount:%d|h[%s]|h|r%s%s|r\n", string.rep(" ", 6), MC.blueHex, mountID, mountName, rarityAttemptsText, dropChanceText)
                                 end
                             end
                         end
@@ -463,6 +456,7 @@ function MC.grinds()
     function MC.UpdateGrindsMainFrameText()
         if MC.mainFrame and MC.mainFrame.text then
             MC.mainFrame.text:SetText(MC.ProcessActivities())
+            MC.mainFrame.text:SetHeight(MC.mainFrame.text:GetContentHeight())
         end
     end
     MC.UpdateGrindsMainFrameText()

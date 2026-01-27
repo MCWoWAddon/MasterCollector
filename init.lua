@@ -1,6 +1,6 @@
 MC = {}
 
-MC.mainFrame = CreateFrame("Frame", "MC.mainFrame", UIParent, "BackdropTemplate")
+MC.mainFrame = CreateFrame("Frame", "MasterCollectorMain", UIParent, "BackdropTemplate")
 MC.mainFrame:SetSize(305, 200)
 MC.mainFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, 1000)
 
@@ -26,6 +26,7 @@ MC.defaultValues = {
     greenFontColor = { 0, 1, 0 },
     redFontColor = { 1, 0, 0 },
     goldFontColor = { 1, 0.82, 0 },
+    blueFontColor = { 0, 0.6666667, 1 },
     backdropAlpha = 0.4,
     lastActiveTab = "Weekly\nLockouts",
     hideMinimapIcon = false,
@@ -39,6 +40,7 @@ MC.defaultValues = {
     hideGrindMountsTab = true,
     hideEventTab = false,
     showGarrisonInvasions = true,
+    showTWWDungeons = true,
     showDFDungeons = true,
     showSLWeeklyDungeons = true,
     showLegionDungeons = true,
@@ -54,7 +56,6 @@ MC.defaultValues = {
     showBFAWorldBosses = true,
     showWoDWorldBosses = true,
     showPandariaWorldBosses = true,
-    showSLDailyDungeons = true,
     showTBCDungeons = true,
     showWOTLKDungeons = true,
     showCataDungeons = true,
@@ -69,6 +70,7 @@ MC.defaultValues = {
     showSLRares = true,
     showCovenantRares = true,
     showCallings = true,
+    showTWWRares = true,
     showClassicDailies = true,
     showBfaDailies = true,
     showSLDailies = true,
@@ -116,6 +118,8 @@ MC.defaultValues = {
     showWoDDailies = true,
     showNzothAssaults = true,
     showTWWRaids = true,
+    showTWWRenownReps = true,
+    showTWWOtherReps = true,
 }
 
 MasterCollectorSV = MasterCollectorSV or {}
@@ -133,6 +137,7 @@ MC.checkboxNames = {
     "hideGrindMountsTab",
     "hideEventTab",
     "showGarrisonInvasions",
+    "showTWWDungeons",
     "showDFDungeons",
     "showSLWeeklyDungeons",
     "showLegionDungeons",
@@ -148,7 +153,6 @@ MC.checkboxNames = {
     "showBFAWorldBosses",
     "showWoDWorldBosses",
     "showPandariaWorldBosses",
-    "showSLDailyDungeons",
     "showTBCDungeons",
     "showWOTLKDungeons",
     "showCataDungeons",
@@ -163,6 +167,7 @@ MC.checkboxNames = {
     "showSLRares",
     "showCovenantRares",
     "showCallings",
+    "showTWWRares",
     "showClassicDailies",
     "showBfaDailies",
     "showSLDailies",
@@ -205,6 +210,8 @@ MC.checkboxNames = {
     "cinematicSkip",
     "showZCZones",
     "showDFOtherReps",
+    "showTWWRenownReps",
+    "showTWWOtherReps",
     "showArgentDailies",
     "showBrunnhildarDailies",
     "showWoDDailies",
@@ -291,10 +298,12 @@ function MC.InitializeColors()
     local goldColor = MasterCollectorSV["goldFontColor"] or { 1, 1, 1 }
     local greenColor = MasterCollectorSV["greenFontColor"] or { 1, 1, 1 }
     local redColor = MasterCollectorSV["redFontColor"] or { 1, 1, 1 }
+    local blueColor = MasterCollectorSV["blueFontColor"] or { 1, 1, 1 }
 
     MC.goldHex = MC.colorsToHex(goldColor)
     MC.greenHex = MC.colorsToHex(greenColor)
     MC.redHex = MC.colorsToHex(redColor)
+    MC.blueHex = MC.colorsToHex(blueColor)
 end
 
 local function handleGrindsUpdate()

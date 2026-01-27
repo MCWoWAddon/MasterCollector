@@ -9,15 +9,11 @@ function MC.dailiesDisplay()
 
     if MC.mainFrame and MC.mainFrame.text then
         local font, _, flags = GameFontNormal:GetFont()
-        MC.mainFrame.text:SetFont(font, fontSize, flags)
+        MC.mainFrame.text:SetFont("P", font, fontSize, flags)
     end
 
+
     local lockouts = {
-        ["Shadowlands Dungeons"] = {
-            [1182] = {                                            -- The Necrotic Wake
-                { 2396, { 1406 }, 23, "Marrowfang's Reins", 100 } -- Nalthor the Rimebinder (Mythic)
-            },
-        },
         ["Burning Crusade Dungeons"] = {
             [252] = {                                              -- Sethekk Halls
                 { 542, { 185 }, 2, "Reins of the Raven Lord", 67 } -- Anzu (Heroic)
@@ -103,17 +99,21 @@ function MC.dailiesDisplay()
         },
         ["DF Rares"] = {
             { 75333, 1732, "Cobalt Shalewing", 100, "Karokta" }
+        },
+        ["TWW Rares"] = {
+            { 81633, 2205, "Regurgitated Mole Reins", 100, "Lurker of the Deeps" },
+            { 85010, 2293, "Darkfuse Spy-Eye", 100, "Darkfuse Precipitant" },
         }
     }
 
     local lockoutOrder = {
-        "Shadowlands Dungeons",
         "Cataclysm Dungeons",
         "Wrath of Lich King Dungeons",
         "Burning Crusade Dungeons",
     }
 
     local rareOrder = {
+        "TWW Rares",
         "SL Rares (non-Covenant Specific)",
         "BfA Vale of Eternal Blossoms Rares",
         "BfA Uldum Rares",
@@ -390,16 +390,15 @@ function MC.dailiesDisplay()
                         covenantHasMountsToShow = true
                         hasAnyMountsToShow = true
                         local colorHex = hasCompletedQuest and MC.greenHex or MC.redHex
-                        covenantOutput[#covenantOutput + 1] = string.format("%s        %s|r\n", colorHex, dropsFrom)
+                        covenantOutput[#covenantOutput + 1] = string.format("%s%s%s|r\n", string.rep(" ", 8), colorHex, dropsFrom)
                         if MasterCollectorSV.showMountName then
-                            covenantOutput[#covenantOutput + 1] = string.format("            Mount: %s %s%s\n", mountName,
-                                rarityAttemptsText, dropChanceText)
+                            covenantOutput[#covenantOutput + 1] = string.format("%sMount: %s|Hmount:%d|h[%s]|h|r %s%s\n", string.rep(" ", 12), MC.blueHex, mountID, mountName, rarityAttemptsText, dropChanceText)
                         end
                     end
                 end
 
                 if covenantHasMountsToShow then
-                    output[#output + 1] = string.format("%s    %s Only|r\n", MC.goldHex, covenantName)
+                    output[#output + 1] = string.format("%s%s%s Only|r\n", string.rep(" ", 4), MC.goldHex, covenantName)
                     for _, line in ipairs(covenantOutput) do
                         output[#output + 1] = line
                     end
@@ -451,9 +450,7 @@ function MC.dailiesDisplay()
                     local _, _, _, itemNameInData, dropChanceDenominator = unpack(bossData)
 
                     if itemNameInData == itemName then
-                        return {
-                            dropChanceDenominator = dropChanceDenominator or 0
-                        }
+                        return {dropChanceDenominator = dropChanceDenominator or 0}
                     end
                 end
             end
@@ -487,7 +484,6 @@ function MC.dailiesDisplay()
         if secondsUntilReset > 0 then
             local hours = math.floor(secondsUntilReset / 3600)
             local minutes = math.floor((secondsUntilReset % 3600) / 60)
-
             return string.format("%sTime until daily reset: |r%02d Hrs %02d Min\n", MC.goldHex, hours, minutes)
         end
     end
@@ -500,8 +496,7 @@ function MC.dailiesDisplay()
             local dungeons = lockouts[expansion]
             if dungeons then
                 local shouldProcessExpansion = true
-                if (expansion == "Shadowlands Dungeons" and not MasterCollectorSV.showSLDailyDungeons) or
-                    (expansion == "Burning Crusade Dungeons" and not MasterCollectorSV.showTBCDungeons) or
+                if  (expansion == "Burning Crusade Dungeons" and not MasterCollectorSV.showTBCDungeons) or
                     (expansion == "Wrath of Lich King Dungeons" and not MasterCollectorSV.showWOTLKDungeons) or
                     (expansion == "Cataclysm Dungeons" and not MasterCollectorSV.showCataDungeons) then
                     shouldProcessExpansion = false
@@ -529,16 +524,14 @@ function MC.dailiesDisplay()
                                         local isDifficultyKilled = isInstanceBossKilled(dungeonID, bossID, difficulty)
                                         local color = isDifficultyKilled and MC.greenHex or MC.redHex
 
-                                        difficultiesText = difficultiesText ..
-                                            color .. "(" .. difficultyName .. ")" .. "|r"
+                                        difficultiesText = difficultiesText .. string.format("%s|Hdifficulty:%d:%d|h%s|h|r", color, dungeonID, difficulty, difficultyName)
                                         if not isDifficultyKilled then
                                             allDifficultiesKilled = false
                                         end
                                     end
 
                                     if not (MasterCollectorSV.showBossesWithNoLockout and allDifficultiesKilled) then
-                                        dungeonText = dungeonText ..
-                                            string.format("    - %s%s|r %s\n", bossColor, bossName, difficultiesText)
+                                        dungeonText = dungeonText .. string.format("%s- %s|Hjournal:1:%d:0:0:0|h%s|h|r (%s)\n", string.rep(" ", 4), bossColor, bossID, bossName, difficultiesText)
 
                                         for _, mountID in ipairs(mountIDs) do
                                             local mountName = C_MountJournal.GetMountInfoByID(mountID) or "Unknown Mount"
@@ -554,8 +547,7 @@ function MC.dailiesDisplay()
                                                     if dropChanceDenominator and dropChanceDenominator ~= 0 then
                                                         local chance = 1 / dropChanceDenominator
                                                         local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts,
-                                                            dropChanceDenominator)
+                                                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
                                                         dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                                                     else
                                                         rarityAttemptsText = ""
@@ -567,9 +559,7 @@ function MC.dailiesDisplay()
                                                 end
                                             end
                                             if MasterCollectorSV.showMountName then
-                                                dungeonText = dungeonText ..
-                                                    string.format("      - %sMount: %s%s%s|r\n", whiteColor, mountName,
-                                                        rarityAttemptsText, dropChanceText)
+                                                dungeonText = dungeonText .. string.format("%s- %sMount:|r %s|Hmount:%d|h[%s]|h|r%s%s|r\n", string.rep(" ", 6), whiteColor, MC.blueHex, mountID, mountName, rarityAttemptsText, dropChanceText)
                                             end
                                         end
                                     end
@@ -577,12 +567,11 @@ function MC.dailiesDisplay()
                             end
                         end
                         if dungeonText ~= "" then
-                            expansionText = expansionText ..
-                                "\n    " .. MC.goldHex .. dungeonName .. "|r:\n" .. dungeonText
+                            expansionText = expansionText .. string.format("\n%s%s%s|r:\n%s",string.rep(" ", 4), MC.goldHex, dungeonName, dungeonText)
                         end
                     end
                     if expansionText ~= "" then
-                        lockoutText = lockoutText .. "\n" .. MC.goldHex .. expansion .. "|r:" .. expansionText
+                        lockoutText = lockoutText .. string.format("\n%s%s|r:%s", MC.goldHex, expansion, expansionText)
                     end
                 end
             end
@@ -603,7 +592,8 @@ function MC.dailiesDisplay()
                     (expansion == "BfA Nazjatar Rares" and not MasterCollectorSV.showNazRares) or
                     (expansion == "BfA Uldum Rares" and not MasterCollectorSV.showUldumRares) or
                     (expansion == "BfA Vale of Eternal Blossoms Rares" and not MasterCollectorSV.showValeRares) or
-                    (expansion == "SL Rares (non-Covenant Specific)" and not MasterCollectorSV.showSLRares) then
+                    (expansion == "SL Rares (non-Covenant Specific)" and not MasterCollectorSV.showSLRares) or
+                    (expansion == "TWW Rares" and not MasterCollectorSV.showTWWRares) then
                     shouldProcessExpansion = false
                 end
 
@@ -638,8 +628,7 @@ function MC.dailiesDisplay()
                                 individualRareName = ""
                             end
 
-                            individualRaresText = individualRaresText ..
-                                string.format("   %s%s|r", rareNameColor, individualRareName)
+                            individualRaresText = individualRaresText .. string.format("   %s%s|r", rareNameColor, individualRareName)
                         end
 
 
@@ -667,30 +656,26 @@ function MC.dailiesDisplay()
 
                             if shouldShow then
                                 local attempts = GetRarityAttempts(itemName) or 0
-                                local rarityAttemptsText = ""
-                                local dropChanceText = ""
+                                local rarityAttemptsText, dropChanceText = "", ""
 
                                 if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
                                     if MasterCollectorSV.showRarityDetail and dropChanceDenominator and dropChanceDenominator ~= 0 then
                                         local chance = 1 / dropChanceDenominator
                                         local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts,
-                                            dropChanceDenominator)
+                                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
                                         dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                                     end
                                 end
-                                table.insert(mountTexts,
-                                    string.format("      - %s Mount: %s%s%s|r", whiteColor, mountName, rarityAttemptsText,
-                                        dropChanceText))
+                                table.insert(mountTexts, string.format("%s- %s Mount: |r%s|Hmount:%d|h[%s]|h|r%s%s|r", string.rep(" ", 6), whiteColor, MC.blueHex, mountID, mountName, rarityAttemptsText, dropChanceText))
                             end
                         end
 
                         if not MasterCollectorSV.hideBossesWithMountsObtained or hasUncollectedMounts then
                             if not (MasterCollectorSV.showBossesWithNoLockout and allKilled) then
                                 if not factionRestriction or (factionRestriction == playerFaction .. " Only") then
-                                    expansionText = expansionText .. individualRaresText .. "\n"
+                                    expansionText = expansionText .. string.format("%s\n", individualRaresText)
                                     if MasterCollectorSV.showMountName and #mountTexts > 0 then
-                                        expansionText = expansionText .. table.concat(mountTexts, "\n") .. "\n"
+                                        expansionText = expansionText .. string.format("%s\n", table.concat(mountTexts, "\n"))
                                     end
                                 end
                             end
@@ -698,14 +683,8 @@ function MC.dailiesDisplay()
                     end
                 end
 
-                if #uncollectedMounts > 0 and MasterCollectorSV.hideBossesWithMountsObtained then
-                    if expansionText ~= "" then
-                        lockoutText = lockoutText .. "\n" .. MC.goldHex .. expansion .. "|r:\n" .. expansionText
-                    end
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    if expansionText ~= "" then
-                        lockoutText = lockoutText .. "\n" .. MC.goldHex .. expansion .. "|r:\n" .. expansionText
-                    end
+                if expansionText ~= "" and (not MasterCollectorSV.hideBossesWithMountsObtained or #uncollectedMounts > 0) then
+                    lockoutText = lockoutText .. string.format("%s\n%s|r:\n%s", MC.goldHex, expansion, expansionText)
                 end
             end
         end
@@ -745,17 +724,16 @@ function MC.dailiesDisplay()
 
             if MasterCollectorSV.showCallings then
                 if not C_CovenantCallings.AreCallingsUnlocked() then
-                    output = output .. "    Callings are not unlocked yet\n"
+                    output = output .. string.format("%sCallings are not unlocked yet\n",string.rep(" ", 4))
                 end
 
                 for questID, questName in pairs(QuestIDs) do
                     local isQuestActive = C_TaskQuest.IsActive(questID)
                     if isQuestActive then
                         foundActive = true
-                        output = output .. string.format("%s    %s is available today!|r\n", MC.goldHex, questName)
+                        output = output .. string.format("%s%s%s is available today!|r\n", string.rep(" ", 4), MC.goldHex, questName)
 
                         local mountInfo = ""
-
                         for _, mountID in ipairs(mountIDs) do
                             local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(
                                 mountID)
@@ -768,14 +746,12 @@ function MC.dailiesDisplay()
                                     local chance = 1 / dropChanceDenominator
                                     local attempts = GetRarityAttempts("Necroray Egg") or 0
                                     local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                    rarityAttemptsText = string.format(" (Necroray Egg Attempts: %d/%s", attempts,
-                                        dropChanceDenominator)
+                                    rarityAttemptsText = string.format(" (Necroray Egg Attempts: %d/%s", attempts, dropChanceDenominator)
                                     dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                                 end
                             end
 
-                            mountInfo = mountInfo ..
-                                "      Mount: " .. mountName .. rarityAttemptsText .. dropChanceText .. "\n"
+                            mountInfo = mountInfo .. string.format("%s- Mount:|r%s|Hmount:%d|h[%s]|h|r%s%s|r\n", string.rep(" ", 6), MC.blueHex, mountID, mountName, rarityAttemptsText, dropChanceText)
 
                             if not collected then
                                 mountsUnobtained = true
@@ -794,9 +770,7 @@ function MC.dailiesDisplay()
                     output = output .. "No current callings found.\n"
                 end
 
-                if MasterCollectorSV.hideBossesWithMountsObtained and mountsUnobtained then
-                    return output
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+                if not MasterCollectorSV.hideBossesWithMountsObtained or mountsUnobtained then
                     return output
                 end
             end
@@ -870,16 +844,12 @@ function MC.dailiesDisplay()
                     end
 
                     local entryOutput = {}
-                    table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
+                    table.insert(entryOutput, string.rep(" ", 5) .. MC.goldHex .. objective .. "|r")
 
                     if MasterCollectorSV.showMountName then
-                        table.insert(entryOutput,
-                            "         Mount: " ..
-                            (mountName or "Unknown Mount") ..
-                            " (Progress: " .. completedDays .. " / " .. requiredDays .. " Days)")
+                        table.insert(entryOutput, string.format("%sMount: %s|Hmount:%d|h[%s]|h|r (Progress: %s / %s Days)", string.rep(" ", 9), MC.blueHex, mountID, mountName, completedDays, requiredDays))
                     else
-                        table.insert(entryOutput,
-                            "         Progress: " .. completedDays .. " / " .. requiredDays .. " Days")
+                        table.insert(entryOutput, string.format("Progress: %s / %s Days)", string.rep(" ", 9), completedDays, requiredDays))
                     end
 
                     for _, line in ipairs(entryOutput) do
@@ -887,9 +857,7 @@ function MC.dailiesDisplay()
                     end
                 end
 
-                if MasterCollectorSV.hideBossesWithMountsObtained and mountsUnobtained then
-                    return output
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+                if not MasterCollectorSV.hideBossesWithMountsObtained or mountsUnobtained then
                     return output
                 end
             end
@@ -993,30 +961,16 @@ function MC.dailiesDisplay()
                                     end
 
                                     if currentStage == 4 then
-                                        return string.format(
-                                        "     %s Champion of all Cities!  (Completed %d / %d Dailies)\n", playerFaction,
-                                            completedDailies, stageTotalDailies)
+                                        return string.format("%s%s Champion of all Cities!  (Completed %d / %d Dailies)\n", string.rep(" ", 5), playerFaction, completedDailies, stageTotalDailies)
                                     end
 
                                     local nextStageName = GetStageName(currentStage + 1)
 
                                     if not allQuestsComplete then
                                         if currentStage == 1 then
-                                            return string.format(
-                                                "     %s Aspirant (Completed %d / %d Dailies)\n         Next Rank: %s\n",
-                                                playerFaction,
-                                                completedDailies,
-                                                stageTotalDailies,
-                                                nextStageName
-                                            )
+                                            return string.format("%s%s Aspirant (Completed %d / %d Dailies)\n%sNext Rank: %s\n", string.rep(" ", 5), playerFaction, completedDailies, stageTotalDailies, string.rep(" ", 9), nextStageName)
                                         elseif currentStage == 2 then
-                                            return string.format(
-                                                "     %s Valiant (Completed %d / %d Dailies)\n         Next Rank: %s\n",
-                                                playerRace,
-                                                completedDailies,
-                                                stageTotalDailies,
-                                                nextStageName
-                                            )
+                                            return string.format("%s Valiant (Completed %d / %d Dailies)\n%sNext Rank: %s\n", string.rep(" ", 5), playerRace, completedDailies, stageTotalDailies, string.rep(" ", 9), nextStageName)
                                         elseif currentStage == 3 then
                                             for _, race in ipairs(races) do
                                                 if not racialValiantsProgress[race] then
@@ -1046,14 +1000,7 @@ function MC.dailiesDisplay()
                                                     end
                                                 end
                                             end
-
-                                            return string.format(
-                                                "     %s Champion (Completed %d / %d Dailies)\n         Next Rank: %s\n",
-                                                playerRace,
-                                                completedDailies,
-                                                stageTotalDailies,
-                                                nextStageName
-                                            )
+                                            return string.format("%s%s Champion (Completed %d / %d Dailies)\n%sNext Rank: %s\n", string.rep(" ", 5), playerRace, completedDailies, stageTotalDailies, string.rep(" ", 9), nextStageName)
                                         end
                                     end
                                     previousStageDailies = dailies
@@ -1063,18 +1010,14 @@ function MC.dailiesDisplay()
                     end
 
                     if next(racialValiantsProgress) and playerRaceValiantComplete then
-                        local racialOutput = "\n     Racial Valiant Progress:\n"
+                        local racialOutput = string.format("\n%sRacial Valiant Progress:\n", string.rep(" ", 5))
                         for race, progress in pairs(racialValiantsProgress) do
                             if progress.unlocked then
-                                racialOutput = racialOutput .. string.format(
-                                    "         - %s Valiant: (Completed %d / %d Dailies)\n",
-                                    race, progress.completedDailies, progress.totalDailies
-                                )
+                                racialOutput = racialOutput .. string.format("%s- %s Valiant: (Completed %d / %d Dailies)\n", string.rep(" ", 9), race, progress.completedDailies, progress.totalDailies)
                             end
                         end
                         progressOutput = progressOutput .. racialOutput
                     end
-
                     return "Progress not found"
                 end
 
@@ -1121,46 +1064,33 @@ function MC.dailiesDisplay()
                             mountsUnobtained = true
                         end
 
+                        local sealsTexture = CreateTextureMarkup(iconChampionSeals, 32, 32, 16, 16, 0, 1, 0, 1)
                         if MasterCollectorSV.showMountName then
-                            progressOutput = progressOutput .. (string.format("         Mount: %s\n", mountName))
-                            progressOutput = progressOutput ..
-                            (string.format("            %d / %d Champion Seals ", playerChampionSeals, sealsRequired)) ..
-                            CreateTextureMarkup(iconChampionSeals, 32, 32, 16, 16, 0, 1, 0, 1)
+                            progressOutput = progressOutput .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n", string.rep(" ", 9), MC.blueHex, mountID, mountName)
+                            progressOutput = progressOutput .. string.format("%s%d / %d Champion Seals %s", string.rep(" ", 12), playerChampionSeals, sealsRequired, sealsTexture)
 
                             local playerMoney = GetMoney()
                             local moneyString = C_CurrencyInfo.GetCoinTextureString(playerMoney)
                             local cost = C_CurrencyInfo.GetCoinTextureString(5000000)
 
                             if sealsRequired == 5 then
-                                progressOutput = progressOutput .. "  & " .. moneyString .. " / " .. cost .. " Required\n"
+                                progressOutput = progressOutput .. string.format("  & %s / %s Required\n", moneyString, cost)
                             else
                                 progressOutput = progressOutput .. " Required\n"
                             end
                         end
 
-                        if MasterCollectorSV.hideBossesWithMountsObtained and not achievementComplete then
+                        if not MasterCollectorSV.hideBossesWithMountsObtained or not achievementComplete then
                             if mountID == 305 then
-                                progressOutput = progressOutput ..
-                                (string.format("%s         Any of the Below Achievements Required:\n            %s|r\n\n", MC.goldHex, achievementNamesOutput))
+                                progressOutput = progressOutput .. string.format("%s%sAny of the Below Achievements Required:\n%s%s|r\n\n", string.rep(" ", 9), MC.goldHex, string.rep(" ", 12), achievementNamesOutput)
                             else
-                                progressOutput = progressOutput ..
-                                (string.format("%s         Any of the BelowAchievements Yet to be Completed:\n            %s|r\n\n", MC.goldHex, achievementNamesOutput))
-                            end
-                        elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                            if mountID == 305 then
-                                progressOutput = progressOutput ..
-                                (string.format("%s         Any of the Below Achievements Required:\n            %s|r\n\n", MC.goldHex, achievementNamesOutput))
-                            else
-                                progressOutput = progressOutput ..
-                                (string.format("%s         Achievement Required: %s|r\n\n", MC.goldHex, achievementNamesOutput))
+                                progressOutput = progressOutput .. string.format("%s%sAny of the Below Achievements Yet to be Completed:\n%s%s|r\n\n", string.rep(" ", 9), MC.goldHex, string.rep(" ", 12), achievementNamesOutput)
                             end
                         end
                     end
                 end
 
-                if MasterCollectorSV.hideBossesWithMountsObtained and mountsUnobtained then
-                    return progressOutput
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+                if not MasterCollectorSV.hideBossesWithMountsObtained or mountsUnobtained then
                     return progressOutput
                 end
             end
@@ -1189,7 +1119,7 @@ function MC.dailiesDisplay()
                         end
                     end
 
-                    output = output .. MC.goldHex .. header .. "|r\n"
+                    output = output .. string.format("%s%s|r\n", MC.goldHex, header)
 
                     if MasterCollectorSV.showMountName then
                         for _, mountId in ipairs(mountIds) do
@@ -1209,14 +1139,11 @@ function MC.dailiesDisplay()
                                 end
                             end
 
-                            output = output ..
-                            (string.format("         Mount: %s\n        %s%s\n", mountName, rarityAttemptsText, dropChanceText))
+                            output = output .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n%s%s%s\n", string.rep(" ", 9), MC.blueHex, mountId, mountName, string.rep(" ", 8), rarityAttemptsText, dropChanceText)
                         end
                     end
                 end
-                if MasterCollectorSV.hideBossesWithMountsObtained and mountsUnobtained then
-                    return output
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+                if not MasterCollectorSV.hideBossesWithMountsObtained or mountsUnobtained then
                     return output
                 end
             end
@@ -1235,13 +1162,11 @@ function MC.dailiesDisplay()
 
                 local function IsPlayerFaction(factionCheck)
                     local factionGroup = UnitFactionGroup("player")
-                    return (factionCheck == "Alliance Only" and factionGroup == "Alliance") or
-                        (factionCheck == "Horde Only" and factionGroup == "Horde")
+                    return (factionCheck == "Alliance Only" and factionGroup == "Alliance") or (factionCheck == "Horde Only" and factionGroup == "Horde")
                 end
 
                 for _, activity in ipairs(dailyWODActivities) do
-                    local unlockQuest, mountID, factionCheck, questList = activity[1][1], activity[2][1], activity[3],
-                        activity[4]
+                    local unlockQuest, mountID, factionCheck, questList = activity[1][1], activity[2][1], activity[3], activity[4]
                     local _, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
 
                     if not isCollected then
@@ -1261,11 +1186,10 @@ function MC.dailiesDisplay()
                             local requiredDays = #questList
 
                             if MasterCollectorSV.showMountName then
-                                output = output ..
-                                (string.format("     Mount: %s  (Progress: %d / %d Days)\n", mountName, completedDays, requiredDays))
+                                output = output .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r  (Progress: %d / %d Days)\n", string.rep(" ", 5), MC.blueHex, mountID, mountName, completedDays, requiredDays)
                             end
                         else
-                            questlineOutput = "     Please start questline/s to unlock mount dailies\n"
+                            questlineOutput = string.format("%sPlease start questline/s to unlock mount dailies\n", string.rep(" ", 5))
                         end
                     end
                 end
@@ -1274,9 +1198,7 @@ function MC.dailiesDisplay()
                     output = output .. questlineOutput
                 end
 
-                if MasterCollectorSV.hideBossesWithMountsObtained and mountsUnobtained then
-                    return output
-                elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+                if not MasterCollectorSV.hideBossesWithMountsObtained or mountsUnobtained then
                     return output
                 end
             end
@@ -1305,7 +1227,7 @@ function MC.dailiesDisplay()
                         end
                     end
 
-                    if not (isCollected and MasterCollectorSV.hideBossesWithMountsObtained) then
+                    if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
                         if isCollected then
                             completedDays = requiredDays
                         else
@@ -1343,17 +1265,13 @@ function MC.dailiesDisplay()
                         end
 
                         local entryOutput = {}
-                        table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
+                        table.insert(entryOutput, string.format("%s%s%s|r", string.rep(" ", 5), MC.goldHex, objective))
                         hasActivities = true
 
                         if MasterCollectorSV.showMountName then
-                            table.insert(entryOutput,
-                                "         Mount: " ..
-                                (mountName or "Unknown Mount") ..
-                                " (Progress: " .. completedDays .. " / " .. requiredDays .. " Days)")
+                            table.insert(entryOutput, string.format("%sMount: %s|Hmount:%d|h[%s]|h|r  (Progress: %d / %d Days)\n", string.rep(" ", 5), MC.blueHex, mountID, mountName, completedDays, requiredDays))
                         else
-                            table.insert(entryOutput,
-                                "         Progress: " .. completedDays .. " / " .. requiredDays .. " Days")
+                            table.insert(entryOutput, string.format("Progress: %s / %s Days)", string.rep(" ", 9), completedDays, requiredDays))
                         end
 
                         for _, line in ipairs(entryOutput) do
@@ -1405,21 +1323,18 @@ function MC.dailiesDisplay()
 
                     local totalAnima = CalculateTotalAnima(characterKey)
 
-                    if MasterCollectorSV.hideBossesWithMountsObtained and not achievementComplete then
+                    if not MasterCollectorSV.hideBossesWithMountsObtained or not achievementComplete then
                         hasActivities = true
-                        NFprogressOutput = NFprogressOutput .. MC.goldHex ..  "     Night Fae Covenant Star Lake Ampitheatre Daily\n         Achievement Required: " .. achieveName .. "|r\n"
-                    elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                        hasActivities = true
-                        NFprogressOutput = NFprogressOutput .. MC.goldHex ..  "     Night Fae Covenant Star Lake Ampitheatre Daily\n         Achievement Required: " .. achieveName .. "|r\n"
+                        NFprogressOutput = NFprogressOutput .. string.format("%s%sNight Fae Covenant Star Lake Ampitheatre Daily\n%sAchievement Required: %s|r\n", MC.goldHex, string.rep(" ", 5), string.rep(" ", 9), achieveName)
                     end
 
                     if MasterCollectorSV.showMountName then
-                        NFprogressOutput = NFprogressOutput .. (string.format("         Mount: %s\n", NFmountName))
-                        NFprogressOutput = NFprogressOutput .. MC.goldHex .. "         " .. totalAnima .. " / " .. currency .. " Anima " .. iconSize .. " Required|r\n"
+                        NFprogressOutput = NFprogressOutput .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n", string.rep(" ", 12), MC.blueHex, NFmountID, NFmountName)
+                        NFprogressOutput = NFprogressOutput .. string.format("%s%s%s / %s Anima %s Required|r\n", MC.goldHex, string.rep(" ", 12), totalAnima, currency, iconSize)
                     end
 
-                    if not (achievementComplete and MasterCollectorSV.hideBossesWithMountsObtained) then
-                        table.insert(output, "" .. NFprogressOutput)
+                    if not MasterCollectorSV.hideBossesWithMountsObtained or not achievementComplete then
+                        table.insert(output, NFprogressOutput)
                     end
                 end
 
@@ -1439,7 +1354,7 @@ function MC.dailiesDisplay()
                         end
                     end
 
-                    if not (isCollected and MasterCollectorSV.hideBossesWithMountsObtained) then
+                    if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
                         hasActivities = true
                         if isCollected then
                             completedDays = requiredDays
@@ -1474,16 +1389,12 @@ function MC.dailiesDisplay()
                         end
 
                         local entryOutput = {}
-                        table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
+                        table.insert(entryOutput, string.format("%s%s%s|r", string.rep(" ", 5), MC.goldHex, objective))
 
                         if MasterCollectorSV.showMountName then
-                            table.insert(entryOutput,
-                                "         Mount: " ..
-                                (mountName or "Unknown Mount") ..
-                                " (Progress: " .. completedDays .. " / " .. requiredDays .. " Days)")
+                            table.insert(entryOutput, string.format("%sMount: %s|Hmount:%d|h[%s]|h|r  (Progress: %d / %d Days)\n", string.rep(" ", 5), MC.blueHex, mountID, mountName, completedDays, requiredDays))
                         else
-                            table.insert(entryOutput,
-                                "         Progress: " .. completedDays .. " / " .. requiredDays .. " Days")
+                            table.insert(entryOutput, string.format("Progress: %s / %s Days)", string.rep(" ", 9), completedDays, requiredDays))
                         end
 
                         for _, line in ipairs(entryOutput) do
@@ -1545,31 +1456,16 @@ function MC.dailiesDisplay()
                             end
                         end
 
-                        if not isCollected and MasterCollectorSV.hideBossesWithMountsObtained then
-                            table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
+                        if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
+                            table.insert(entryOutput, string.format("%s%s%s|r", string.rep(" ", 5), MC.goldHex, objective))
+
                             if MasterCollectorSV.showMountName then
-                                table.insert(entryOutput,
-                                    "         Mount: " ..
-                                    (mountName or "Unknown Mount") ..
-                                    " (Progress: " .. completedDays .. " / " .. (requiredDays or "Unknown") .. " Days)")
+                                table.insert(entryOutput, string.format("%sMount: %s|Hmount:%d|h[%s]|h|r  (Progress: %d / %d Days)\n", string.rep(" ", 5), MC.blueHex, mountID, mountName, completedDays, requiredDays))
                             else
-                                table.insert(entryOutput,
-                                    "         Progress: Day " ..
-                                    completedDays .. " / " .. (requiredDays or "Unknown") .. " Days")
-                            end
-                        elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                            table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
-                            if MasterCollectorSV.showMountName then
-                                table.insert(entryOutput,
-                                    "         Mount: " ..
-                                    (mountName or "Unknown Mount") ..
-                                    " (Progress: " .. completedDays .. " / " .. (requiredDays or "Unknown") .. " Days)")
-                            else
-                                table.insert(entryOutput,
-                                    "         Progress: Day " ..
-                                    completedDays .. " / " .. (requiredDays or "Unknown") .. " Days")
+                                table.insert(entryOutput, string.format("Progress: %s / %s Days)", string.rep(" ", 9), completedDays, requiredDays))
                             end
                         end
+
                     elseif objective == "Emerald Dream Seedling" then
                         local questDurations = { 5, 5, 5, 5 } -- Define durations for the 4 groups of quests
 
@@ -1601,8 +1497,8 @@ function MC.dailiesDisplay()
                             if itemInBags then break end
                         end
 
-                        if not isCollected and MasterCollectorSV.hideBossesWithMountsObtained then
-                            table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
+                        if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
+                            table.insert(entryOutput, string.format("%s%s%s|r", string.rep(" ", 5), MC.goldHex, objective))
 
                             if not itemInBags and quest2Completed and quest3Completed and not quest1Completed then
                                 local npcCredit = false
@@ -1621,59 +1517,17 @@ function MC.dailiesDisplay()
                                 end
 
                                 if not npcCredit then
-                                    table.insert(entryOutput,
-                                        "         You need to use the Emerald Dream Seedling (Item ID: 208646) to proceed.")
+                                    table.insert(entryOutput, string.rep(" ", 9) .. "You need to use the Emerald Dream Seedling (Item ID: 208646) to proceed.")
                                 end
+
                             elseif itemInBags then
                                 completedDays = completedDays + 3
                             end
 
                             if MasterCollectorSV.showMountName then
-                                table.insert(entryOutput,
-                                    "         Mount: " ..
-                                    (mountName or "Unknown Mount") ..
-                                    " (Progress: " .. (completedDays or 0) .. " / " .. (requiredDays or "Unknown") .. " Days)")
+                                table.insert(entryOutput, string.format("%sMount: %s|Hmount:%d|h[%s]|h|r  (Progress: %d / %d Days)\n", string.rep(" ", 5), MC.blueHex, mountID, mountName, completedDays, requiredDays))
                             else
-                                table.insert(entryOutput,
-                                    "         Progress: " ..
-                                    (completedDays or 0) .. " / " .. (requiredDays or "Unknown") .. " Days")
-                            end
-                        elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                            table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
-
-                            if not itemInBags and quest2Completed and quest3Completed and not quest1Completed then
-                                local npcCredit = false
-                                local npcID = 209454
-                                for i = 1, C_QuestLog.GetNumQuestLogEntries() do
-                                    local questInfo = C_QuestLog.GetInfo(i)
-                                    if questInfo and questInfo.questID == 77697 then
-                                        local objectives = questInfo.objectives
-                                        for _, objective in ipairs(objectives) do
-                                            if objective and objective.npcID == npcID then
-                                                npcCredit = true
-                                                break
-                                            end
-                                        end
-                                    end
-                                end
-
-                                if not npcCredit then
-                                    table.insert(entryOutput,
-                                        "         You need to use the Emerald Dream Seedling (Item ID: 208646) to proceed.")
-                                end
-                            elseif itemInBags then
-                                completedDays = completedDays + 3
-                            end
-
-                            if MasterCollectorSV.showMountName then
-                                table.insert(entryOutput,
-                                    "         Mount: " ..
-                                    (mountName or "Unknown Mount") ..
-                                    " (Progress: " .. completedDays .. " / " .. (requiredDays or "Unknown") .. " Days)")
-                            else
-                                table.insert(entryOutput,
-                                    "         Progress: " ..
-                                    completedDays .. " / " .. (requiredDays or "Unknown") .. " Days")
+                                table.insert(entryOutput, string.format("Progress: %s / %s Days)", string.rep(" ", 9), completedDays, requiredDays))
                             end
                         end
                     elseif objective == "Little Scales Daycare Quests" then
@@ -1696,75 +1550,20 @@ function MC.dailiesDisplay()
                             end
                         end
 
-                        if MasterCollectorSV.hideBossesWithMountsObtained and (not achieved2 or not achieved3) then
-                            table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
-                            table.insert(entryOutput,
-                                "         Progress: " .. completedDays .. " / " .. (requiredDays or "Unknown") .. " Days")
+                        if not MasterCollectorSV.hideBossesWithMountsObtained or not achieved2 or not achieved3 then
+                            table.insert(entryOutput, string.format("%s%s%s|r", string.rep(" ", 5), MC.goldHex, objective))
+                            table.insert(entryOutput, string.format("%s(Progress: %s / %s Days)", string.rep(" ", 9), completedDays, requiredDays))
 
                             if not achieved2 then
-                                table.insert(entryOutput,
-                                    MC.goldHex ..
-                                    "\n         " ..
-                                    achieveName2 .. " yet to be Completed for A World Awoken Meta Achievement|r\n")
+                                table.insert(entryOutput, string.format("%s\n%s%s yet to be Completed for A World Awoken Meta Achievement|r\n", MC.goldHex, string.rep(" ", 9), achieveName2))
                             elseif not achieved3 and not achieved2 then
-                                table.insert(entryOutput,
-                                    MC.goldHex ..
-                                    "\n         " ..
-                                    achieveName2 ..
-                                    " and " ..
-                                    achieveName3 .. " yet to be Completed for A World Awoken Meta Achievement|r\n")
+                                table.insert(entryOutput, string.format("%s\n%s%s and %s yet to be Completed for A World Awoken Meta Achievement|r\n", MC.goldHex, string.rep(" ", 9), achieveName2, achieveName3))
                             elseif not achieved3 and achieved2 then
-                                table.insert(entryOutput,
-                                    MC.goldHex ..
-                                    "\n         " ..
-                                    achieveName3 .. " yet to be Completed for A World Awoken Meta Achievement|r\n")
+                                table.insert(entryOutput, string.format("%s\n%s%s yet to be Completed for A World Awoken Meta Achievement|r\n", MC.goldHex, string.rep(" ", 9), achieveName3))
                             elseif achieved3 and achieved2 then
-                                table.insert(entryOutput,
-                                    MC.goldHex ..
-                                    "\n         Required for: " ..
-                                    achieveName2 .. " and " .. achieveName3 .. " for A World Awoken Meta Achievement|r\n")
+                                table.insert(entryOutput, string.format("%s\n%sRequired for: %s and %s for A World Awoken Meta Achievement|r\n", MC.goldHex, string.rep(" ", 9), achieveName2, achieveName3))
                             else
-                                table.insert(entryOutput,
-                                    MC.goldHex ..
-                                    "\n         Both " ..
-                                    achieveName2 ..
-                                    " and " ..
-                                    achieveName3 .. " yet to be Completed for A World Awoken Meta Achievement|r\n")
-                            end
-                        elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                            table.insert(entryOutput, "     " .. MC.goldHex .. objective .. "|r")
-                            table.insert(entryOutput,
-                                "         Progress: " .. completedDays .. " / " .. (requiredDays or "Unknown") .. " Days")
-
-                            if not achieved2 then
-                                table.insert(entryOutput,
-                                    MC.goldHex ..
-                                    "\n         " ..
-                                    achieveName2 .. " yet to be Completed for A World Awoken Meta Achievement|r\n")
-                            elseif not achieved3 and not achieved2 then
-                                table.insert(entryOutput,
-                                    MC.goldHex ..
-                                    "\n         " ..
-                                    achieveName2 ..
-                                    " and " ..
-                                    achieveName3 .. " yet to be Completed for A World Awoken Meta Achievement|r\n")
-                            elseif not achieved3 and achieved2 then
-                                table.insert(entryOutput,
-                                    MC.goldHex ..
-                                    "\n         " ..
-                                    achieveName3 .. " yet to be Completed for A World Awoken Meta Achievement|r\n")
-                            elseif achieved3 and achieved2 then
-                                table.insert(entryOutput,
-                                    MC.goldHex ..
-                                    "\n         Required for: " ..
-                                    achieveName2 .. " and " .. achieveName3 .. " for A World Awoken Meta Achievement|r\n")
-                            else
-                                table.insert(entryOutput,
-                                    MC.goldHex ..
-                                    "\n         Both " ..
-                                    achieveName2 ..
-                                    " and " ..
-                                    achieveName3 .. " yet to be Completed for A World Awoken Meta Achievement|r\n")
+                                table.insert(entryOutput, string.format("%s\n%sBoth %s and yet to be Completed for A World Awoken Meta Achievement|r\n", MC.goldHex, string.rep(" ", 9), achieveName2, achieveName3))
                             end
                         end
                     elseif objective == "Eon's Fringe Daily" then
@@ -1779,20 +1578,12 @@ function MC.dailiesDisplay()
                                 end
                             end
                         end
-                        
+
                         colorHex = anyQuestCompleted and MC.greenHex or MC.redHex
 
-                        if MasterCollectorSV.hideBossesWithMountsObtained and not achieved then
-                            table.insert(entryOutput, "     " .. colorHex .. objective .. "|r")
-                            table.insert(entryOutput,
-                                MC.goldHex ..
-                                "         " ..
-                                achieveName .. " yet to be Completed for A World Awoken Meta Achievement|r\n")
-                        elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                            table.insert(entryOutput, "     " .. colorHex .. objective .. "|r")
-                            table.insert(entryOutput,
-                                MC.goldHex ..
-                                "         Required for " .. achieveName .. " for A World Awoken Meta Achievement|r\n")
+                        if not MasterCollectorSV.hideBossesWithMountsObtained or not achieved then
+                            table.insert(entryOutput, string.format("%s%s%s|r", string.rep(" ", 5), MC.goldHex, objective))
+                            table.insert(entryOutput, string.format("%s%s%s%s", MC.goldHex, string.rep(" ", 9), achieveName, (achieved and " for A World Awoken Meta Achievement Complete|r\n" or " yet to be Completed for A World Awoken Meta Achievement|r\n")))
                         end
                     elseif objective == "Ritual Offerings & Waterlogged Bundle Looted" then
                         local ritualOfferingsCompleted = 0
@@ -1819,37 +1610,15 @@ function MC.dailiesDisplay()
                         local allQuestsCompleted = (ritualOfferingsCompleted == 4 and waterloggedBundleCompleted)
                         colorHex = allQuestsCompleted and MC.greenHex or MC.redHex
 
-                        if not isCollected and MasterCollectorSV.hideBossesWithMountsObtained then
-                            table.insert(entryOutput, "     " .. colorHex .. objective .. "|r")
+                        if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
+                            table.insert(entryOutput, string.rep(" ", 5) .. colorHex .. objective .. "|r")
 
                             if MasterCollectorSV.showMountName and not allQuestsCompleted then
-                                table.insert(entryOutput,
-                                    "         Mount: " ..
-                                    (mountName or "Unknown Mount") ..
-                                    " (Progress: " .. ritualOfferingsCompleted .. "/4 Ritual Offerings, " ..
-                                    (waterloggedBundleCompleted and "Waterlogged Bundle Completed)" or "Waterlogged Bundle Not Completed)"))
+                                table.insert(entryOutput, string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n%sProgress: %s/4 Ritual Offerings, %s", string.rep(" ", 9), MC.blueHex, mountID, mountName, string.rep(" ", 9), ritualOfferingsCompleted, (waterloggedBundleCompleted and "Waterlogged Bundle Completed" or "Waterlogged Bundle Not Completed")))
                             elseif MasterCollectorSV.showMountName then
-                                table.insert(entryOutput, "         Mount: " .. (mountName or "Unknown Mount"))
+                                table.insert(entryOutput, string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n", string.rep(" ", 9), MC.blueHex, mountID, mountName))
                             elseif not allQuestsCompleted then
-                                table.insert(entryOutput,
-                                    "         Progress: " .. ritualOfferingsCompleted .. "/4 Ritual Offerings, " ..
-                                    (waterloggedBundleCompleted and "Waterlogged Bundle Completed" or "Waterlogged Bundle Not Completed"))
-                            end
-                        elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                            table.insert(entryOutput, "     " .. colorHex .. objective .. "|r")
-
-                            if MasterCollectorSV.showMountName and not allQuestsCompleted then
-                                table.insert(entryOutput,
-                                    "         Mount: " ..
-                                    (mountName or "Unknown Mount") ..
-                                    " (Progress: " .. ritualOfferingsCompleted .. "/4 Ritual Offerings, " ..
-                                    (waterloggedBundleCompleted and "Waterlogged Bundle Completed)" or "Waterlogged Bundle Not Completed)"))
-                            elseif MasterCollectorSV.showMountName then
-                                table.insert(entryOutput, "         Mount: " .. (mountName or "Unknown Mount"))
-                            elseif not allQuestsCompleted then
-                                table.insert(entryOutput,
-                                    "         Progress: " .. ritualOfferingsCompleted .. "/4 Ritual Offerings, " ..
-                                    (waterloggedBundleCompleted and "Waterlogged Bundle Completed" or "Waterlogged Bundle Not Completed"))
+                                table.insert(entryOutput, string.format("%sProgress: %s/4 Ritual Offerings, %s", string.rep(" ", 9), ritualOfferingsCompleted, (waterloggedBundleCompleted and "Waterlogged Bundle Completed" or "Waterlogged Bundle Not Completed")))
                             end
                         end
                     end
@@ -1870,9 +1639,7 @@ function MC.dailiesDisplay()
                 end
             end
 
-            if MasterCollectorSV.hideBossesWithMountsObtained and mountsUnobtained then
-                return output
-            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+            if not MasterCollectorSV.hideBossesWithMountsObtained or mountsUnobtained then
                 return output
             end
         end
@@ -1908,25 +1675,19 @@ function MC.dailiesDisplay()
 
                     if PlayerHasMount(mountIDs) then
                         if MasterCollectorSV.showMountName then
-                            outputText = outputText .. "     Mount: " .. mountName .. "\n" .. "     " .. MC.goldHex ..
-                            playerDreamInfusion .. " / 1 Dream Infusion " .. iconDreamInfusion .. " Required|r\n"
+                            outputText = outputText .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r\n%s%s%s / 1 Dream Infusion %s Required|r\n", string.rep(" ", 5), MC.blueHex, targetMountID, mountName, string.rep(" ", 5), MC.goldHex, playerDreamInfusion, iconDreamInfusion)
                         end
-                        outputText = outputText .. MC.goldHex .. description .. "|r\n"
+                        outputText = outputText .. string.format("%s%s|r\n", MC.goldHex, description)
                     else
                         IsMountUnobtained(targetMountID)
                         if MasterCollectorSV.showMountName then
-                            outputText = outputText .. "     Mount Available for Purchase: " .. mountName .. "|r\n" .. 
-                            "     " .. MC.goldHex ..
-                            playerDreamInfusion .. " / 1 Dream Infusion " .. iconDreamInfusion .. " Required|r\n"
+                            outputText = outputText .. string.format("%sMount Available for Purchase: %s|Hmount:%d|h[%s]|h|r\n%s%s%s / 1 Dream Infusion %s Required|r\n", string.rep(" ", 5), MC.blueHex, targetMountID, mountName, string.rep(" ", 5), MC.goldHex, playerDreamInfusion, iconDreamInfusion)
                         end
-                        outputText = outputText ..
-                            MC.goldHex .. "         You have one of the required mounts already!|r\n"
+                        outputText = outputText .. string.format("%s%sYou have one of the required mounts already!|r\n", MC.goldHex, string.rep(" ", 9))
                     end
                 end
             end
-            if MasterCollectorSV.hideBossesWithMountsObtained and mountsUnobtained then
-                return outputText
-            elseif not MasterCollectorSV.hideBossesWithMountsObtained then
+            if not MasterCollectorSV.hideBossesWithMountsObtained or mountsUnobtained then
                 return outputText
             end
         end
@@ -1964,5 +1725,6 @@ function MC.dailiesDisplay()
 
     if MC.mainFrame and MC.mainFrame.text then
         MC.mainFrame.text:SetText(displayLockouts())
+        MC.mainFrame.text:SetHeight(MC.mainFrame.text:GetContentHeight())
     end
 end

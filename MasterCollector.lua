@@ -3,9 +3,11 @@ MC.mainFrame:SetResizable(true)
 MC.mainFrame:SetMovable(true)
 MC.mainFrame:RegisterForDrag("LeftButton")
 MC.mainFrame:SetScript("OnDragStart", MC.mainFrame.StartMoving)
+
 MC.mainFrame:SetScript("OnDragStop", function(self)
     self:StopMovingOrSizing()
     local point, relativeTo, relativePoint, xOfs, yOfs = self:GetPoint()
+
     MasterCollectorSV.framePosition = {
         point = point,
         relativePoint = relativePoint,
@@ -13,7 +15,9 @@ MC.mainFrame:SetScript("OnDragStop", function(self)
         y = yOfs
     }
 end)
+
 MC.mainFrame:SetScript("OnHide", MC.mainFrame.StopMovingOrSizing)
+
 MC.mainFrame:SetClampedToScreen(true)
 
 function MC.UpdateMainFrameSize()
@@ -47,17 +51,59 @@ MC.frameScroll = CreateFrame("ScrollFrame", "MC.frameScroll", MC.mainFrame, "UIP
 MC.frameScroll:SetPoint("TOPLEFT", MC.mainFrame, "TOPLEFT", 3, -40)
 MC.frameScroll:SetPoint("BOTTOMRIGHT", MC.mainFrame, "BOTTOMRIGHT", -27, 10)
 
-MC.frameChild = CreateFrame("Frame", "MC.frameChild", MC.frameScroll)
+MC.frameChild = CreateFrame("Frame", "nil", MC.frameScroll)
 MC.frameChild:SetWidth(MC.mainFrame:GetWidth() - 18)
 MC.frameChild:SetPoint("TOPLEFT")
 MC.frameChild:SetPoint("BOTTOMRIGHT")
+MC.frameChild:EnableMouse(true)
+
 MC.frameScroll:SetScrollChild(MC.frameChild)
 
-MC.mainFrame.text = MC.frameChild:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+MC.mainFrame.text = CreateFrame("SimpleHTML", nil, MC.frameChild)
 MC.mainFrame.text:SetWidth(MC.frameChild:GetWidth() - 20)
-MC.mainFrame.text:ClearAllPoints()
 MC.mainFrame.text:SetPoint("TOPLEFT", MC.frameChild, "TOPLEFT", 10, -10)
-MC.mainFrame.text:SetJustifyH("LEFT")
+MC.mainFrame.text:SetFontObject("p", GameFontHighlight)
+MC.mainFrame.text:SetJustifyH("p", "LEFT")
+
+MC.mainFrame.text:SetScript("OnHyperlinkClick",
+    function(_, link, text, button)
+        local linkType, instanceID, difficultyID = strsplit(":", link)
+        if linkType == "difficulty" then
+            difficultyID = tonumber(difficultyID)
+
+            SetRaidDifficultyID(difficultyID)
+            SetDungeonDifficultyID(difficultyID)
+        elseif linkType == "mount" then
+            local mountID = tonumber(instanceID)
+            -- Open mount journal and search for the mount
+            if not CollectionsJournal then
+                ToggleCollectionsJournal(1) -- open the mount tab if closed
+            else
+                if not CollectionsJournal:IsShown() then
+                    ToggleCollectionsJournal(1)
+                else
+                    CollectionsJournal_SetTab(CollectionsJournal, 1) -- make sure it's on mounts
+                end
+            end
+            -- Highlight/select the mount
+            MountJournal_SelectByMountID(mountID)
+
+        else
+            SetItemRef(link, text, button)
+        end
+    end)
+
+MC.mainFrame.text:SetScript("OnHyperlinkEnter",
+    function(_, link)
+        GameTooltip:SetOwner(MC.frameScroll, "ANCHOR_RIGHT")
+        GameTooltip:SetHyperlink(link)
+        GameTooltip:Show()
+    end)
+
+MC.mainFrame.text:SetScript("OnHyperlinkLeave",
+    function()
+        GameTooltip:Hide()
+    end)
 
 function MC.InitializeFramePosition()
     if MasterCollectorSV.framePosition then
@@ -79,7 +125,7 @@ end
 
 function MC.UpdateFrameHeight()
     C_Timer.After(0.1, function()
-        local textHeight = MC.mainFrame.text:GetStringHeight()
+        local textHeight = MC.mainFrame.text:GetContentHeight()
         local padding = 20
         MC.frameChild:SetHeight(textHeight + padding)
         MC.frameScroll:UpdateScrollChildRect()
@@ -102,6 +148,7 @@ end
 
 local ADDON_NAME = ...
 local minimapRadius = 105
+
 function MC.CreateMinimapButton()
     if MasterCollectorSV.hideMinimapButton then
         if MC.minimapButton then
@@ -109,8 +156,10 @@ function MC.CreateMinimapButton()
         end
         return
     end
+
     if not MC.minimapButton then
         local minimapButton = CreateFrame("Button", "MasterCollectorMinimapButton", Minimap)
+
         minimapButton:SetSize(24, 24)
         minimapButton:SetFrameStrata("MEDIUM")
         minimapButton:SetFrameLevel(8)
@@ -122,6 +171,7 @@ function MC.CreateMinimapButton()
         minimapButton:SetPoint("CENTER", Minimap, "CENTER", minimapRadius, 0)
         minimapButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
         minimapButton:SetScript("OnClick", function(self,button)
+
             if button == "LeftButton" then
                 if MC.mainFrame:IsVisible() then
                     MC.mainFrame:Hide()
@@ -133,10 +183,12 @@ function MC.CreateMinimapButton()
                         MC.RefreshMCEvents()
                     end
                 end
+
             elseif button == "RightButton" then
                 Settings.OpenToCategory(MC.mainOptionsCategory:GetID())
             end
         end)
+
         minimapButton:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
             GameTooltip:SetText("|T" .. C_AddOns.GetAddOnMetadata(ADDON_NAME, "IconTexture") .. ":0|t " .. C_AddOns.GetAddOnMetadata(ADDON_NAME, "Title"))
@@ -165,10 +217,8 @@ function MC.CreateMinimapButton()
                 local cx, cy = GetCursorPosition()
                 local scale = UIParent:GetScale()
                 cx, cy = cx / scale, cy / scale
-
                 local angle = math.atan2(cy - my, cx - mx)
                 MasterCollectorSV.minimapButtonAngle = angle
-
                 local x = math.cos(angle) * minimapRadius
                 local y = math.sin(angle) * minimapRadius
                 self:SetPoint("CENTER", Minimap, "CENTER", x, y)
@@ -181,7 +231,6 @@ function MC.CreateMinimapButton()
             local y = math.sin(angle) * minimapRadius
             minimapButton:SetPoint("CENTER", Minimap, "CENTER", x, y)
         end
-
         MC.minimapButton = minimapButton
     end
     if not MasterCollectorSV.hideMinimapButton and MC.minimapButton then
@@ -197,15 +246,14 @@ local resizeHandle = CreateFrame("Button", "random", MC.mainFrame)
 resizeHandle:SetSize(24, 24)
 resizeHandle:SetFrameStrata("MEDIUM")
 resizeHandle:SetPoint("BOTTOMRIGHT")
-
 resizeHandle:EnableMouse(true)
 resizeHandle:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
 resizeHandle:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
 resizeHandle:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Up")
-
 resizeHandle:SetScript("OnMouseDown", function(self, button)
     MC.mainFrame:StartSizing("BOTTOMRIGHT")
 end)
+
 resizeHandle:SetScript("OnMouseUp", function(self, button)
     MC.mainFrame:StopMovingOrSizing()
     MC.UpdateTextWrapping()
@@ -251,24 +299,21 @@ lockButton:SetScript("OnClick", ToggleLock)
 -- Tab Setup
 local previousVisibleTab = nil
 local tabs = CreateFrame("Frame", "MasterCollectorTabs", MC.mainFrame)
-tabs:SetPoint("BOTTOMLEFT", MC.mainFrame, "BOTTOMLEFT", 0, -55)
-tabs:SetSize(300, 60)
+tabs:SetPoint("BOTTOMLEFT", MC.mainFrame, "BOTTOMLEFT", 0, -45)
+tabs:SetSize(100, 50)
 
 local function CreateTabButton(text, index, variable)
     local button = CreateFrame("Button", "MasterCollectorTabButton" .. index, tabs)
-    button:SetSize(100, 50)
+    button:SetSize(100, 75)
     button:SetText(text)
-
     local buttonText = button:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    buttonText:SetText(text)
-    buttonText:SetPoint("TOP", button, "TOP", 0, -5)
 
+    buttonText:SetText(text)
     button:SetFontString(buttonText)
     button:SetNormalFontObject("GameFontHighlight")
     button:SetHighlightFontObject("GameFontHighlight")
     button:SetNormalTexture("Interface\\PaperDollInfoFrame\\UI-Character-InActiveTab")
     button:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-ActiveTab")
-
     button:SetScript("OnClick", function(self)
         MC.SetActiveTab(self)
     end)
@@ -290,12 +335,12 @@ end
 
 MC.weeklyTab = CreateTabButton("Weekly\nLockouts", 1, "showWeeklyTab")
 MC.dailyTab = CreateTabButton("Daily\nLockouts", 2, "showDailyTab")
-MC.dailyrepTab = CreateTabButton("Daily Rep\nGrinds", 3, "showDailyRepTab")
+MC.dailyrepTab = CreateTabButton("Reputations", 3, "showDailyRepTab")
 MC.grindMountsTab = CreateTabButton("Anytime\nGrinds", 4, "showAnytimeGrindsTab")
 MC.eventTab = CreateTabButton("Event\nGrinds", 5, "showEventTab")
 
 function MC.UpdateTabPositions()
-    local previousVisibleTab = nil
+    previousVisibleTab = nil
     local tabsList = {
         MC.weeklyTab,
         MC.dailyTab,
@@ -328,7 +373,6 @@ function MC.UpdateTabVisibility()
     for _, tabInfo in ipairs(tabsList) do
         local tab = tabInfo.tab
         local variable = tabInfo.variable
-
         if MasterCollectorSV[variable] then
             tab:Hide()
         else
@@ -341,13 +385,12 @@ end
 
 function MC.SetActiveTab(selectedButton)
     local tabID = selectedButton and selectedButton:GetID() or nil
-
     if not tabID then
         if MasterCollectorSV.lastActiveTab == "Weekly\nLockouts" then
             tabID = 1
         elseif MasterCollectorSV.lastActiveTab == "Daily\nLockouts" then
             tabID = 2
-        elseif MasterCollectorSV.lastActiveTab == "Daily Rep\nGrinds" then
+        elseif MasterCollectorSV.lastActiveTab == "Reputations" then
             tabID = 3
         elseif MasterCollectorSV.lastActiveTab == "Anytime\nGrinds" then
             tabID = 4
@@ -360,33 +403,37 @@ function MC.SetActiveTab(selectedButton)
     for i = 1, 5 do
         local button = _G["MasterCollectorTabButton" .. i]
         if button then
+            local txt = button:GetFontString()
+            if txt then
+                txt:ClearAllPoints()
+                txt:SetPoint("TOP", button, "CENTER", 0, 20)
+            end
             button:SetSize(100, 50)
             button:SetNormalTexture("Interface\\PaperDollInfoFrame\\UI-Character-InActiveTab")
         end
     end
 
     if selectedButton then
+        local txt = selectedButton:GetFontString()
+        if txt then
+            txt:ClearAllPoints()
+            txt:SetPoint("CENTER", selectedButton, "CENTER", 0, 20)
+        end
         selectedButton:SetSize(100, 75)
         selectedButton:SetNormalTexture("Interface\\PaperDollInfoFrame\\UI-Character-ActiveTab")
     end
 
     local tabNames = {
-        [1] = {
-            title = "Weekly Lockouts",
-            key = "Weekly\nLockouts",
-            displayFunc = function()
-                C_Timer.After(0.1, function()
-                    MC.weeklyDisplay()
-                end)
-            end
-        },
+        [1] = { title = "Weekly Lockouts", key = "Weekly\nLockouts", displayFunc = function() C_Timer.After(0.1, function() MC.weeklyDisplay() end) end},
         [2] = { title = "Daily Lockouts", key = "Daily\nLockouts", displayFunc = MC.dailiesDisplay },
-        [3] = { title = "Daily Grind Reputation Tracker", key = "Daily Rep\nGrinds", displayFunc = MC.repsDisplay },
+        [3] = { title = "Reputation Tracker", key = "Reputations", displayFunc = MC.repsDisplay },
         [4] = { title = "Grind When You Have Time", key = "Anytime\nGrinds", displayFunc = MC.grinds }, -- function() MC.mainFrame.text:SetText("Coming Soon!") end },
         [5] = { title = "Limited Time - Event Mounts", key = "Event\nGrinds", displayFunc = MC.events }
+
     }
 
     local selectedTab = tabNames[tabID]
+
     if selectedTab then
         MC.txtFrameTitle:SetText(selectedTab.title)
         MC.currentTab = selectedTab.key
@@ -394,6 +441,7 @@ function MC.SetActiveTab(selectedButton)
         selectedTab.displayFunc()
     end
     MC.UpdateFrameHeight()
+
 end
 
 MC.optionsButton = CreateFrame("Button", nil, MC.mainFrame)
@@ -408,11 +456,13 @@ local function OnCommandButtonClick()
 end
 
 MC.optionsButton:SetScript("OnClick", OnCommandButtonClick)
+
 MC.optionsButton:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:AddLine("Click to Open Options", nil, nil, nil, true)
     GameTooltip:Show()
 end)
+
 MC.optionsButton:SetScript("OnLeave", function()
     GameTooltip:Hide()
 end)
