@@ -46,6 +46,16 @@ function MC.weeklyDisplay()
                 }
             },
             ["Raid Mounts"] = {
+                ["TWW Raids"] = {
+                    [1296] = {                                                        -- Liberation of Undermine
+                        { 2646, { 2507 }, { 17, 14, 15, 16 }, "Prototype A.S.M.R.", 100 } -- Chrome King Gallywix (LFR, Normal, Heroic, Mythic)
+                        -- { 2646, { 2487 }, { 16 }, "The Big G", 100 } -- Chrome King Gallywix (Mythic)
+                        },
+                    [1273] = {                                                        -- Nerub'ar Palace
+                        { 2602, { 2219 }, { 17, 14, 15, 16 }, "Reins of the Sureki Skyrazor", 100 } -- Queen Ansurek (LFR, Normal, Heroic, Mythic)
+                        -- { 2602, { 2223 }, { 16 }, "Reins of the Ascended Skyrazor", 100 } -- Queen Ansurek (Mythic)
+                        }
+                    },
                 ["DF Raids"] = {
                     [1207] = {                                                        -- Amirdrassil
                         { 2519, { 1818 }, { 16 }, "Reins of Anu'relos, Flame's Guidance.", 100 } -- Fyrakk (Mythic)
@@ -175,6 +185,7 @@ function MC.weeklyDisplay()
             { type = "dungeon",   key = "showSLWeeklyDungeons",    name = "SL Mythic Dungeons" },
             { type = "dungeon",   key = "showLegionDungeons",      name = "Legion Mythic Dungeons" },
             { type = "dungeon",   key = "showBFADungeons",         name = "BfA Mythic Dungeons" },
+            { type = "raid",      key = "showTWWRaids",             name = "TWW Raids" },
             { type = "raid",      key = "showDFRaids",             name = "DF Raids" },
             { type = "raid",      key = "showSLRaids",             name = "SL Raids" },
             { type = "raid",      key = "showBFARaids",            name = "BFA Raids" },
@@ -244,6 +255,8 @@ function MC.weeklyDisplay()
     local function getLFRWingName(instanceID)
         local faction = UnitFactionGroup("player")
         local instanceIDToLFGDungeonID = {
+            [1296] = 2783,                                -- Liberation of Undermine
+            [1273] = 2651,                                -- Nerub'ar Place
             [1193] = 2221,                                -- Sanctum of Domination
             [875] = 1494,                                 -- Tomb of Sargeras
             [946] = 1610,                                 -- Antorus, the Burning Throne

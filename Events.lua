@@ -95,7 +95,7 @@ function MC.events()
         if MasterCollectorSV.showFFAWQTimer then
             for questID, questName in pairs(ffaQuestIDs) do
                 local mapID = ffaMapIDs[questID]
-                local taskInfo = C_TaskQuest.GetQuestsForPlayerByMapID(mapID)
+                local taskInfo = C_TaskQuest.GetQuestsOnMap(mapID)
 
                 if taskInfo then
                     for _, info in ipairs(taskInfo) do
@@ -1419,7 +1419,7 @@ function MC.events()
             local overallDuration = nil
             for questID, questName in pairs(legendaryQuestIDs) do
                 local mapID = legendaryMapIDs[questID]
-                local taskInfo = C_TaskQuest.GetQuestsForPlayerByMapID(mapID)
+                local taskInfo = C_TaskQuest.GetQuestsOnMap(mapID)
 
                 if taskInfo then
                     for _, info in ipairs(taskInfo) do
@@ -1687,14 +1687,7 @@ function MC.events()
                         " / 20,000 Mysterious Fragments  " ..
                         CreateTextureMarkup(iconMysteriousFragments, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
                 elseif not MasterCollectorSV.hideBossesWithMountsObtained then
-                    eventText = eventText ..
-                        "    Mount: " ..
-                        currencyMountName ..
-                        MC.goldHex ..
-                        "\n    " ..
-                        playerMysteriousFragments ..
-                        " / 20,000 Mysterious Fragments  " ..
-                        CreateTextureMarkup(iconMysteriousFragments, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
+                    eventText = eventText .. "    Mount: " .. currencyMountName .. MC.goldHex .. "\n    " .. playerMysteriousFragments .. " / 20,000 Mysterious Fragments  " .. CreateTextureMarkup(iconMysteriousFragments, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
                 end
 
                 if MasterCollectorSV.hideBossesWithMountsObtained and not collected2 then
@@ -1981,10 +1974,7 @@ function MC.events()
                 local mountName, _, _, _, _, _, _, _, _, _, collected = C_MountJournal.GetMountInfoByID(mountID)
 
                 if mountName then
-                    local line = mountName ..
-                        " " ..
-                        MC.goldHex ..
-                        playerCurrency .. " / " .. cost .. " Service Medals " .. iconSize .. " Required|r\n"
+                    local line = mountName .. " " .. MC.goldHex .. playerCurrency .. " / " .. cost .. " Service Medals " .. iconSize .. " Required|r\n"
 
                     if not collected then
                         allCollected = false
@@ -2230,7 +2220,7 @@ function MC.events()
             { "Hallow's End",                       { 219 },                         { "The Horseman's Reins" },                                                                                                        { 200 } },
             { "Noblegarden",                        { 430, 2023 },                   { "Swift Springstrider", "Noble Flying Carpet" },                                                                                  { 0, 100 } },
             { "Feast of Winter Veil",               { 769 },                         { "Minion of Grumpus" },                                                                                                           { 100 } },
-            { "Darkmoon Faire",                     { 429, 434, 855, 962 },          { "Swift Forest Strider", "Darkmoon Dancing Bear", "Darkwater Skate", "Darkmoon Dirigible" },                                      { 0, 0, 0, 0 } },
+            { "Darkmoon Faire",                     { 429, 434, 962, 855 },          { "Swift Forest Strider", "Darkmoon Dancing Bear", "Darkmoon Dirigible", "Darkwater Skate" },                                      { 0, 0, 0, 0 } },
             { "Classic Timewalking",                { 2224, 1737, 781 },             { "Reins of the Frayfeather Hippogryph", "Sandy Shalewing", "Reins of the Infinite Timereaver" },                                  { 0, 0, 4000 } },
             { "Burning Crusade Timewalking",        { 778, 2225, 1737, 781 },        { "Reins of the Eclipse Dragonhawk", "Reins of the Amani Hunting Bear", "Sandy Shalewing", "Reins of the Infinite Timereaver" },   { 0, 0, 0, 4000 } },
             { "Cataclysm Timewalking",              { 2473, 1737, 781 },             { "Broodling of Sinestra", "Sandy Shalewing", "Reins of the Infinite Timereaver" },                                                { 0, 0, 4000 } },
@@ -2242,23 +2232,23 @@ function MC.events()
             { "World Boss: Dunegorger Kraulok",     { 1250 },                        { "Slightly Damp Pile of Fur" },                                                                                                   { 100 } }
         }
 
-        local oceRealms = {
-            ["Aman'Thul"] = true,
-            ["Barthilas"] = true,
-            ["Caelestrasz"] = true,
-            ["Dath'Remar"] = true,
-            ["Dreadmaul"] = true,
-            ["Frostmourne"] = true,
-            ["Gundrak"] = true,
-            ["Jubei'Thos"] = true,
-            ["Khaz'goroth"] = true,
-            ["Nagrand"] = true,
-            ["Saurfang"] = true,
-            ["Thaurissan"] = true
+        local cacheDrops = {
+            {{183, 100}, {781, 4000}}, -- Cache of Timewarped Treasures (BC) item 208091, quest id 47523
+            {{363, 100}, {304, 100}, {781, 4000}}, -- Cache of Timewarped Treasures (WOTLK) item 208094, quest id 50316
+            {{415, 100}, {425, 100}, {442, 100}, {444, 100}, {445, 100}, {781, 4000}} -- Cache of Timewarped Treasures (Cata) item 208095, quest id 57637
         }
 
-        local realmName = GetRealmName()
-        local isOCERealm = oceRealms[realmName]
+        local calendarBagCurrency = {
+            {431, 270, 49927}, -- Love Tokens in Bags
+            {1941, 270, 49927}, -- Love Tokens in Bags
+            {430, 500, 44791} -- Noblegarden Chocolate in Bags
+        }
+
+        local calendarCurrency = {
+            {429, 180, 515}, -- DMF Token Currency
+            {434, 180, 515}, -- DMF Token Currency
+            {962, 1000, 515} -- DMF Token Currency
+        }
 
         local monthInfo = C_Calendar.GetMonthInfo(0)
         local dayCount = monthInfo.numDays
@@ -2274,10 +2264,8 @@ function MC.events()
         }
 
         local currentTime = time(currentTimeTable)
-
-        if isOCERealm then
-            currentTime = currentTime - (18 * 60 * 60)
-        end
+        local timezoneOffsetSeconds = C_DateAndTime.GetServerTimeLocal() - GetServerTime()
+        currentTime = currentTime - timezoneOffsetSeconds
 
         local activeEvents = {}
         local output = ""
@@ -2285,7 +2273,7 @@ function MC.events()
         local playerTimewarpedBadges = C_CurrencyInfo.GetCurrencyInfo(1166).quantity
         local iconTimewarpedBadges = C_CurrencyInfo.GetCurrencyInfo(1166).iconFileID
 
-        if activeTimewalkingEvent then
+         if activeTimewalkingEvent then
             for _, eventInfo in ipairs(calendarEvents) do
                 local eventName = eventInfo[1]
 
@@ -2307,23 +2295,18 @@ function MC.events()
                                     if MasterCollectorSV.showRarityDetail then
                                         local chance = 1 / dropChanceDenominator
                                         local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                        rarityAttemptsText = string.format("  (Attempts: %d/%s", attempts,
-                                            dropChanceDenominator)
+                                        rarityAttemptsText = string.format("  (Attempts: %d/%s", attempts, dropChanceDenominator)
                                         dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                                     end
                                 end
                             else
                                 if mountID ~= 781 then
-                                    mountCurrency =
-                                        (string.format("\n%s    %d / 5000 Timewarped Badges ", MC.goldHex, playerTimewarpedBadges)) ..
-                                        CreateTextureMarkup(iconTimewarpedBadges, 32, 32, 16, 16, 0, 1, 0, 1) ..
-                                        " Required|r\n"
+                                    mountCurrency = (string.format("\n%s    %d / 5000 Timewarped Badges ", MC.goldHex, playerTimewarpedBadges)) .. CreateTextureMarkup(iconTimewarpedBadges, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
                                 end
                             end
 
                             if MasterCollectorSV.showMountName then
-                                table.insert(mountsToShow,
-                                    mountName .. mountCurrency .. rarityAttemptsText .. dropChanceText)
+                                table.insert(mountsToShow, mountName .. mountCurrency .. rarityAttemptsText .. dropChanceText)
                             end
                         end
                     end
@@ -2338,6 +2321,26 @@ function MC.events()
                     end
                 end
             end
+        end
+
+        local function getCurrencyInfoForMount(mountID)
+            for _, entry in ipairs(calendarBagCurrency) do
+                if entry[1] == mountID then
+                    local amount = entry[2]
+                    local itemID = entry[3]
+                    local itemName = C_Item.GetItemInfo(itemID) or ("ItemID: " .. itemID)
+                    return amount, itemName, "item", itemID
+                end
+            end
+            for _, entry in ipairs(calendarCurrency) do
+                if entry[1] == mountID then
+                    local amount = entry[2]
+                    local currencyID = entry[3]
+                    local currencyName = C_CurrencyInfo.GetCurrencyInfo(currencyID) and C_CurrencyInfo.GetCurrencyInfo(currencyID).name or ("CurrencyID: " .. currencyID)
+                    return amount, currencyName, "currency", currencyID
+                end
+            end
+            return nil
         end
 
         for day = 1, dayCount do
@@ -2382,7 +2385,8 @@ function MC.events()
                                         local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
 
                                         if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
-                                            local rarityAttemptsText, dropChanceText = "", ""
+                                            local rarityAttemptsText, dropChanceText, currencyText  = "", "", ""
+                                            local amount, currencyName, currencyType, currencyID = getCurrencyInfoForMount(mountID)
                                             local attempts = GetRarityAttempts(eventInfo[3][j]) or 0
                                             local dropChanceDenominator = (eventInfo[4] and eventInfo[4][j]) or 1
 
@@ -2390,22 +2394,33 @@ function MC.events()
                                                 if MasterCollectorSV.showRarityDetail then
                                                     local chance = 1 / dropChanceDenominator
                                                     local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                                    rarityAttemptsText = string.format("  (Attempts: %d/%s", attempts,
-                                                        dropChanceDenominator)
+                                                    rarityAttemptsText = string.format("  (Attempts: %d/%s", attempts, dropChanceDenominator)
                                                     dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                                                 end
                                             end
 
+                                            if amount and currencyName then
+                                                if currencyType == "currency" and currencyID then
+                                                    local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyID)
+                                                    local owned = currencyInfo.quantity
+                                                    local icon = currencyInfo.iconFileID
+                                                    currencyText = string.format("\n%s    %d / %d %s ", MC.goldHex, owned, amount, currencyName) .. CreateTextureMarkup(icon, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r\n"
+                                                elseif currencyType == "item" and currencyID then
+                                                    local itemName, _, _, _, _, _, _, _, _, icon = C_Item.GetItemInfo(currencyID)
+                                                    local count = C_Item.GetItemCount(currencyID, false, false)
+                                                    currencyText = string.format("\n%s    %d / %d %s ", MC.goldHex, count, amount, itemName) .. CreateTextureMarkup(icon, 32, 32, 16, 16, 0, 1, 0, 1) .. " Required|r"
+                                                end
+                                            end
+
                                             if MasterCollectorSV.showMountName then
-                                                table.insert(mountsToShow,
-                                                    mountName .. rarityAttemptsText .. dropChanceText)
+                                                table.insert(mountsToShow, mountName .. rarityAttemptsText .. dropChanceText .. currencyText)
                                             end
                                         end
                                     end
 
                                     if #mountsToShow > 0 then
-                                        output = output ..
-                                            "\n" .. MC.goldHex .. eventName .. " is active!|r\n    Mounts:\n"
+                                        output = output .. "\n" .. MC.goldHex .. eventName .. " is active!|r\n    Mounts:\n"
+
                                         for _, mount in ipairs(mountsToShow) do
                                             output = output .. "    " .. mount .. "\n"
                                         end

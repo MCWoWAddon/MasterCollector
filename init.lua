@@ -114,7 +114,8 @@ MC.defaultValues = {
     showArgentDailies = true,
     showBrunnhildarDailies = true,
     showWoDDailies = true,
-    showNzothAssaults = true
+    showNzothAssaults = true,
+    showTWWRaids = true,
 }
 
 MasterCollectorSV = MasterCollectorSV or {}
@@ -207,19 +208,9 @@ MC.checkboxNames = {
     "showArgentDailies",
     "showBrunnhildarDailies",
     "showWoDDailies",
-    "showNzothAssaults"
+    "showNzothAssaults",
+    "showTWWRaids",
 }
-
-function MC.OnSlashCommand(msg)
-    if msg == "" then
-        Settings.OpenToCategory(MC.optionsCategory:GetID())
-    else
-        print("Invalid command. Usage: /mc - Open the |cffffff00MasterCollector|r options panel")
-    end
-end
-
-SLASH_MASTERCOLLECTOR1 = "/mc"
-SlashCmdList["MASTERCOLLECTOR"] = MC.OnSlashCommand
 
 function MC.colorsToHex(color)
     if not color or type(color) ~= "table" or #color ~= 3 then
@@ -263,6 +254,38 @@ AddonCompartmentFrame:RegisterAddon({
     end,
 })
 
+function MC.OnSlashCommand(msg)
+msg = string.lower(strtrim(msg or ""))
+
+    if msg == "options" then
+        if MC.mainOptionsCategory and Settings then
+            Settings.OpenToCategory(MC.mainOptionsCategory:GetID())
+        else
+            print("|cffff0000MasterCollector Error:|r Options not loaded yet. Please try again after the addon has fully initialized.")
+        end
+
+    elseif msg == "toggle" then
+        if MC.mainFrame:IsVisible() then
+            MC.mainFrame:Hide()
+            MasterCollectorSV.frameVisible = false
+        else
+            MC.mainFrame:Show()
+            MasterCollectorSV.frameVisible = true
+            if MasterCollectorSV.lastActiveTab == "Event\nGrinds" then
+                MC.RefreshMCEvents()
+            end
+        end
+
+    else
+        print("Usage:")
+        print("|cffffff00/mc options|r - Open the MasterCollector options panel")
+        print("|cffffff00/mc toggle|r - Show or hide the MasterCollector main window")
+    end
+end
+
+SLASH_MASTERCOLLECTOR1 = "/mc"
+SlashCmdList["MASTERCOLLECTOR"] = MC.OnSlashCommand
+
 function MC.InitializeColors()
     -- Initialize the hex values from saved variables
     local goldColor = MasterCollectorSV["goldFontColor"] or { 1, 1, 1 }
@@ -278,6 +301,14 @@ local function handleGrindsUpdate()
     if MasterCollectorSV.frameVisible then
         if MasterCollectorSV.lastActiveTab == "Event\nGrinds" then
             MC.RefreshMCEvents()
+        end
+    end
+end
+
+local function RefreshMCInstances()
+    if MasterCollectorSV.frameVisible then
+        if MasterCollectorSV.lastActiveTab == "Anytime\nGrinds" then
+            C_Timer.After(60, MC.grinds)
         end
     end
 end
@@ -300,29 +331,16 @@ MC.mainFrame:SetScript("OnEvent", function(self, event, ...)
         MC.UpdateMainFrameSize()
         MC.InitializeColors()
 
-        if MC.UpdateSavedInstances then
-            MC.UpdateSavedInstances()
-        end
-
-        print(string.format(
-            "|cffffff00MasterCollector|r: Cinematic skipping is %s.",
-            MasterCollectorSV.cinematicSkip and "|cff00ff00enabled|r" or "|cffff0000disabled|r"
-        ))
+        print(string.format("|cffffff00MasterCollector Loaded. |rCinematic skipping is %s. Use |cffffff00/mc|r for commands.", MasterCollectorSV.cinematicSkip and "|cff00ff00enabled|r" or "|cffff0000disabled|r"))
     end
 
-    if event == "PLAYER_ENTERING_WORLD" or event == "UPDATE_INSTANCE_INFO" or event == "ENCOUNTER_END" or
-    event == "PLAYER_REGEN_ENABLED" or event == "ZONE_CHANGED_NEW_AREA" or event == "COVENANT_CHOSEN" then
+    if event == "PLAYER_ENTERING_WORLD" or event == "UPDATE_INSTANCE_INFO" or event == "ENCOUNTER_END" or event == "PLAYER_REGEN_ENABLED" or event == "ZONE_CHANGED_NEW_AREA" or event == "COVENANT_CHOSEN" then
         MC.InitializeColors()
         MC.weeklyDisplay()
         MC.repsDisplay()
         MC.dailiesDisplay()
         handleGrindsUpdate()
-    end
-
-    if MC.UpdateSavedInstances and (event == "PLAYER_ENTERING_WORLD" or event == "ENCOUNTER_END" or
-        event == "UPDATE_INSTANCE_INFO") then
-        MC.UpdateSavedInstances()
-        MC.grinds()
+        RefreshMCInstances()
     end
 
     if event == "CINEMATIC_START" or event == "PLAY_MOVIE" then

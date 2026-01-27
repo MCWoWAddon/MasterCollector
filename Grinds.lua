@@ -71,6 +71,39 @@ function MC.grinds()
         { 1175, 100 }, -- Stonehide Elderhorn
     }
 
+    local function displayFishing()
+        local output = MC.goldHex .. "Fishing Mounts|r\n"
+        local outputModified = false
+
+        for _, mountData in ipairs(fishingMounts) do
+            local mountID, itemName, dropChanceDenominator = unpack(mountData)
+            local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
+            local rarityAttemptsText = ""
+            local dropChanceText = ""
+
+            if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                if MasterCollectorSV.showRarityDetail and dropChanceDenominator then
+                    local chance = 1 / dropChanceDenominator
+                    local attempts = GetRarityAttempts(itemName) or 0
+                    local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                    rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
+                    dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                end
+            end
+
+            if not (isCollected and MasterCollectorSV.hideBossesWithMountsObtained) then
+                if MasterCollectorSV.showMountName then
+                    outputModified = true
+                    output = output ..
+                    string.format("    Mount: %s %s%s\n", mountName, rarityAttemptsText, dropChanceText)
+                end
+            end
+        end
+        if outputModified then
+            return output
+        end
+    end
+
     MasterCollectorSV.Islands = MasterCollectorSV.Islands or { activeIslands = {}, resetTime = 0 }
 
     local lastRequestTime = 0
@@ -90,6 +123,81 @@ function MC.grinds()
                 lastWarningTime = now
             end
         end
+    end
+
+    local function GetNextWeeklyReset()
+        local region = GetCVar("portal")               -- "US", "EU", etc.
+        local resetDay = (region == "US") and 2 or 3   -- Tuesday for US, Wednesday for EU
+        local resetHour = (region == "US") and 15 or 7 -- 15:00 UTC for US, 7:00 UTC for EU
+
+        local realmTime = GetServerTime()
+        local date = C_DateAndTime.GetCurrentCalendarTime()
+
+        local weekStart = realmTime - ((date.weekday - 1) * 86400) - date.hour * 3600 - date.minute * 60
+        local resetTime = weekStart + (resetDay - 1) * 86400 + resetHour * 3600
+
+        if resetTime < realmTime then
+            resetTime = resetTime + 7 * 86400 -- Add a week if we've passed this week's reset
+        end
+
+        return resetTime
+    end
+
+    function MC.ResetActiveIslands()
+        MasterCollectorSV.Islands.activeIslands = {}
+        MasterCollectorSV.Islands.resetTime = GetNextWeeklyReset()
+        print("Island rotation has reset. Starting a new cycle of expeditions!")
+    end
+
+    function MC.UpdateActiveIslands()
+        local mapID = C_Map.GetBestMapForUnit("player")
+        if not mapID then
+            return nil
+        end
+        
+        local islandMapIDs = {
+            [1036] = "The Dread Chain",
+            [1035] = "Molten Cay",
+            [1032] = "Skittering Hollow",
+            [981] = "Un'gol Ruins",
+            [1037] = "Whispering Reef",
+            [1034] = "Verdant Wilds",
+            [1033] = "Rotting Mire",
+            [1502] = "Snowblossom Village",
+            [1501] = "Crestfall",
+            [1336] = "Havenswood",
+            [1337] = "Jorundall"
+        }
+
+        if GetServerTime() >= MasterCollectorSV.Islands.resetTime then
+            MC.ResetActiveIslands()
+        end
+
+        if islandMapIDs[mapID] then
+            local islandName = islandMapIDs[mapID]
+            if not MasterCollectorSV.Islands.activeIslands[islandName] then
+                MasterCollectorSV.Islands.activeIslands[islandName] = true
+                print("Added to Active Island Expeditions This Week: " .. islandName .. "\n")
+                MC.GrindsUpdate()
+            end
+        end
+    end
+
+    local function GetActiveIslands()
+        local output = MC.goldHex .. "Island Expeditions|r\n"
+        local activeIslands = MasterCollectorSV.Islands.activeIslands
+        local islandList = {}
+
+        if next(activeIslands) then
+            for islandName, _ in pairs(activeIslands) do
+                table.insert(islandList, "    " .. islandName)
+            end
+            output = output .. table.concat(islandList, "\n")
+        else
+            output = output .. "    Visit each island this week to update the list.\n"
+        end
+
+        return output
     end
 
     function MC.UpdateSavedInstances()
@@ -206,7 +314,7 @@ function MC.grinds()
             local lockCount = #lockList
             if lockCount > 0 then
                 local minResetTime = lockList[1].reset
-        
+
                 for _, lock in ipairs(lockList) do
                     if lock.reset < minResetTime then
                         minResetTime = lock.reset
@@ -236,81 +344,6 @@ function MC.grinds()
         AddLockoutsToText(updatedCharacterLocks, "Character")
         MC.latestInstanceOutput = table.concat(instanceTextList, "\n")
         MC.CheckInstanceLimit()
-    end
-
-    local function GetNextWeeklyReset()
-        local region = GetCVar("portal")               -- "US", "EU", etc.
-        local resetDay = (region == "US") and 2 or 3   -- Tuesday for US, Wednesday for EU
-        local resetHour = (region == "US") and 15 or 7 -- 15:00 UTC for US, 7:00 UTC for EU
-
-        local realmTime = GetServerTime()
-        local date = C_DateAndTime.GetCurrentCalendarTime()
-
-        local weekStart = realmTime - ((date.weekday - 1) * 86400) - date.hour * 3600 - date.minute * 60
-        local resetTime = weekStart + (resetDay - 1) * 86400 + resetHour * 3600
-
-        if resetTime < realmTime then
-            resetTime = resetTime + 7 * 86400 -- Add a week if we've passed this week's reset
-        end
-
-        return resetTime
-    end
-
-    function MC.ResetActiveIslands()
-        MasterCollectorSV.Islands.activeIslands = {}
-        MasterCollectorSV.Islands.resetTime = GetNextWeeklyReset()
-        print("Island rotation has reset. Starting a new cycle of expeditions!")
-    end
-
-    function MC.UpdateActiveIslands()
-        local mapID = C_Map.GetBestMapForUnit("player")
-        if not mapID then
-            return nil
-        end
-        
-        local islandMapIDs = {
-            [1036] = "The Dread Chain",
-            [1035] = "Molten Cay",
-            [1032] = "Skittering Hollow",
-            [981] = "Un'gol Ruins",
-            [1037] = "Whispering Reef",
-            [1034] = "Verdant Wilds",
-            [1033] = "Rotting Mire",
-            [1502] = "Snowblossom Village",
-            [1501] = "Crestfall",
-            [1336] = "Havenswood",
-            [1337] = "Jorundall"
-        }
-
-        if GetServerTime() >= MasterCollectorSV.Islands.resetTime then
-            MC.ResetActiveIslands()
-        end
-
-        if islandMapIDs[mapID] then
-            local islandName = islandMapIDs[mapID]
-            if not MasterCollectorSV.Islands.activeIslands[islandName] then
-                MasterCollectorSV.Islands.activeIslands[islandName] = true
-                print("Added to Active Island Expeditions This Week: " .. islandName .. "\n")
-                MC.GrindsUpdate()
-            end
-        end
-    end
-
-    local function GetActiveIslands()
-        local output = MC.goldHex .. "Island Expeditions|r\n"
-        local activeIslands = MasterCollectorSV.Islands.activeIslands
-        local islandList = {}
-
-        if next(activeIslands) then
-            for islandName, _ in pairs(activeIslands) do
-                table.insert(islandList, "    " .. islandName)
-            end
-            output = output .. table.concat(islandList, "\n")
-        else
-            output = output .. "    Visit each island this week to update the list.\n"
-        end
-
-        return output
     end
 
     local function displayDungeons()
@@ -404,39 +437,6 @@ function MC.grinds()
         end
         if lockoutsAdded then
             return lockoutText
-        end
-    end
-
-    local function displayFishing()
-        local output = MC.goldHex .. "Fishing Mounts|r\n"
-        local outputModified = false
-
-        for _, mountData in ipairs(fishingMounts) do
-            local mountID, itemName, dropChanceDenominator = unpack(mountData)
-            local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
-            local rarityAttemptsText = ""
-            local dropChanceText = ""
-
-            if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
-                if MasterCollectorSV.showRarityDetail and dropChanceDenominator then
-                    local chance = 1 / dropChanceDenominator
-                    local attempts = GetRarityAttempts(itemName) or 0
-                    local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                    rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
-                    dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
-                end
-            end
-
-            if not (isCollected and MasterCollectorSV.hideBossesWithMountsObtained) then
-                if MasterCollectorSV.showMountName then
-                    outputModified = true
-                    output = output ..
-                    string.format("    Mount: %s %s%s\n", mountName, rarityAttemptsText, dropChanceText)
-                end
-            end
-        end
-        if outputModified then
-            return output
         end
     end
 
