@@ -1,14 +1,15 @@
-## Interface: 110200, 110107
+## Interface: 120000, 110207, 110200, 110107
 ## Title: Master Collector
 ## Category: Collections
 ## Notes: Your ultimate addon for tracking and managing your collection of mounts in World of Warcraft!
 ## IconTexture: Interface/Icons/70_professions_scroll_03.blp
 ## Author: DivineKate
-## Version: 1.8
+## Version: 1.9
 ## SavedVariables: MasterCollectorSV
 ## OptionalDeps: Rarity
 
 init.lua
+itemTable.lua
 MasterCollector.lua
 Options.lua
 WeeklyMounts.lua

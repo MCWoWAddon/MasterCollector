@@ -68,26 +68,67 @@ MC.mainFrame.text:SetJustifyH("p", "LEFT")
 MC.mainFrame.text:SetScript("OnHyperlinkClick",
     function(_, link, text, button)
         local linkType, instanceID, difficultyID = strsplit(":", link)
+        local mountID = tonumber(instanceID)
         if linkType == "difficulty" then
             difficultyID = tonumber(difficultyID)
 
             SetRaidDifficultyID(difficultyID)
             SetDungeonDifficultyID(difficultyID)
         elseif linkType == "mount" then
-            local mountID = tonumber(instanceID)
-            -- Open mount journal and search for the mount
             if not CollectionsJournal then
-                ToggleCollectionsJournal(1) -- open the mount tab if closed
+                ToggleCollectionsJournal(1)
             else
                 if not CollectionsJournal:IsShown() then
                     ToggleCollectionsJournal(1)
                 else
-                    CollectionsJournal_SetTab(CollectionsJournal, 1) -- make sure it's on mounts
+                    CollectionsJournal_SetTab(CollectionsJournal, 1)
                 end
             end
-            -- Highlight/select the mount
             MountJournal_SelectByMountID(mountID)
 
+        elseif linkType == "wowhead" then
+            local url = "https://www.wowhead.com/mount/" .. mountID
+            local popoutPanel = CreateFrame("Frame", nil, UIParent, "BasicFrameTemplate")
+            popoutPanel:SetSize(300, 150)
+            popoutPanel:SetPoint("CENTER")
+            popoutPanel:SetFrameStrata("DIALOG")
+            popoutPanel:EnableMouse(true)
+            popoutPanel:SetMovable(true)
+            popoutPanel:RegisterForDrag("LeftButton")
+            popoutPanel:SetScript("OnDragStart", popoutPanel.StartMoving)
+            popoutPanel:SetScript("OnDragStop", popoutPanel.StopMovingOrSizing)
+
+            local label = popoutPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+            label:SetPoint("TOPLEFT", popoutPanel, "TOPLEFT", 10, -2)
+            label:SetText("Copy this Wowhead link:")
+
+            local editBox = CreateFrame("EditBox", nil, popoutPanel, "InputBoxTemplate")
+            editBox:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 0, -10)
+            editBox:SetSize(280, 80)
+            editBox:SetText(url)
+            editBox:SetMultiLine(true)
+            editBox:SetAutoFocus(false)
+            editBox:EnableMouse(true)
+            editBox:SetScript("OnMouseDown", function(self)
+                self:HighlightText()
+            end)
+
+            local closeButton = CreateFrame("Button", nil, popoutPanel, "UIPanelButtonTemplate")
+            closeButton:SetSize(80, 22)
+            closeButton:SetPoint("BOTTOMRIGHT", popoutPanel, "BOTTOMRIGHT", -10, 10)
+            closeButton:SetText("Close")
+            closeButton:SetScript("OnClick", function() popoutPanel:Hide() end)
+            popoutPanel:Show()
+
+        elseif linkType == "instance" then
+            instanceID = tonumber(instanceID)
+            local mapID, x, y, name = MC.GetDungeonEntranceCoords(instanceID)
+            local point = UiMapPoint.CreateFromCoordinates(mapID, x, y)
+            C_Map.ClearUserWaypoint()
+            C_Map.SetUserWaypoint(point)
+            C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+            TomTom:AddWaypoint(mapID, x, y, { title = name or text })
+            print("Waypoint added for:", name or text)
         else
             SetItemRef(link, text, button)
         end
@@ -466,3 +507,53 @@ end)
 MC.optionsButton:SetScript("OnLeave", function()
     GameTooltip:Hide()
 end)
+
+local CVAR_VALUE_MAP = {
+    graphicsShadowQuality    = { 0, 1, 2, 3, 4, 5 },
+    graphicsLiquidDetail     = { 0, 1, 2, 3 },
+    graphicsParticleDensity  = { 0, 1, 2, 3, 4, 5 },
+    graphicsSSAO             = { 0, 1, 2, 3, 4, 5 },
+    graphicsDepthEffects     = { 0, 1, 2, 3 },
+    graphicsComputeEffects   = { 0, 1, 2, 3, 4 },
+    graphicsOutlineMode      = { 0, 1, 2 },
+    graphicsTextureResolution= { 0, 1, 2 },
+    graphicsSpellDensity     = { 0, 1, 2 },
+    graphicsProjectedTextures= { 0, 1 },
+    graphicsViewDistance     = { 0,1,2,3,4,5,6,7,8,9 },
+    graphicsEnvironmentDetail= { 0,1,2,3,4,5,6,7,8,9 },
+    graphicsGroundClutter    = { 0,1,2,3,4,5,6,7,8,9 },
+}
+
+function MC.ApplyDynamicGraphics(config)
+    if not config then return end
+    MasterCollectorSV.graphicsBackups = MasterCollectorSV.graphicsBackups or {}
+
+    for cvarName, cvarData in pairs(config) do
+        if cvarData.enabled then
+            local level = cvarData.level or 1
+            if MasterCollectorSV.graphicsBackups[cvarName] == nil then
+                MasterCollectorSV.graphicsBackups[cvarName] = C_CVar.GetCVar(cvarName)
+            end
+            local cvarValue
+            if CVAR_VALUE_MAP and CVAR_VALUE_MAP[cvarName] then
+                cvarValue = CVAR_VALUE_MAP[cvarName][level]
+            else
+                cvarValue = level
+            end
+
+            if cvarValue ~= nil then
+                C_CVar.SetCVar(cvarName, cvarValue)
+            end
+        end
+    end
+end
+
+function MC.RestoreGraphics()
+    if not MasterCollectorSV.graphicsBackups then return end
+
+    for cvar, val in pairs(MasterCollectorSV.graphicsBackups) do
+        C_CVar.SetCVar(cvar, val)
+    end
+
+    wipe(MasterCollectorSV.graphicsBackups)
+end

@@ -1,0 +1,420 @@
+
+MasterCollectorSV = {
+["showLegionInvasionTimer"] = true,
+["showLegionReps"] = true,
+["showTBCExpansion"] = true,
+["showBigDigTimer"] = true,
+["showWOTLKAchieves"] = true,
+["showWOTLKExpansion"] = true,
+["Aurelyth-Barthilas"] = {
+["covenants"] = {
+[0] = {
+["renownLevel"] = 1,
+["covenantAnima"] = 0,
+["maxRenownLevel"] = 80,
+},
+},
+},
+["autoLootCheck"] = true,
+["showTanaanRares"] = true,
+["showElementalStormsTimer"] = true,
+["showClassicPVP"] = true,
+["Notbaad-Thaurissan"] = {
+["covenants"] = {
+[4] = {
+["renownLevel"] = 62,
+["covenantAnima"] = 350,
+["maxRenownLevel"] = 80,
+},
+},
+},
+["showTormentorsTimer"] = true,
+["showSLDailies"] = true,
+["showBFAExpansion"] = true,
+["showSLRaids"] = true,
+["showDreamsurgesTimer"] = true,
+["showDFRenownReps"] = true,
+["showArgentDailies"] = true,
+["showZCZones"] = true,
+["showClassicDailies"] = true,
+["Rocknlight-Barthilas"] = {
+["covenants"] = {
+[0] = {
+["renownLevel"] = 1,
+["covenantAnima"] = 0,
+["maxRenownLevel"] = 80,
+},
+},
+},
+["graphicsCityOverride"] = true,
+["showTBCReps"] = true,
+["showTWWRares"] = true,
+["showFishing"] = true,
+["showIslandExpeditions"] = true,
+["showDarkshoreWFTimer"] = true,
+["showArathiWFTimer"] = true,
+["showCataReps"] = true,
+["showWoDDailies"] = true,
+["hideGrindMountsTab"] = false,
+["showCataDungeons"] = true,
+["showLegendaryAlbumTimer"] = true,
+["showLegionRaids"] = true,
+["showPandariaRaids"] = true,
+["showLegionExpansion"] = true,
+["backdropAlpha"] = 1,
+["showCataExpansion"] = true,
+["showCovenantRares"] = true,
+["graphicsBackups"] = {
+["graphicsSSAO"] = "4",
+["graphicsSpellDensity"] = "2",
+["graphicsDepthEffects"] = "3",
+["graphicsProjectedTextures"] = "1",
+["graphicsComputeEffects"] = "4",
+["graphicsParticleDensity"] = "5",
+["graphicsLiquidDetail"] = "3",
+["graphicsViewDistance"] = "9",
+["graphicsGroundClutter"] = "9",
+["graphicsEnvironmentDetail"] = "9",
+["graphicsOutlineMode"] = "2",
+["graphicsShadowQuality"] = "5",
+},
+["showUldumRares"] = true,
+["showSLReps"] = true,
+["showBCRaids"] = true,
+["fontSize"] = 12,
+["showWOTLKDungeons"] = true,
+["showTWWAchieves"] = true,
+["showMOPAchieves"] = true,
+["showLegionPVP"] = true,
+["showPVP"] = false,
+["showSuffusionCampTimer"] = true,
+["showValeRares"] = true,
+["showBfAReps"] = true,
+["instanceLocks"] = {
+["Valessian-Barthilas"] = {
+{
+["difficulty"] = "Looking For Raid",
+["character"] = "Valessian-Barthilas",
+["name"] = "The Emerald Nightmare",
+["instanceID"] = 1520,
+["reset"] = 1765033201,
+},
+{
+["difficulty"] = "Looking For Raid",
+["character"] = "Valessian-Barthilas",
+["name"] = "The Nighthold",
+["instanceID"] = 1530,
+["reset"] = 1765033201,
+},
+{
+["difficulty"] = "Looking For Raid",
+["character"] = "Valessian-Barthilas",
+["name"] = "Trial of Valor",
+["instanceID"] = 1648,
+["reset"] = 1765033201,
+},
+{
+["difficulty"] = "Looking For Raid",
+["character"] = "Valessian-Barthilas",
+["name"] = "Tomb of Sargeras",
+["instanceID"] = 1676,
+["reset"] = 1765033201,
+},
+},
+["Frostfurry-Barthilas"] = {
+},
+["Moosetank-Barthilas"] = {
+},
+["Kirashin-Illidan"] = {
+},
+["Divinedruid-Barthilas"] = {
+},
+["Tinkypanda-Barthilas"] = {
+},
+["Junglefist-Barthilas"] = {
+},
+["Demonikate-Barthilas"] = {
+},
+["Cubonikate-Barthilas"] = {
+},
+["Prrfect-Barthilas"] = {
+},
+["Totemborne-Barthilas"] = {
+},
+["Divinepaly-Barthilas"] = {
+},
+["Divinemaiden-Barthilas"] = {
+},
+["Aurelyth-Barthilas"] = {
+},
+["Wylithel-Barthilas"] = {
+},
+["Soryossa-Barthilas"] = {
+},
+["Thornalys-Barthilas"] = {
+{
+["difficulty"] = "Looking For Raid",
+["character"] = "Thornalys-Barthilas",
+["name"] = "Trial of Valor",
+["instanceID"] = 1648,
+["reset"] = 1765119599,
+},
+},
+["Tyraelyn-Barthilas"] = {
+},
+["Cinkel-Thaurissan"] = {
+},
+["Notbaad-Thaurissan"] = {
+},
+["Rocknlight-Barthilas"] = {
+},
+},
+["showBackdropBorder"] = true,
+["showTWWPVP"] = true,
+["showSummonDepthsTimer"] = true,
+["showWoDWorldBosses"] = true,
+["showBFAPVP"] = true,
+["showCataPVP"] = true,
+["graphicsInstanceOverride"] = true,
+["showSLRares"] = true,
+["showBFARaids"] = true,
+["framePosition"] = {
+["y"] = 0,
+["x"] = 0,
+["point"] = "TOPLEFT",
+["relativePoint"] = "TOPLEFT",
+},
+["showDFExpansion"] = true,
+["showDFPVP"] = true,
+["showDFAchieves"] = true,
+["showBrunnhildarDailies"] = true,
+["showTBCDungeons"] = true,
+["showSLCovenants"] = true,
+["showArgusRares"] = true,
+["showTWWOtherReps"] = true,
+["showBFADungeons"] = true,
+["showBeastwarrensHuntTimer"] = true,
+["showTWWRenownReps"] = true,
+["showTimeRiftsTimer"] = true,
+["showDFWeeklies"] = true,
+["showWoDReps"] = true,
+["showWODPVP"] = true,
+["showCataAchieves"] = true,
+["showDFDungeons"] = true,
+["showLegionAchieves"] = true,
+["showTBCPVP"] = true,
+["showBossesWithNoLockout"] = true,
+["hideEventTab"] = false,
+["Kirashin-Illidan"] = {
+["covenants"] = {
+[0] = {
+["renownLevel"] = 1,
+["covenantAnima"] = 0,
+["maxRenownLevel"] = 80,
+},
+},
+},
+["Soryossa-Barthilas"] = {
+["covenants"] = {
+[0] = {
+["renownLevel"] = 1,
+["covenantAnima"] = 0,
+["maxRenownLevel"] = 80,
+},
+},
+},
+["goldFontColor"] = {
+1,
+0.82,
+0,
+},
+["cinematicSkip"] = true,
+["showTWWDungeons"] = true,
+["showFroststoneStormTimer"] = true,
+["showBeledarShiftTimer"] = true,
+["showTBCReps, showTBCPVP"] = true,
+["showLockouts"] = true,
+["showMawAssaultTimer"] = true,
+["showBfaDailies"] = true,
+["graphicsConfig"] = {
+["graphicsSSAO"] = {
+["enabled"] = true,
+["level"] = 1,
+},
+["graphicsSpellDensity"] = {
+["enabled"] = true,
+["level"] = 1,
+},
+["graphicsProjectedTextures"] = {
+["enabled"] = true,
+["level"] = 1,
+},
+["graphicsDepthEffects"] = {
+["enabled"] = true,
+["level"] = 1,
+},
+["graphicsOutlineMode"] = {
+["enabled"] = true,
+["level"] = 1,
+},
+["graphicsComputeEffects"] = {
+["enabled"] = true,
+["level"] = 1,
+},
+["graphicsParticleDensity"] = {
+["enabled"] = true,
+["level"] = 1,
+},
+["graphicsTextureResolution"] = {
+["enabled"] = false,
+["level"] = 1,
+},
+["graphicsGroundClutter"] = {
+["enabled"] = true,
+["level"] = 0,
+},
+["graphicsEnvironmentDetail"] = {
+["enabled"] = true,
+["level"] = 0,
+},
+["graphicsViewDistance"] = {
+["enabled"] = true,
+["level"] = 0,
+},
+["graphicsLiquidDetail"] = {
+["enabled"] = true,
+["level"] = 1,
+},
+["graphicsShadowQuality"] = {
+["enabled"] = true,
+["level"] = 1,
+},
+},
+["frameVisible"] = true,
+["showSLWeeklyDungeons"] = true,
+["showMountName"] = true,
+["showDarkshoreRares"] = true,
+["greenFontColor"] = {
+0,
+1,
+0,
+},
+["showDFDailies"] = true,
+["showSuperbloomTimer"] = true,
+["showWoDRaids"] = true,
+["showWodExpansion"] = true,
+["hideMinimapIcon"] = false,
+["showNzothAssaults"] = true,
+["showSLPVP"] = true,
+["showHuntsTimer"] = true,
+["blueFontColor"] = {
+0,
+0.6666667,
+1,
+},
+["showWOTLKReps"] = true,
+["redFontColor"] = {
+1,
+0,
+0,
+},
+["showNormalInstances"] = true,
+["showFFAWQTimer"] = true,
+["showPandariaWorldBosses"] = true,
+["showDragonbaneKeepTimer"] = true,
+["showTWWExpansion"] = true,
+["hideWeeklyTab"] = false,
+["hideBossesWithMountsObtained"] = true,
+["showTWWRaids"] = true,
+["Islands"] = {
+["resetTime"] = 1765771167,
+["activeIslands"] = {
+},
+},
+["bossFilter"] = "",
+["showBFAWorldBosses"] = true,
+["Thornalys-Barthilas"] = {
+["covenants"] = {
+[0] = {
+["renownLevel"] = 1,
+["covenantAnima"] = 0,
+["maxRenownLevel"] = 80,
+},
+},
+},
+["showCataRaids"] = true,
+["lastActiveTab"] = "Anytime\nGrinds",
+["showWOTLKPVP"] = true,
+["realmLocks"] = {
+["Barthilas"] = {
+},
+["Illidan"] = {
+},
+["Thaurissan"] = {
+},
+},
+["showArathiRares"] = true,
+["showWOTLKRaids"] = true,
+["showCallings"] = true,
+["showPandariaReps"] = true,
+["showDFRaids"] = true,
+["showRarityDetail"] = true,
+["showDFOtherReps"] = true,
+["lootRoller"] = true,
+["showBfaAssaultTimer"] = true,
+["showMechagonRares"] = true,
+["islocked"] = true,
+["hideDailyRepTab"] = false,
+["showNazRares"] = true,
+["showResearchersUnderFireTimer"] = true,
+["showGarrisonInvasions"] = true,
+["showLegionRemix"] = true,
+["showPandaExpansion"] = true,
+["showAchievements"] = false,
+["showSLExpansion"] = true,
+["showStormsFuryTimer"] = true,
+["showBFAAchieves"] = true,
+["Divinepaly-Barthilas"] = {
+["covenants"] = {
+[3] = {
+["renownLevel"] = 80,
+["covenantAnima"] = 13732,
+["maxRenownLevel"] = 80,
+},
+},
+},
+["showFeastTimer"] = true,
+["hideDailyTab"] = false,
+["Tinkypanda-Barthilas"] = {
+["covenants"] = {
+[0] = {
+["renownLevel"] = 1,
+["covenantAnima"] = 0,
+["maxRenownLevel"] = 80,
+},
+},
+},
+["showWODAchieves"] = true,
+["showSLAchieves"] = true,
+["baseHeight"] = 200,
+["showMOPPVP"] = true,
+["Cinkel-Thaurissan"] = {
+["covenants"] = {
+[3] = {
+["renownLevel"] = 62,
+["covenantAnima"] = 0,
+["maxRenownLevel"] = 80,
+},
+},
+},
+["showLegionDungeons"] = true,
+["Divinemaiden-Barthilas"] = {
+["covenants"] = {
+{
+["renownLevel"] = 80,
+["covenantAnima"] = 4530,
+["maxRenownLevel"] = 80,
+},
+},
+},
+}

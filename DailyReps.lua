@@ -1,5 +1,6 @@
 function MC.repsDisplay()
     local fontSize = MasterCollectorSV.fontSize
+    local wowheadIcon = "Interface\\AddOns\\MasterCollector\\wowhead.png"
     MC.InitializeColors()
     if MC.currentTab ~= "Reputations" then return end
 
@@ -44,6 +45,8 @@ function MC.repsDisplay()
         ["Warlords of Draenor"] = {
             { 1848, "Horde Only" },    -- Vol'jin's Headhunters
             { 1847, "Alliance Only" }, -- Hand of the Prophet
+            { 1681, "Horde Only" },    -- Vol'jin's Spear
+            { 1682, "Alliance Only" }, -- Wrynn's Vanguard
             { 1849 },                  -- Order of the Awakened
         },
         ["Legion"] = {
@@ -161,6 +164,8 @@ function MC.repsDisplay()
         [1272] = { 508, 510, 511 },                                  -- 500g, 3250g, 1500g
         [1271] = { 448, 464, 465, 471 },                             -- first 3 750g, last one requires exalted Shado Pan (1270)
         [1269] = { 479, 480, 481 },                                  -- 500g, 2500g, 1500g
+        [1681] = { 638 },                                            -- Exalted, 5000g & 5000 apexis crystals
+        [1682] = { 639 },                                            -- Exalted, 5000g & 5000 apexis crystals
         [1848] = { 768 },                                            -- 2500g
         [1847] = { 768 },                                            -- 2500g
         [1849] = { 753 },                                            -- Friendly & 150k apexis crystals
@@ -378,6 +383,8 @@ function MC.repsDisplay()
         [480] = {currencyID = 0, cost = 25000000},
         [481] = {currencyID = 0, cost = 15000000},
         [768] = {currencyID = 0, cost = 25000000},
+        [638] = {currencyID = 823, cost = 5000}, -- Apexis Crystals
+        [639] = {currencyID = 823, cost = 5000}, -- Apexis Crystals
         [753] = {currencyID = 823, cost = 150000}, -- Apexis Crystals
         [905]= { paragon = true }, [941] = { paragon = true }, [942]= { paragon = true }, [943]= { paragon = true }, [944]= { paragon = true },
         [939] = {currencyID = 0, cost = 100000000},
@@ -441,7 +448,7 @@ function MC.repsDisplay()
             },
         [2171] = {currencyID = 3056, cost = 2020}, -- Kej
         [2172] = {currencyID = 3056, cost = 2020}, -- Kej
-        [2714] = {currencyID = 3056, cost = 2020}, -- Kej
+        [2174] = {currencyID = 3056, cost = 2020}, -- Kej
         [2272] = {currencyID = 2815, cost = 8125}, -- Resonance Crystals
         [2294] = {currencyID = 2815, cost = 11375}, -- Resonance Crystals
         [2286] = {currencyID = 2815, cost = 8125}, -- Resonance Crystals
@@ -579,9 +586,9 @@ function MC.repsDisplay()
 
                 if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
                     if requiredAnima ~= 0 then
-                        mountsText = mountsText .. string.format("%s- %s|Hmount:%d|h[%s]|h|r (Requires Renown %d)   %s%s Anima %s Required|r\n", string.rep(" ", 9), MC.blueHex, mountID, mountName, requiredRenownLevel, MC.goldHex, requiredAnima, iconAnima)
+                        mountsText = mountsText .. string.format("%s- %s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h (Requires Renown %d)   %s%s Anima %s Required|r\n", string.rep(" ", 9), MC.blueHex, mountID, mountName, mountID, wowheadIcon, requiredRenownLevel, MC.goldHex, requiredAnima, iconAnima)
                     else
-                        mountsText = mountsText .. string.format("%s- %s|Hmount:%d|h[%s]|h|r (Requires Renown %d)\n", string.rep(" ", 9), MC.blueHex, mountID, mountName, requiredRenownLevel)
+                        mountsText = mountsText .. string.format("%s- %s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h (Requires Renown %d)\n", string.rep(" ", 9), MC.blueHex, mountID, mountName, mountID, wowheadIcon, requiredRenownLevel)
                     end
                 end
             end
@@ -616,12 +623,17 @@ function MC.repsDisplay()
 
             covenantText = covenantText .. string.format("%sTotal Anima for %s is: %s|r %s\n", MC.goldHex, characterKey, totalAnima, iconAnima)
 
-            local _, achieveName, _, achieved = GetAchievementInfo(15646)
+            local achieveID, achieveName, _, achieved = GetAchievementInfo(15646)
+            local metaachieveID, metaachieveName = GetAchievementInfo(20501)
+
+            local part1 = string.format("%s|Hachievement:%d|h[%s]|h|r", MC.goldHex, achieveID, achieveName)
+            local part2 = string.format("%s|Hachievement:%d|h[%s]|h|r Meta", MC.goldHex, metaachieveID, metaachieveName)
+
             if not MasterCollectorSV.hideBossesWithMountsObtained or not achieved then
                 if not activeCovenantID or activeCovenantID == 0 then
                     displayText = "|cffff0000Error: Unable to Load Covenant, Select a Covenant and/or Reload UI to get Covenant details|r\n\n"
                 else
-                    displayText = displayText .. string.format("%s\n%sAll Covenants Required at Level 80 for %s for Back from Beyond Meta Achievement|r\n\n", covenantText, MC.goldHex, achieveName)
+                    displayText = displayText .. string.format("%s\nAll Covenants Required at Level 80 for %s for %s|r\n\n", covenantText, part1, part2)
                 end
             end
         end
@@ -662,14 +674,14 @@ function MC.repsDisplay()
                 if expansion == "Dragonflight Renowns" then
                     local renownLevel = C_MajorFactions.GetCurrentRenownLevel(factionID)
                     local factionName = C_Reputation.GetFactionDataByID(factionID).name
-                    local renownText = string.format("  %s - %s|r: Renown %d |r\n", MC.goldHex, factionName, renownLevel)
+                    local renownText = string.format("\n  %s - %s|r: Renown %d |r", MC.goldHex, factionName, renownLevel)
                     local mountsText, uncollectedMounts = "  ", {}
 
                     if DFRenownMountReq[factionID] then
                         if (factionID == 2503) or (factionID == 2510) then
                             mountsText = ""
                         else
-                            mountsText = MC.goldHex .. string.rep(" ", 6) .. "Mounts:|r\n"
+                            mountsText = MC.goldHex .. "\n" .. string.rep(" ", 6) .. "Mounts:|r\n"
 
                             for _, mountInfo in ipairs(DFRenownMountReq[factionID]) do
                                 local mountID, requiredRenownLevel, requiredCurrency = unpack(mountInfo)
@@ -678,17 +690,18 @@ function MC.repsDisplay()
 
                                 if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
                                     if mountID == 1825 then
-                                        local _, achieveName, _, earned = GetAchievementInfo(19466)
+                                        local achieveID, achieveName, _, earned = GetAchievementInfo(19466)
+                                        local metaachieveID, metaachieveName = GetAchievementInfo(19458)
 
-                                        if not earned then
-                                            mountsText = mountsText .. string.format("\n%sRenown %s Required for %s for A World Awoken Meta Achievement|r\n%sMount: %s|Hmount:%d|h[%s]|h|r\n\n", string.rep(" ", 9), MC.goldHex, requiredRenownLevel, achieveName, string.rep(" ", 9), MC.blueHex, mountID, mountName)
-                                        end
-
+                                        local part1 = string.format("%s|Hachievement:%d|h[%s]|h|r", MC.goldHex, achieveID, achieveName)
+                                        local part2 = string.format("%s|Hachievement:%d|h[%s]|h|r Meta", MC.goldHex, metaachieveID, metaachieveName)
+                                        
+                                        mountsText = mountsText .. string.format("\n%sRenown %s Required for %s%s|r%sMount: %s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h\n", string.rep(" ", 9), requiredRenownLevel, part1, (earned and " for " .. part2 .. " Complete|r\n" or " yet to be Completed for " .. part2 .. "|r\n"), string.rep(" ", 9), MC.blueHex, mountID, mountName, mountID, wowheadIcon)
                                     else
                                         local mountData = {
                                             [1615] = { pairID = 1616, questID = 70821, text = MC.goldHex .. string.rep(" ", 9) .. "1 mount is a quest reward; the other costs 5x Iridescent Plume, 20x Contoured Fowlfeather|r\n" },
                                             [1657] = { pairID = 1659, questID = 70972, text = MC.goldHex .. string.rep(" ", 9) .. "1 mount is a quest reward; the other costs 2x Mastodon Tusk, 2x Aquatic Maw|r\n" },
-                                            [1653] = { pairID = 1655, questID = 72328, text = MC.goldHex .. string.rep(" ", 9) .. "\n1 mount is a quest reward; the other costs 5x Mastodon Tusk, 5x Aquatic Maw|r\n" }
+                                            [1653] = { pairID = 1655, questID = 72328, text = MC.goldHex .. "\n" .. string.rep(" ", 9) .. "1 mount is a quest reward; the other costs 5x Mastodon Tusk, 5x Aquatic Maw|r\n" }
                                         }
 
                                         local mountsInfo = mountData[mountID]
@@ -696,7 +709,7 @@ function MC.repsDisplay()
                                             buyorearntxt = mountsInfo.text
                                         end
 
-                                        mountsText = mountsText .. string.format("%s%s- %s|Hmount:%d|h[%s]|h|r (Requires Renown %d)\n%s%s%s / %s %s %s Required|r\n", buyorearntxt, string.rep(" ", 9), MC.blueHex, mountID, mountName, requiredRenownLevel, string.rep(" ", 9), MC.goldHex, fileDFSupplies, requiredCurrency, currencyName, iconDFSupplies)
+                                        mountsText = mountsText .. string.format("%s%s- %s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h (Requires Renown %d)\n%s%s%s / %s %s %s Required|r\n", buyorearntxt, string.rep(" ", 9), MC.blueHex, mountID, mountName, mountID, wowheadIcon, requiredRenownLevel, string.rep(" ", 9), MC.goldHex, fileDFSupplies, requiredCurrency, currencyName, iconDFSupplies)
                                     end
                                 end
                             end
@@ -712,41 +725,43 @@ function MC.repsDisplay()
                 elseif expansion == "The War Within Renowns" then
                     local TWWrenownLevel = C_MajorFactions.GetCurrentRenownLevel(factionID)
                     local TWWfactionName = C_Reputation.GetFactionDataByID(factionID).name
-                    local TWWrenownText = string.format("  %s - %s|r: Renown %d |r\n", MC.goldHex, TWWfactionName, TWWrenownLevel)
+                    local TWWrenownText = string.format("\n  %s - %s|r: Renown %d |r", MC.goldHex, TWWfactionName, TWWrenownLevel)
                     local TWWmountsText, TWWuncollectedMounts = "  ", {}
 
                     if TWWRenownMountReq[factionID] then
-                        TWWmountsText = MC.goldHex .. string.rep(" ", 6) .. "Mounts:|r\n"
+                        TWWmountsText = MC.goldHex .. "\n" .. string.rep(" ", 6) .. "Mounts:|r\n"
 
                         for _, TWWmountInfo in ipairs(TWWRenownMountReq[factionID]) do
                             local mountID, TWWrequiredRenownLevel, TWWrequiredCurrency = unpack(TWWmountInfo)
                             local TWWmountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
-                            local currencyInfo
+                            local currencyText = ""
                             local showCurrencyLine = true
 
+                            if not isCollected then
+                                table.insert(TWWuncollectedMounts, TWWmountName)
+                            end
+
                             if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
-                                if not isCollected then
-                                    table.insert(TWWuncollectedMounts, TWWmountName)
+                                local function BuildCurrencyLine(currencyID, iconFailsafe, requiredAmount, isGold)
+                                    if isGold then
+                                        return string.format("%s%s%s / %s Required|r\n", string.rep(" ", 9), MC.goldHex, moneyString, C_CurrencyInfo.GetCoinTextureString(requiredAmount*10000))
+                                    else
+                                        local info = C_CurrencyInfo.GetCurrencyInfo(currencyID)
+                                        local icon = info.iconFileID or iconFailsafe
+                                        local texture = CreateTextureMarkup(icon, 32, 32, 16, 16, 0, 1, 0, 1)
+                                        return string.format("%s%s%s / %s %s %s Required|r\n", string.rep(" ", 9), MC.goldHex, info.quantity, requiredAmount, texture, info.name)
+                                    end
                                 end
 
                                 if factionID == 2600 then
-                                    currencyInfo = C_CurrencyInfo.GetCurrencyInfo(3056)
+                                    currencyText = BuildCurrencyLine(3056, 4549280, TWWrequiredCurrency, false)
                                 elseif factionID == 2685 then
-                                    currencyInfo = { quantity = moneyString, iconFileID = C_CurrencyInfo.GetCoinTextureString(TWWrequiredCurrency*10000) }
+                                    currencyText = BuildCurrencyLine(nil, nil, TWWrequiredCurrency, true)
                                 else
-                                    currencyInfo = C_CurrencyInfo.GetCurrencyInfo(2815)
-                                    if TWWrequiredCurrency == 0 then
-                                        showCurrencyLine = false
-                                    end
-
-                                    local currentTWWCurrency = currencyInfo.quantity
-                                    local fileTWWCurrency = currencyInfo.iconFileID
-                                    currencyName = currencyInfo.name
-                                    local iconTWWCurrency = CreateTextureMarkup(fileTWWCurrency, 32, 32, 16, 16, 0, 1, 0, 1)
-                                    local currencyText = string.format("%s%s%s / %s %s %s Required|r\n", string.rep(" ", 9), MC.goldHex, currentTWWCurrency, TWWrequiredCurrency, currencyName, iconTWWCurrency)
-
-                                    TWWmountsText = TWWmountsText .. string.format("%s- %s|Hmount:%d|h[%s]|h|r (Requires Renown %d)\n%s", string.rep(" ", 9), MC.blueHex, mountID, TWWmountName, TWWrequiredRenownLevel, showCurrencyLine and currencyText or "")
+                                    currencyText = BuildCurrencyLine(2815, 2967113, TWWrequiredCurrency, false)
                                 end
+
+                                TWWmountsText = TWWmountsText .. string.format("%s- %s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h (Requires Renown %d)\n%s", string.rep(" ", 9), MC.blueHex, mountID, TWWmountName, mountID, wowheadIcon, TWWrequiredRenownLevel, showCurrencyLine and currencyText or "")
                             end
                         end
 
@@ -782,7 +797,7 @@ function MC.repsDisplay()
                             for _, mountnameData in ipairs(mountNames) do
                                 local id = mountnameData.id or 0
                                 local name = mountnameData.name or "Unknown Mount"
-                                local link = string.format("%s|Hmount:%d|h[%s]|h|r", MC.blueHex, id, name)
+                                local link = string.format("%s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h", MC.blueHex, id, name, id, wowheadIcon)
                                 table.insert(linkedMounts, link)
                             end
 
@@ -791,7 +806,7 @@ function MC.repsDisplay()
                             end
 
                             if not MasterCollectorSV.hideBossesWithMountsObtained or anyMissing then
-                                factionText = factionText .. string.format("%s%s%s%s|r\n", factionText, MC.goldHex, bodyguardRepText, mountsText)
+                                factionText = factionText .. string.format("\n%s%s%s|r\n", MC.goldHex, bodyguardRepText, mountsText)
                             end
 
                         elseif factionID == 2463 then
@@ -801,25 +816,22 @@ function MC.repsDisplay()
                             colorHex = GetFriendshipColor(friendReaction)
                             local friendCurrentStanding = friendFactionDetails.standing or 0
                             local friendNextThreshold = friendFactionDetails.nextThreshold
-                            local _, achieveName, _, earned = GetAchievementInfo(14775)
+                            local achieveID, achieveName, _, earned = GetAchievementInfo(14775)
+                            local metaachieveID, metaachieveName = GetAchievementInfo(20501)
                             local friendMount, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(2114)
 
+                            local part1 = string.format("%s|Hachievement:%d|h[%s]|h|r", MC.goldHex, achieveID, achieveName)
+                            local part2 = string.format("%s|Hachievement:%d|h[%s]|h|r Meta", MC.goldHex, metaachieveID, metaachieveName)
+
                             if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
-                                factionText = factionText .. string.format("%s  - %s|r", MC.goldHex, friendName)
+                                factionText = factionText .. string.format("\n%s  - %s|r\n", MC.goldHex, friendName)
 
                                 local function AddMountInfo()
                                     if not MasterCollectorSV.showMountName then return "" end
-                                    local mountText = string.format("%sAchievement Mount: %s|Hmount:%d|h[%s]|h|r\n", string.rep(" ", 9), MC.blueHex, 2114, friendMount)
-                                    local metaAchieve = " for Back from Beyond Meta Achievement"
-
-                                    if not earned then
-                                        return string.format("%s%s%sRequires %s%s|r\n", mountText, MC.goldHex, string.rep(" ", 9), achieveName, metaAchieve)
-                                    else
-                                        return string.format("%s%s%s%s%s Complete|r\n", mountText, MC.goldHex, string.rep(" ", 9), achieveName, metaAchieve)
-                                    end
+                                    return string.format("%sAchievement Mount: %s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h\n%s%s%s", string.rep(" ", 9), MC.blueHex, 2114, friendMount, 2114, wowheadIcon, string.rep(" ", 9), part1, (earned and " for " .. part2 .. " Complete|r\n" or " yet to be Completed for " .. part2 .. "|r\n"))
                                 end
 
-                                local reactionLine = (friendReaction == "Exalted") and (string.format("%s%s%s|r\n", colorHex, string.rep(" ", 9), friendReaction)) or (string.format("%s%s%s / %s%s%s|r\n", colorHex, string.rep(" ", 9), friendCurrentStanding, friendNextThreshold, string.rep(" ", 9), friendReaction))
+                                local reactionLine = (friendReaction == "Exalted") and (string.format("%s%s%s|r\n", colorHex, string.rep(" ", 9), friendReaction)) or (string.format("%s%s%s%s%s / %s|r\n", colorHex, string.rep(" ", 9), friendReaction, string.rep(" ", 9), friendCurrentStanding, friendNextThreshold))
 
                                 factionText = factionText .. reactionLine .. AddMountInfo()
                             end
@@ -895,24 +907,17 @@ function MC.repsDisplay()
 
                                 local mountName = MasterCollectorSV.showMountName and (C_MountJournal.GetMountInfoByID(mountID) or ("Mount "..mountID)) or ""
 
-                                local text = textIndent .. label .. (mountName ~= "" and (": "..(string.format("%s|Hmount:%d|h[%s]|h|r", MC.blueHex, mountID, mountName))) or "") .. "\n"
+                                local text = textIndent .. label .. (mountName ~= "" and (": "..(string.format("%s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h", MC.blueHex, mountID, mountName, mountID, wowheadIcon))) or "") .. "\n"
                                 local paragonHex = string.format("|cff%02x%02x%02x", 0, 1 * 255, 1 * 255)
 
                                 if rule.achievementID then
-                                    local _, achieveName, _, earned = GetAchievementInfo(rule.achievementID)
-                                    local metaAchieve
+                                    local achieveID, achieveName, _, earned = GetAchievementInfo(rule.achievementID)
+                                    local metaachieveID, metaachieveName = GetAchievementInfo(20501)
 
-                                    if mountID == 1825 then
-                                        metaAchieve = " for A World Awoken Meta Achievement"
-                                    else
-                                        metaAchieve = " for Back from Beyond Meta Achievement"
-                                    end
+                                    local part1 = string.format("%s|Hachievement:%d|h[%s]|h|r", MC.goldHex, achieveID, achieveName)
+                                    local part2 = string.format("%s|Hachievement:%d|h[%s]|h|r Meta", MC.goldHex, metaachieveID, metaachieveName)
 
-                                    if not earned then
-                                        text = text .. string.format("%s%sRequires %s%s|r\n", MC.goldHex, string.rep(" ", 9), achieveName, metaAchieve)
-                                    else
-                                        text = text .. string.format("%s%s%s%s Complete|r\n", MC.goldHex, string.rep(" ", 9), achieveName, metaAchieve)
-                                    end
+                                    text = text .. string.format("%s%s%s", string.rep(" ", 9), part1, (earned and " for " .. part2 .. " Complete|r\n" or " yet to be Completed for " .. part2 .. "|r\n"))
                                 end
 
                                 if rule.paragon then
@@ -928,7 +933,7 @@ function MC.repsDisplay()
                                     else
                                         local ci = C_CurrencyInfo.GetCurrencyInfo(rule.currencyID) or {}
                                         local have = ci.quantity or 0
-                                        text = text .. string.format("%s%s%s / %s %s Required|r\n", MC.goldHex, textIndent, have, rule.cost, iconSize(ci.iconFileID))
+                                        text = text .. string.format("%s%s%s / %s %s %s Required|r\n", MC.goldHex, textIndent, have, rule.cost, iconSize(ci.iconFileID), ci.name)
                                     end
                                 end
 
@@ -953,7 +958,7 @@ function MC.repsDisplay()
                                 end
 
                                 if MasterCollectorSV.hideBossesWithMountsObtained and anyMounts and allCollected then return "" end
-                                local out = string.format("%s  - %s|r", MC.goldHex, name)
+                                local out = string.format("\n%s  - %s|r", MC.goldHex, name)
                                 local standingLabel = standingLabelFor(factionID, reaction)
 
                                 if reaction ~= 8 then
@@ -971,10 +976,8 @@ function MC.repsDisplay()
                                         out = out .. renderMountLine(factionID, mountID, MasterCollectorSV, moneyString)
                                     end
                                 end
-
                                 return out
                             end
-
                             factionText = factionText .. renderFactionBlock(factionID, mountIDs, MasterCollectorSV, moneyString)
                         end
                     end
@@ -982,7 +985,7 @@ function MC.repsDisplay()
             end
         end
         if factionText ~= "" then
-            displayText = displayText .. string.format("%s%s|r\n", MC.goldHex, expansion)
+            displayText = displayText .. string.format("%s%s|r", MC.goldHex, expansion)
             displayText = displayText .. string.format("%s\n", factionText)
         end
     end

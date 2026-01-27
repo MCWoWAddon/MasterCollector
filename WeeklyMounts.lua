@@ -1,6 +1,7 @@
 function MC.weeklyDisplay()
     local displayText = ""
     local fontSize = MasterCollectorSV.fontSize
+    local wowheadIcon = "Interface\\AddOns\\MasterCollector\\wowhead.png"
 
     if MC.currentTab ~= "Weekly\nLockouts" then
         return
@@ -17,6 +18,9 @@ function MC.weeklyDisplay()
                 ["The War Within Mythic Dungeons"] = {
                     [1210] = {                                     -- Darkflame Cleft
                         { 2561, { 2204 }, { 23 }, "Wick's Lead", 100 } -- The Darkness (Mythic)
+                    },
+                    [1269] = {                                     -- The Stonevault
+                        { 2582, { 2119 }, { 23 }, "Malfunctioning Mechsuit", 200 } -- Void Speaker Eirich (Mythic)
                     },
                 },
                 ["Dragonflight Mythic Dungeons"] = {
@@ -52,17 +56,19 @@ function MC.weeklyDisplay()
                         { nil,  { 883 }, { 23 }, "Smoldering Ember Wyrm", 5 }, -- Smoldering Ember Wyrm (Mythic)
                     }
                 }
-
             },
             ["Raid Mounts"] = {
                 ["The War Within Raids"] = {
                     [1296] = {                                                        -- Liberation of Undermine
-                        { 2646, { 2507 }, { 17, 14, 15, 16 }, "Prototype A.S.M.R.", 100 } -- Chrome King Gallywix (LFR, Normal, Heroic, Mythic)
-                        -- { 2646, { 2487 }, { 16 }, "The Big G", 100 } -- Chrome King Gallywix (Mythic)
+                        { 2646, { 2507 }, { 17, 14, 15, 16 }, "Prototype A.S.M.R.", 100 }, -- Chrome King Gallywix (LFR, Normal, Heroic, Mythic)
+                        { 2646, { 2487 }, { 16 }, "The Big G", 100 }, -- Chrome King Gallywix (Mythic)
+                        },
+                    [1302] = {
+                        { 2691, { 2569 }, { 16 }, "Unbound Star-Eater", 100 }, -- Dimensius, the All-Devouring (Mythic)
                         },
                     [1273] = {                                                        -- Nerub'ar Palace
-                        { 2602, { 2219 }, { 17, 14, 15, 16 }, "Reins of the Sureki Skyrazor", 100 } -- Queen Ansurek (LFR, Normal, Heroic, Mythic)
-                        -- { 2602, { 2223 }, { 16 }, "Reins of the Ascended Skyrazor", 100 } -- Queen Ansurek (Mythic)
+                        { 2602, { 2219 }, { 17, 14, 15, 16 }, "Reins of the Sureki Skyrazor", 100 }, -- Queen Ansurek (LFR, Normal, Heroic, Mythic)
+                        { 2602, { 2223 }, { 16 }, "Reins of the Ascended Skyrazor", 100 } -- Queen Ansurek (Mythic)
                         }
                     },
                 ["Dragonflight Raids"] = {
@@ -220,6 +226,54 @@ function MC.weeklyDisplay()
         },
     }
 
+    MC.DungeonEntranceCoords = {
+        [1210] = {2214, 55.45, 21.66}, -- Darkflame Cleft
+        [1269] = {2214, 42.68, 9.89},  -- The Stonevault
+        [1209] = {2025, 61.08, 84.36}, -- Dawn of the Infinite
+        [1194] = {2472, 36.22, 12.40}, -- Tazavesh, the Veiled Market
+        [1182] = {1533, 40.24, 55.22}, -- The Necrotic Wake
+        [1001] = {895, 84.57, 78.79}, -- Freehold
+        [1041] = {862, 37.58, 39.48}, -- Kings' Rest
+        [1022] = {863, 51.4, 64.89}, -- The Underrot
+        [1178] = {1462, 73.15, 36.36}, -- Operation: Mechagon
+        [860]  = {42, 46.69, 70.24}, -- Return to Karazhan
+        [1296] = {2346, 42.01, 50.24}, -- Liberation of Undermine
+        [1273] = {2213, 35.17, 72.24}, -- Nerub'ar Palace
+        [1302] = {2371, 41.62, 21.41}, -- Manaforge Omega
+        [1207] = {2200, 27.43, 31.06}, -- Amirdrassil
+        [1200] = {2025, 73.03, 55.70}, -- Vault of the Incarnates
+        [1193] = {1543, 69.68, 32.16}, -- Sanctum of Domination
+        [1195] = {1970, 80.78, 53.40}, -- Sepulcher of the First Ones
+        [1176] = {1165, 38.82, 2.53}, {1161, 70.57, 35.22}, -- Battle of Dazar'alor (H/A)
+        [1180] = {1530, 40.34, 45.53}, -- Ny'alotha, the Waking City
+        [875]  = {646, 64.37, 20.96}, -- Tomb of Sargeras
+        [946]  = {885, 54.90, 62.50}, -- Antorus, the Burning Throne
+        [786]  = {680, 44.16, 59.71}, -- The Nighthold
+        [669]  = {534, 45.78, 54.56}, -- Hellfire Citadel
+        [457]  = {543, 51.32, 28.62}, -- Blackrock Foundry
+        [369]  = {390, 72.42, 44.27}, {1530, 72.76, 42.01}, -- Siege of Orgrimmar (Old/Current)
+        [362]  = {504, 63.65, 32.31}, -- Throne of Thunder
+        [317]  = {379, 59.58, 39.22}, -- Mogu'shan Vaults
+        [78]   = {198, 47.44, 78.01}, -- Firelands
+        [74]   = {249, 38.33, 80.64}, {1527, 38.33, 80.64}, -- Throne of the Four Winds (Old/Current)
+        [187]  = {75, 61.70, 26.36}, -- Dragon Soul
+        [758]  = {118, 53.26, 85.32}, -- Icecrown Citadel
+        [759]  = {120, 41.56, 17.92}, -- Ulduar
+        [760]  = {70, 56.53, 69.40}, -- Onyxia's Lair
+        [756]  = {114, 27.56, 26.64}, -- Eye of Eternity
+        [753]  = {123, 50.47, 16.38}, -- Vault of Archavon
+        [745]  = {42, 46.87, 74.69}, -- Karazhan
+        [749]  = {109, 73.59, 63.72}, -- Tempest Keep (The Eye)
+        [252]  = {108, 41.97, 65.62}, -- Sethekk Halls
+        [249]  = {122, 61.2, 30.85}, -- Magister's Terrace
+        [286]  = {117, 57.25, 46.58}, -- Utgarde Pinnacle
+        [76]   = {50, 72.09, 32.92}, -- Zul'Gurub
+        [1292] = {23, 43.45, 19.38}, -- Stratholme: Service Entrance
+        [744] = {327, 46.78, 7.49}, -- Temple of Ahn'Qiraj
+        [68] = {249, 76.78, 84.51}, {1527, 76.78, 84.51}, -- Vortex Pinnacle (Old/Current)
+        [67] = {207, 47.41, 52.05}, -- The Stonecore
+    }
+
     local garrisonInvasionData = {
         { { 37640, 38482 }, { 616 }, "Shadowhide Pearltusk", 100 },
         { { 37640, 38482 }, { 626 }, "Giant Coldsnout",  100 },
@@ -252,6 +306,14 @@ function MC.weeklyDisplay()
 
     local function getInstanceName(instanceID)
         return EJ_GetInstanceInfo(instanceID) or "Unknown Instance"
+    end
+
+    function MC.GetDungeonEntranceCoords(instanceID)
+        local t = MC.DungeonEntranceCoords[instanceID]
+        local name = EJ_GetInstanceInfo(instanceID)
+        if t then
+            return t[1], t[2] / 100, t[3] / 100, name
+        end
     end
 
     local function getBossName(bossID)
@@ -461,12 +523,11 @@ function MC.weeklyDisplay()
                                     if not isMountObtained({ mountID }) then
                                         local mountName = C_MountJournal.GetMountInfoByID(mountID)
                                         if mountName then
-                                            local linkedMount = string.format("%s|Hmount:%d|h[%s]|h|r", MC.blueHex, mountID, mountName)
+                                            local linkedMount = string.format("|Hmount:%d|h%s[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h", mountID, MC.blueHex, mountName, mountID, wowheadIcon)
                                             if mountID == 1546 then
                                                 table.insert(mountNames, itemName .. " for Mount: " .. linkedMount)
-                                            else
-                                                table.insert(mountNames, linkedMount)
                                             end
+                                            table.insert(mountNames, linkedMount)
                                         end
                                     end
                                 end
@@ -553,7 +614,8 @@ function MC.weeklyDisplay()
                     end
                 end
                 if instanceText ~= "" then
-                    subtitleText = subtitleText .. string.format("%s- %s%s|r\n", string.rep(" ", 3), MC.goldHex, instanceName)
+                    local link = string.format("|Hinstance:%d|h%s[%s]|h|r", instanceID, MC.goldHex, instanceName)
+                    subtitleText = subtitleText .. string.format("%s- %s%s|r\n", string.rep(" ", 3), MC.goldHex, link)
                     subtitleText = subtitleText .. instanceText
                 end
             end
@@ -608,7 +670,7 @@ function MC.weeklyDisplay()
                         for _, mountnameData in ipairs(mountNames) do
                             local id = mountnameData.id or 0
                             local name = mountnameData.name or "Unknown Mount"
-                            local link = string.format("%s|Hmount:%d|h[%s]|h|r", MC.blueHex, id, name)
+                            local link = string.format("|Hmount:%d|h%s[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h", id, MC.blueHex, name, id, wowheadIcon)
                             table.insert(linkedMounts, link)
                         end
 
@@ -695,7 +757,7 @@ function MC.weeklyDisplay()
                 for _, mountnameData in ipairs(mountNames) do
                     local id = mountnameData.id or 0
                     local name = mountnameData.name or "Unknown Mount"
-                    local link = string.format("%s|Hmount:%d|h[%s]|h|r", MC.blueHex, id, name)
+                    local link = string.format("|Hmount:%d|h%s[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h", id, MC.blueHex, name, id, wowheadIcon)
                     table.insert(linkedMounts, link)
                 end
 
@@ -766,9 +828,15 @@ function MC.weeklyDisplay()
                                 table.insert(mountNames, {id = mountID, name = mountName, extra = extra})
 
                             elseif mountID == 1733 then
-                                local _, achieveName1 = GetAchievementInfo(17832)
-                                local _, achieveName2 = GetAchievementInfo(17785)
-                                local extra = string.format("%s\n%s%s for %s for A World Awoken Meta Achievement|r", MC.goldHex, string.rep(" ", 6), achieveName1, achieveName2)
+                                local achieveID1, achieveName1, _, earned = GetAchievementInfo(17832)
+                                local achieveID2, achieveName2 = GetAchievementInfo(17785)
+                                local metaachieveID, metaachieveName = GetAchievementInfo(19458)
+
+                                local part1 = string.format("%s|Hachievement:%d|h[%s]|h|r", string.rep(" ", 6), achieveID1, achieveName1)
+                                local part2 = string.format("|Hachievement:%d|h%s[%s]|h|r", achieveID2, MC.goldHex, achieveName2)
+                                local part3 = string.format("|Hachievement:%d|h%s[%s]|h|r Meta", metaachieveID, MC.goldHex, metaachieveName)
+
+                                local extra = string.format("\n%s%s%s", MC.goldHex, part1, (earned and " for " .. part2 .. " for " .. part3 .. " Complete|r\n" or " yet to be Completed for " .. part2 .. " for " .. part3 .. "|r\n"))
                                 table.insert(mountNames, {id = mountID, name = mountName, extra = extra})
 
                             else
@@ -797,7 +865,7 @@ function MC.weeklyDisplay()
                 for _, mountData in ipairs(mountNames) do
                     local id = mountData.id or 0
                     local name = mountData.name or "Unknown Mount"
-                    local link = string.format("%s|Hmount:%d|h[%s]|h|r", MC.blueHex, id, name)
+                    local link = string.format("|Hmount:%d|h%s[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h", id, MC.blueHex, name, id, wowheadIcon)
 
                     if mountData.extra then
                         link = link .. string.format(" %s", mountData.extra)
