@@ -45,7 +45,7 @@ mainPanel:RegisterEvent("ADDON_LOADED")
 
 local mainTitle = mainPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 mainTitle:SetPoint("TOPLEFT", 16, -16)
-mainTitle:SetText("Master Collector V1.9")
+mainTitle:SetText("Master Collector V1.9.1")
 
 local weeklyTitle = weeklyPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 weeklyTitle:SetPoint("TOPLEFT", 16, -16)
@@ -719,8 +719,6 @@ function MC.CreateOptions()
         "showDarkshoreRares",
         "showMechagonRares",
         "showNazRares",
-        "showUldumRares",
-        "showValeRares",
         "showBfaDailies",
         "showBfAReps",
         "showArathiWFTimer",
@@ -780,7 +778,8 @@ function MC.CreateOptions()
         "showTWWOtherReps",
         "showTWWRaids",
         "showTWWPVP",
-        "showTWWAchieves"
+        "showTWWAchieves",
+        "showTWWWeeklies"
     }
     local main = {
         options = {
@@ -902,14 +901,15 @@ function MC.CreateOptions()
     hideWeeklyTab:SetPoint("TOPLEFT", weeklyTitle, "BOTTOMLEFT", 0, -10)
     local weekly = {
         {"Show Garrison Invasions", "showGarrisonInvasions"},
-        {"Show Dragonflight Weekly Quests", "showDFWeeklies"},
+        {"Show Dragonflight Weekly Activities", "showDFWeeklies"},
+        {"Show The War Within Weekly Activities", "showTWWWeeklies"},
         divider = "Dungeons",
         dungeons = {
             {"Show Legion Mythics", "showLegionDungeons"},
             {"Show Battle of Azeroth Mythics", "showBFADungeons"},
             {"Show Shadowlands Mythics", "showSLWeeklyDungeons"},
             {"Show Dragonflight Mythics", "showDFDungeons"},
-            {"Show The War Within Mythics", "showTWWDungeons"}
+            -- {"Show The War Within Mythics", "showTWWDungeons"}
         },
         divider2 = "Raids",
         raids = {
@@ -1018,7 +1018,8 @@ function MC.CreateOptions()
         dungeons = {
             {"Show Burning Crusade Dungeons", "showTBCDungeons"},
             {"Show Wrath of Lich King Dungeons", "showWOTLKDungeons"},
-            {"Show Cataclysm Dungeons", "showCataDungeons"}
+            {"Show Cataclysm Dungeons", "showCataDungeons"},
+            {"Show The War Within Mythics", "showTWWDungeons"}
         },
         divider2 = "Rares",
         rares = {
@@ -1028,8 +1029,6 @@ function MC.CreateOptions()
             {"Show Battle of Azeroth Darkshore Rares", "showDarkshoreRares"},
             {"Show Battle of Azeroth Mechagon Rares", "showMechagonRares"},
             {"Show Battle of Azeroth Nazjatar Rares", "showNazRares"},
-            {"Show Battle of Azeroth Uldum Rares", "showUldumRares"},
-            {"Show Battle of Azeroth Vale of Eternal Blossom Rares", "showValeRares"},
             {"Show Shadowlands Non-Covenant Specific Rares", "showSLRares"},
             {"Show Shadowlands Covenant Specific Rares", "showCovenantRares"},
             {"Show The War Within Rares", "showTWWRares"}

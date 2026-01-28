@@ -15,14 +15,14 @@ function MC.weeklyDisplay()
     local aura_env = {
         dungeonData = {
             ["Dungeon Mounts"] = {
-                ["The War Within Mythic Dungeons"] = {
-                    [1210] = {                                     -- Darkflame Cleft
-                        { 2561, { 2204 }, { 23 }, "Wick's Lead", 100 } -- The Darkness (Mythic)
-                    },
-                    [1269] = {                                     -- The Stonevault
-                        { 2582, { 2119 }, { 23 }, "Malfunctioning Mechsuit", 200 } -- Void Speaker Eirich (Mythic)
-                    },
-                },
+                -- ["The War Within Mythic Dungeons"] = {
+                --     [1210] = {                                     -- Darkflame Cleft
+                --         { 2561, { 2204 }, { 23 }, "Wick's Lead", 100 } -- The Darkness (Mythic)
+                --     },
+                --     [1269] = {                                     -- The Stonevault
+                --         { 2582, { 2119 }, { 23 }, "Malfunctioning Mechsuit", 200 } -- Void Speaker Eirich (Mythic)
+                --     },
+                -- },
                 ["Dragonflight Mythic Dungeons"] = {
                     [1209] = {                                                                                                                   -- Dawn of the Infinite
                         { 2538, { 781, 264, 411, 395, 995, 397, 875, 1040, 1406, 410, 1252, 1481, 1053, 185, 69 }, { 23 }, "Reins of the Quantum Courser" } -- Chrono-Lord Deios (Mythic)
@@ -196,7 +196,7 @@ function MC.weeklyDisplay()
             }
         },
         allCategories = {
-            { type = "dungeon",   key = "showTWWDungeons",         name = "The War Within Mythic Dungeons" },
+            -- { type = "dungeon",   key = "showTWWDungeons",         name = "The War Within Mythic Dungeons" },
             { type = "dungeon",   key = "showDFDungeons",          name = "Dragonflight Mythic Dungeons" },
             { type = "dungeon",   key = "showSLWeeklyDungeons",    name = "Shadowlands Mythic Dungeons" },
             { type = "dungeon",   key = "showLegionDungeons",      name = "Legion Mythic Dungeons" },
@@ -888,13 +888,35 @@ function MC.weeklyDisplay()
         end
     end
 
+    local function TWWWeeklyActivities()
+        if not MasterCollectorSV.showTWWWeeklies then return end
+
+        local hasCompletedQuest = C_QuestLog.IsQuestFlaggedCompleted(85010)
+        local colorHex = hasCompletedQuest and MC.greenHex or MC.redHex
+        local mountName, _, _, _, _, _, _, _, _, _, collected, mountID = C_MountJournal.GetMountInfoByID(2293) -- Darkfuse Spy-Eye
+        local eventText = string.format("%sThe War Within Weekly Activities|r\n", MC.goldHex)
+        local shouldShow = not (MasterCollectorSV.hideBossesWithMountsObtained and collected) and
+                        (not collected or not (MasterCollectorSV.showBossesWithNoLockout and hasCompletedQuest))
+
+        eventText = eventText .. string.format("%s%sDarkfuse Precipitant Rare|r\n", string.rep(" ", 4), colorHex)
+
+        if MasterCollectorSV.showMountName then
+            eventText = eventText .. string.format("%sMount: %s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h\n", string.rep(" ", 8), MC.blueHex, mountID, mountName, mountID, wowheadIcon)
+        end
+
+        if shouldShow then
+            displayText = displayText .. eventText
+        end
+    end
+
     local function displayCategories()
         GetWeeklyResetTime()
 
         local previousLength = #displayText
 
-        GarrisonInvasionMounts()
+        TWWWeeklyActivities()
         DFWeeklyActivities()
+        GarrisonInvasionMounts()
 
         local contentAdded = #displayText > previousLength
 

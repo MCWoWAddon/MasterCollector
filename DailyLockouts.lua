@@ -32,7 +32,15 @@ function MC.dailiesDisplay()
                 { 181, { 411 }, 2, "Swift Zulian Panther",    100 }, -- High Priestess Kilnara (Heroic)
                 { 176, { 410 }, 2, "Armored Razzashi Raptor", 100 }  -- Bloodlord Mandokir (Heroic)
             }
-        }
+        },
+        ["The War Within Mythic Dungeons"] = {
+            [1210] = {                                     -- Darkflame Cleft
+                { 2561, { 2204 },  23 , "Wick's Lead", 100 } -- The Darkness (Mythic)
+            },
+            [1269] = {                                     -- The Stonevault
+                { 2582, { 2119 },  23 , "Malfunctioning Mechsuit", 200 } -- Void Speaker Eirich (Mythic)
+            },
+        },
     }
 
     local rares = {
@@ -72,17 +80,6 @@ function MC.dailiesDisplay()
         ["BfA Nazjatar Rares"] = {
             { { 56298 }, { 1257 }, "Silent Glider", 200, "Soundless" }
         },
-        ["BfA Uldum Rares"] = {
-            { { 57259 }, { 1314 }, "Reins of the Drake of the Four Winds", 100, "Ishak of the Four Winds" },
-            { { 58696 }, { 1319 }, "Malevolent Drone",                     100, "Corpse Eater" },
-            { { 57273 }, { 1317 }, "Waste Marauder",                       33,  "Rotfeaster" }
-        },
-        ["BfA Vale of Eternal Blossoms Rares"] = {
-            { { 57363 }, { 1328 }, "Xinlao",                       33, "Xinlao" },
-            { { 57344 }, { 1297 }, "Clutch of Ha-Li",              33, "Ha-Li" },
-            { { 57345 }, { 1327 }, "Ren's Stalwart Hound",         33, "Houndlord Ren" },
-            { { 57346 }, { 1313 }, "Pristine Cloud Serpent Scale", 50, "Rei Lun" }
-        },
         ["SL Rares (non-Covenant Specific)"] = {
             { { 59869 },                                           { 1379 }, "Endmire Flyer Tether",                        100, "Famu the Infinite" },
             { { 61720 },                                           { 1410 }, "Slime-Covered Reins of the Hulking Deathroc", 33,  "Violet Mistake" },
@@ -102,7 +99,6 @@ function MC.dailiesDisplay()
         },
         ["TWW Rares"] = {
             { 81633, 2205, "Regurgitated Mole Reins", 100, "Lurker of the Deeps" },
-            { 85010, 2293, "Darkfuse Spy-Eye", 100, "Darkfuse Precipitant" },
         }
     }
 
@@ -110,13 +106,12 @@ function MC.dailiesDisplay()
         "Cataclysm Dungeons",
         "Wrath of Lich King Dungeons",
         "Burning Crusade Dungeons",
+        "The War Within Mythic Dungeons"
     }
 
     local rareOrder = {
         "TWW Rares",
         "SL Rares (non-Covenant Specific)",
-        "BfA Vale of Eternal Blossoms Rares",
-        "BfA Uldum Rares",
         "BfA Nazjatar Rares",
         "BfA Mechagon Rares",
         "BfA Darkshore Rares",
@@ -514,7 +509,8 @@ function MC.dailiesDisplay()
                 local shouldProcessExpansion = true
                 if  (expansion == "Burning Crusade Dungeons" and not MasterCollectorSV.showTBCDungeons) or
                     (expansion == "Wrath of Lich King Dungeons" and not MasterCollectorSV.showWOTLKDungeons) or
-                    (expansion == "Cataclysm Dungeons" and not MasterCollectorSV.showCataDungeons) then
+                    (expansion == "Cataclysm Dungeons" and not MasterCollectorSV.showCataDungeons) or
+                    (expansion == "The War Within Mythic Dungeons" and not MasterCollectorSV.showTWWDungeons) then
                     shouldProcessExpansion = false
                 end
 
@@ -608,8 +604,6 @@ function MC.dailiesDisplay()
                     (expansion == "BfA Darkshore Rares" and not MasterCollectorSV.showDarkshoreRares) or
                     (expansion == "BfA Mechagon Rares" and not MasterCollectorSV.showMechagonRares) or
                     (expansion == "BfA Nazjatar Rares" and not MasterCollectorSV.showNazRares) or
-                    (expansion == "BfA Uldum Rares" and not MasterCollectorSV.showUldumRares) or
-                    (expansion == "BfA Vale of Eternal Blossoms Rares" and not MasterCollectorSV.showValeRares) or
                     (expansion == "SL Rares (non-Covenant Specific)" and not MasterCollectorSV.showSLRares) or
                     (expansion == "TWW Rares" and not MasterCollectorSV.showTWWRares) then
                     shouldProcessExpansion = false

@@ -737,11 +737,15 @@ function MC.events()
                 local assaultDisplay = string.format("%sCurrent Maw Assault: |r%s%s\nTime Remaining: %s\n", MC.goldHex, assaultName, string.rep(" ", 4), FormatTime(currentAssaultSecondsLeft))
                 local attempts = GetRarityAttempts(mountName) or 0
 
-                if MasterCollectorSV.showRarityDetail then
-                    local chance = 1 / dropChanceDenominator
-                    local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                    rarityAttemptsText = string.format("%s(Attempts: %d/%s", string.rep(" ", 5), attempts, dropChanceDenominator)
-                    dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                if dropChanceDenominator > 1 then
+                    if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                        if MasterCollectorSV.showRarityDetail then
+                            local chance = 1 / dropChanceDenominator
+                            local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                            rarityAttemptsText = string.format("%s(Attempts: %d/%s", string.rep(" ", 5), attempts, dropChanceDenominator)
+                            dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                        end
+                    end
                 end
 
                 if MasterCollectorSV.showMountName then
@@ -2121,7 +2125,8 @@ function MC.events()
             if not data then return nil, nil end
 
             local itemData = MC.ItemDetails[data.itemID]
-            local itemName = itemData and itemData.name or "Unknown"
+            local searchitemName = C_Item.GetItemInfo(data.itemID)
+            local itemName = itemData and itemData.name or searchitemName
             local questName = C_QuestLog.GetTitleForQuestID(data.questID)
 
             return itemName, questName or "Timewalking Weekly Quest"
@@ -2219,27 +2224,33 @@ function MC.events()
                     if cacheIndex and cacheData[cacheIndex] then
                         local cacheItemName, cacheQuestName = GetCacheNames(cacheIndex)
 
-                        table.insert(mountsToShow, string.format("\n%sExtra Mounts from %s (%s):|r",MC.goldHex, cacheItemName, cacheQuestName))
+                        if #mountsToShow > 0 then
+                            table.insert(mountsToShow, string.format("\n%s%sExtra Mount Attempt from %s (%s):|r", MC.goldHex, string.rep(" ", 4), cacheItemName, cacheQuestName))
 
-                        for _, entry in ipairs(cacheData[cacheIndex].drops) do
-                            local mountID = entry[1]
-                            local dropChanceDenominator = entry[2]
+                            for _, entry in ipairs(cacheData[cacheIndex].drops) do
+                                local mountID = entry[1]
+                                local dropChanceDenominator = entry[2]
 
-                            local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
+                                local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
 
-                            if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
-                                local attempts = GetRarityAttempts(mountID) or 0
-                                local rarityAttemptsText, dropChanceText = "", ""
+                                if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
+                                    local attempts = GetRarityAttempts(mountID) or 0
+                                    local rarityAttemptsText, dropChanceText = "", ""
 
-                                if MasterCollectorSV.showRarityDetail then
-                                    local chance = 1 / dropChanceDenominator
-                                    local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                                    if dropChanceDenominator > 1 then
+                                        if RarityDB and RarityDB.profiles and RarityDB.profiles["Default"] then
+                                            if MasterCollectorSV.showRarityDetail then
+                                                local chance = 1 / dropChanceDenominator
+                                                local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
 
-                                    rarityAttemptsText = string.format("  (Attempts: %d/%s", attempts, dropChanceDenominator)
-                                    dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                                                rarityAttemptsText = string.format("  (Attempts: %d/%s", attempts, dropChanceDenominator)
+                                                dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                                            end
+                                        end
+                                    end
+
+                                    table.insert(mountsToShow, string.format("%s%s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h%s%s", string.rep(" ", 4), MC.blueHex, mountID, mountName, mountID, wowheadIcon, rarityAttemptsText, dropChanceText))
                                 end
-
-                                table.insert(mountsToShow, string.format("%s%s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h%s%s", string.rep(" ", 4), MC.blueHex, mountID, mountName, mountID, wowheadIcon, rarityAttemptsText, dropChanceText))
                             end
                         end
                     end

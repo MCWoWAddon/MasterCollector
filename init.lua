@@ -169,8 +169,9 @@ MC.defaultValues = {
     showSLAchieves = true,
     showDFAchieves = true,
     showTWWAchieves = true,
-    showLegionRemix = true,
-    showProtoform = true
+    showLegionRemix = false,
+    showProtoform = true,
+    showTWWWeeklies = true
 }
 
 MasterCollectorSV = MasterCollectorSV or {}
@@ -314,7 +315,8 @@ MC.checkboxNames = {
     "showDFAchieves",
     "showTWWAchieves",
     "showLegionRemix",
-    "showProtoform"
+    "showProtoform",
+    "showTWWWeeklies",
 }
 
 MC.parentCheckboxes = {
@@ -518,7 +520,6 @@ end
 
 function MC.CheckInstanceResetMessage(msg)
     if not msg then return end
-
     local pattern = INSTANCE_RESET_SUCCESS:gsub("%%s", "(.+)")
     local instName = msg:match(pattern)
     if not instName then return end
@@ -683,6 +684,7 @@ EVENT_HANDLERS.ADDON_LOADED = function(addonName)
 end
 
 EVENT_HANDLERS.CHAT_MSG_SYSTEM = function(msg)
+    if issecretvalue(msg) then return end
     MC.CheckInstanceResetMessage(msg)
 end
 
