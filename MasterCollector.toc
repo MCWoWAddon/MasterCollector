@@ -4,7 +4,7 @@
 ## Notes: Your ultimate addon for tracking and managing your collection of mounts in World of Warcraft!
 ## IconTexture: Interface/Icons/70_professions_scroll_03.blp
 ## Author: DivineKate
-## Version: 1.9
+## Version: 1.9.2
 ## SavedVariables: MasterCollectorSV
 ## OptionalDeps: Rarity
 

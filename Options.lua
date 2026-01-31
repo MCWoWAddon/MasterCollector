@@ -45,7 +45,7 @@ mainPanel:RegisterEvent("ADDON_LOADED")
 
 local mainTitle = mainPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 mainTitle:SetPoint("TOPLEFT", 16, -16)
-mainTitle:SetText("Master Collector V1.9.1")
+mainTitle:SetText("Master Collector V1.9.2")
 
 local weeklyTitle = weeklyPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 weeklyTitle:SetPoint("TOPLEFT", 16, -16)
@@ -1114,7 +1114,7 @@ function MC.CreateOptions()
         last = LayoutTwoColumn(daily.dungeons, dailyControls.ddailyHeader)
 
         dailyControls.rdailyDivider:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -5)
-        dailyControls.rdailyHeader:SetPoint("TOPLEFT", dailyControls.rdailyDivider, "BOTTOMLEFT", 0, -10)
+        dailyControls.rdailyHeader:SetPoint("TOPLEFT", dailyControls.rdailyDivider, "BOTTOMLEFT", -300, -10)
         last = LayoutTwoColumn(daily.rares, dailyControls.rdailyHeader)
 
         dailyControls.adailyDivider:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -5)
