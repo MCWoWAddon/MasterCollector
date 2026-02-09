@@ -45,7 +45,7 @@ mainPanel:RegisterEvent("ADDON_LOADED")
 
 local mainTitle = mainPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 mainTitle:SetPoint("TOPLEFT", 16, -16)
-mainTitle:SetText("Master Collector V1.9.3")
+mainTitle:SetText("Master Collector V1.9.4")
 
 local weeklyTitle = weeklyPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 weeklyTitle:SetPoint("TOPLEFT", 16, -16)
@@ -715,8 +715,6 @@ function MC.CreateOptions()
         "showBFADungeons",
         "showBFARaids",
         "showBFAWorldBosses",
-        "showArathiRares",
-        "showDarkshoreRares",
         "showMechagonRares",
         "showNazRares",
         "showBfaDailies",
@@ -999,8 +997,8 @@ function MC.CreateOptions()
         weeklyControls.dWeeklyHeader:SetPoint("TOPLEFT", weeklyControls.dWeeklyDivider, "BOTTOMLEFT", 0, -10)
         last = LayoutTwoColumn(weekly.dungeons, weeklyControls.dWeeklyHeader)
 
-        weeklyControls.rWeeklyDivider:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -5)
-        weeklyControls.rWeeklyHeader:SetPoint("TOPLEFT", weeklyControls.rWeeklyDivider, "BOTTOMLEFT", -300, -10)
+        weeklyControls.rWeeklyDivider:SetPoint("TOPLEFT", last, "BOTTOMLEFT", -300, -5)
+        weeklyControls.rWeeklyHeader:SetPoint("TOPLEFT", weeklyControls.rWeeklyDivider, "BOTTOMLEFT", 0, -10)
         last = LayoutTwoColumn(weekly.raids, weeklyControls.rWeeklyHeader)
 
         weeklyControls.wbWeeklyDivider:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -5)
@@ -1025,8 +1023,6 @@ function MC.CreateOptions()
         rares = {
             {"Show Warlords of Draenor Tanaan Jungle", "showTanaanRares"},
             {"Show Legion Argus Rares", "showArgusRares"},
-            {"Show Battle of Azeroth Arathi Highlands Rares", "showArathiRares"},
-            {"Show Battle of Azeroth Darkshore Rares", "showDarkshoreRares"},
             {"Show Battle of Azeroth Mechagon Rares", "showMechagonRares"},
             {"Show Battle of Azeroth Nazjatar Rares", "showNazRares"},
             {"Show Shadowlands Non-Covenant Specific Rares", "showSLRares"},
@@ -1113,8 +1109,8 @@ function MC.CreateOptions()
         dailyControls.ddailyHeader:SetPoint("TOPLEFT", dailyControls.ddailyDivider, "BOTTOMLEFT", 0, -10)
         last = LayoutTwoColumn(daily.dungeons, dailyControls.ddailyHeader)
 
-        dailyControls.rdailyDivider:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -5)
-        dailyControls.rdailyHeader:SetPoint("TOPLEFT", dailyControls.rdailyDivider, "BOTTOMLEFT", -300, -10)
+        dailyControls.rdailyDivider:SetPoint("TOPLEFT", last, "BOTTOMLEFT", -300, -5)
+        dailyControls.rdailyHeader:SetPoint("TOPLEFT", dailyControls.rdailyDivider, "BOTTOMLEFT", 0, -10)
         last = LayoutTwoColumn(daily.rares, dailyControls.rdailyHeader)
 
         dailyControls.adailyDivider:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -5)
@@ -1461,9 +1457,11 @@ function MC.CreateOptions()
     graphicsCityOverride:SetPoint("TOPLEFT", graphicTitle, "BOTTOMLEFT", 350, -30)
     graphicsCityOverride:SetScript("OnClick", function(self)
         if not self:GetChecked() then
+            MasterCollectorSV.graphicsCityOverride = false
             MC.RestoreGraphics()
             print("|cFFFF0000MasterCollector Graphics City Override is DISABLED|r")
         else
+            MasterCollectorSV.graphicsCityOverride = true
             MC.ApplyDynamicGraphics(MasterCollectorSV.graphicsConfig)
             print("|cFF00FF00MasterCollector Graphics City Override is ENABLED|r")
         end
@@ -1473,9 +1471,11 @@ function MC.CreateOptions()
     graphicsInstanceOverride:SetPoint("TOPLEFT", graphicsCityOverride, "BOTTOMLEFT", 0, -30)
     graphicsInstanceOverride:SetScript("OnClick", function(self)
         if not self:GetChecked() then
+            MasterCollectorSV.graphicsInstanceOverride = false
             MC.RestoreGraphics()
             print("|cFFFF0000MasterCollector Graphics Instance Override is DISABLED|r")
         else
+            MasterCollectorSV.graphicsInstanceOverride = true
             MC.ApplyDynamicGraphics(MasterCollectorSV.graphicsConfig)
             print("|cFF00FF00MasterCollector Graphics Instance Override is ENABLED|r")
         end

@@ -65,8 +65,6 @@ MC.defaultValues = {
     showCataDungeons = true,
     showTanaanRares = true,
     showArgusRares = true,
-    showArathiRares = true,
-    showDarkshoreRares = true,
     showMechagonRares = true,
     showNazRares = true,
     showUldumRares = true,
@@ -142,7 +140,7 @@ MC.defaultValues = {
     },
     graphicsCityOverride = false,
     graphicsInstanceOverride = false,
-    autoLootCheck = true,
+    autoLootCheck = false,
     showLockouts = true,
     showIslandExpeditions = true,
     showFishing = true,
@@ -225,8 +223,6 @@ MC.checkboxNames = {
     "showCataDungeons",
     "showTanaanRares",
     "showArgusRares",
-    "showArathiRares",
-    "showDarkshoreRares",
     "showMechagonRares",
     "showNazRares",
     "showUldumRares",
@@ -438,20 +434,6 @@ MC.wasInInstance = false
 MC.lastSaveTime = 0
 MC.Reset = MC.Reset or {}
 
-function MC.CheckInstanceLimit()
-    local playerRealm = GetRealmName()
-    local liveLocks = #MasterCollectorSV.realmLocks[playerRealm]
-    local lastWarningTime = 0
-
-    if liveLocks >= 8 then
-        local now = time()
-        if now - lastWarningTime > 60 then
-            print(string.format("MasterCollector |cffffff00Warning:|r You've entered %d instances recently. You are nearing the Realm 10 x instances per hour limit.", liveLocks))
-            lastWarningTime = now
-        end
-    end
-end
-
 function MC.OnInstanceCheck()
     local inInstance, instanceType = IsInInstance()
     local playerName, playerRealm = UnitName("player"), GetRealmName()
@@ -475,7 +457,6 @@ function MC.OnInstanceCheck()
 
     elseif not inInstance and MC.wasInInstance then
         MC.SaveRealmLockout()
-        MC.CheckInstanceLimit()
         MC.currentInstance = nil
         MC.wasInInstance = false
     end
@@ -525,6 +506,19 @@ function MC.CheckInstanceResetMessage(msg)
     if not instName then return end
 
     MC.Reset[instName] = true
+end
+
+function MC.CheckInstanceLimit()
+    local liveLocks = MasterCollectorSV.totalRealmCount or 0
+    local lastWarningTime = 0
+
+    if liveLocks >= 8 then
+        local now = time()
+        if now - lastWarningTime > 60 then
+            print(string.format("MasterCollector |cffffff00Warning:|r You've entered %d instances recently. You are nearing the Realm 10 x instances per hour limit.", liveLocks))
+            lastWarningTime = now
+        end
+    end
 end
 
 MC.lastInstanceOverrideState = nil
@@ -587,12 +581,10 @@ local function HandleInstanceGraphics()
 end
 
 local function HandleCityGraphics()
-    if not MasterCollectorSV.graphicsCityOverride then return end
-
-    if IsResting() then
+    if IsResting() and MasterCollectorSV.graphicsCityOverride then
         MC.ApplyDynamicGraphics(MasterCollectorSV.graphicsConfig)
         print("|cFF00FF00MasterCollector Graphics City Override is ENABLED|r")
-    else
+    elseif IsResting() then
         MC.RestoreGraphics()
         print("|cFFFF0000MasterCollector Graphics City Override is DISABLED|r")
     end
@@ -736,6 +728,7 @@ MC.mainFrame:SetScript("OnEvent", function(self, event, ...)
         MC.OnInstanceCheck()
         HandleInstanceGraphics()
         HandleAutoLoot()
+        MC.CheckInstanceLimit()
     end
 
     if CITY_EVENTS[event] then

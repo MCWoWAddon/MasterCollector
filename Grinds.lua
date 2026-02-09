@@ -861,6 +861,7 @@ function MC.grinds()
 
         local output = {}
         local realmLocks = MasterCollectorSV.realmLocks[playerRealm] or {}
+        MasterCollectorSV.totalRealmCount = #realmLocks
         local charLocks = MasterCollectorSV.instanceLocks[character] or {}
 
         if #realmLocks > 0 then

@@ -270,6 +270,111 @@ function MC.events()
         return false
     end
 
+    local function BuildRareMountText(expansionName, raresData)
+        local playerFaction = UnitFactionGroup("player")
+        local expansionText = ""
+        local uncollectedMounts = {}
+
+        for _, rareData in ipairs(raresData) do
+            local questIDs = rareData[1]
+            local mountIDs = rareData[2]
+            local itemName = rareData[3]
+            local dropChanceDenominator = rareData[4]
+            local rareName = rareData[5]
+            local factionRestriction = rareData[6]
+
+            local allKilled = true
+            local individualRaresText = ""
+            local hasUncollectedMounts = false
+
+            if type(questIDs) ~= "table" then
+                questIDs = { questIDs }
+            end
+
+            local rareNames = { strsplit("/", rareName) }
+
+            if #questIDs == #rareNames then
+                for index, questID in ipairs(questIDs) do
+                    local name = strtrim(rareNames[index])
+                    local isKilled = C_QuestLog.IsQuestFlaggedCompleted(questID)
+                    local color = isKilled and MC.greenHex or MC.redHex
+
+                    if not isKilled then
+                        allKilled = false
+                    end
+
+                    individualRaresText = individualRaresText .. string.format("%s%s%s|r", string.rep(" ", 4), color, name)
+                end
+            else
+                local isKilled = false
+                for _, questID in ipairs(questIDs) do
+                    if C_QuestLog.IsQuestFlaggedCompleted(questID) then
+                        isKilled = true
+                        break
+                    end
+                end
+
+                if not isKilled then
+                    allKilled = false
+                end
+
+                local color = isKilled and MC.greenHex or MC.redHex
+                individualRaresText = individualRaresText .. string.format("%s%s%s|r", string.rep(" ", 4), color, rareName)
+            end
+
+            if type(mountIDs) ~= "table" then
+                mountIDs = { mountIDs }
+            end
+
+            local mountTexts = {}
+
+            for _, mountID in ipairs(mountIDs) do
+                local mountInfo = { C_MountJournal.GetMountInfoByID(mountID) }
+                local mountName = mountInfo[1] or "Unknown Mount"
+                local isCollected = mountInfo[11]
+
+                local shouldShow = not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected
+
+                if MasterCollectorSV.showBossesWithNoLockout and allKilled then
+                    shouldShow = false
+                end
+
+                if not isCollected then
+                    hasUncollectedMounts = true
+                    table.insert(uncollectedMounts, mountName)
+                end
+
+                if shouldShow then
+                    local attempts = GetRarityAttempts(itemName) or 0
+                    local rarityAttemptsText, dropChanceText = "", ""
+
+                    if MasterCollectorSV.showRarityDetail and dropChanceDenominator and dropChanceDenominator ~= 0 then
+                        local chance = 1 / dropChanceDenominator
+                        local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
+                        rarityAttemptsText = string.format(" (Attempts: %d/%s)", attempts, dropChanceDenominator)
+                        dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
+                    end
+
+                    table.insert(mountTexts, string.format("%s|r- Mount: |r%s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h%s%s|r",
+                        string.rep(" ", 6), MC.blueHex, mountID, mountName, mountID, wowheadIcon, rarityAttemptsText, dropChanceText))
+                end
+            end
+
+            if not MasterCollectorSV.hideBossesWithMountsObtained or hasUncollectedMounts then
+                if not (MasterCollectorSV.showBossesWithNoLockout and allKilled) then
+                    if not factionRestriction or factionRestriction == playerFaction .. " Only" then
+                        expansionText = expansionText .. individualRaresText .. "\n"
+                        if MasterCollectorSV.showMountName and #mountTexts > 0 then
+                            expansionText = expansionText .. table.concat(mountTexts, "\n") .. "\n"
+                        end
+                    end
+                end
+            end
+        end
+
+        return expansionText, uncollectedMounts
+    end
+
     local function GetActiveWarfrontStatus()
         local warfrontIDs = {
             { id = 11,  name = "Battle for Stromgarde (Arathi Highlands)", faction = "Horde" },
@@ -323,8 +428,28 @@ function MC.events()
         local iconAllianceServiceMedals = C_CurrencyInfo.GetCurrencyInfo(1717).iconFileID
 
         local factionMounts = {
-            ["Alliance"] = { { 1204, 350 }, { 1214, 750 }, { 1216, 200 } },
+            ["Alliance"] = { { 1204, 350 }, { 1216, 750 }, { 1214, 200 } },
             ["Horde"] = { { 1204, 350 }, { 1210, 750 }, { 1215, 200 } },
+        }
+
+        local warfrontMounts = {
+            ["Arathi Highlands Rares"] = {
+                { { 53091, 53517 }, { 1185 }, "Witherbark Direwing",     33, "Nimar the Slayer" },
+                { { 53014, 53518 }, { 1182 }, "Lil' Donkey",             33, "Overseer Krix" },
+                { { 53022, 53526 }, { 1183 }, "Skullripper",             33, "Skullripper" },
+                { { 53083, 53504 }, { 1180 }, "Swift Albino Raptor",     33, "Beastrider Kama" },
+                { { 53085 },        { 1174 }, "Highland Mustang",        33, "Doomrider Helgrim",     "Alliance Only", },
+                { { 53088 },        { 1173 }, "Broken Highland Mustang", 33, "Knight-Captain Aldrin", "Horde Only" }
+            },
+            ["Darkshore Rares"] = {
+                { { 54695, 54696 }, { 1200 }, "Ashenvale Chimaera",           20, "Alash'anir" },
+                { { 54883 },        { 1199 }, "Caged Bear",                   20, "Agathe Wyrmwood",   "Alliance Only" },
+                { { 54890 },        { 1199 }, "Blackpaw",                     20, "Blackpaw",          "Horde Only" },
+                { { 54886 },        { 1205 }, "Captured Kaldorei Nightsaber", 20, "Croz Bloodrage",    "Alliance Only" },
+                { { 54892 },        { 1205 }, "Kaldorei Nightsaber",          20, "Shadowclaw",        "Horde Only" },
+                { { 54431 },        { 1203 }, "Umber Nightsaber",             20, "Athil Dewfire",     "Horde Only" },
+                { { 54277 },        { 1203 }, "Captured Umber Nightsaber",    20, "Moxo the Beheader", "Alliance Only" }
+            },
         }
 
         local allCollected = true
@@ -374,8 +499,22 @@ function MC.events()
                 local mountNamesString = getMountNamesByFaction(playerFaction)
 
                 if warfrontText then
+                    local warfrontExpansion
+                    if warfrontName == "Battle for Stromgarde (Arathi Highlands)" then
+                        warfrontExpansion = "Arathi Highlands Rares"
+                    elseif warfrontName == "Battle for Darkshore" then
+                        warfrontExpansion = "Darkshore Rares"
+                    end
+
+                    if warfrontExpansion and warfrontMounts[warfrontExpansion] then
+                        local rareText = BuildRareMountText(warfrontExpansion, warfrontMounts[warfrontExpansion])
+                        if rareText ~= "" then
+                            warfrontText = warfrontText .. string.format("\n%s%s%s|r:\n%s", MC.goldHex, string.rep(" ", 3), warfrontExpansion, rareText)
+                        end
+                    end
+
                     if MasterCollectorSV.showMountName then
-                        table.insert(output, warfrontText .. string.format("%sMounts for %s: \n%s%s", string.rep(" ", 4), playerFaction, string.rep(" ", 4), mountNamesString))
+                        table.insert(output, warfrontText .. string.format("\n%s%sCurrency Mounts for %s: |r\n%s%s", MC.goldHex, string.rep(" ", 4), playerFaction, string.rep(" ", 4), mountNamesString))
                     else
                         table.insert(output, warfrontText)
                     end
@@ -2125,8 +2264,7 @@ function MC.events()
             if not data then return nil, nil end
 
             local itemData = MC.ItemDetails[data.itemID]
-            local searchitemName = C_Item.GetItemInfo(data.itemID)
-            local itemName = itemData and itemData.name or searchitemName
+            local itemName = itemData and itemData.name
             local questName = C_QuestLog.GetTitleForQuestID(data.questID)
 
             return itemName, questName or "Timewalking Weekly Quest"

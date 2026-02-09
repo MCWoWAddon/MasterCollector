@@ -56,23 +56,6 @@ function MC.dailiesDisplay()
             { { 48695 },               { 970 },                "Maddened Chaosrunner", 30, "Wrangler Kravos" },
             { { 48712, 48667, 48812 }, { 974, 975, 976, 906 }, "Fel-Spotted Egg",      16, "Sabuul/Naroua/Varga" }
         },
-        ["BfA Arathi Highlands Rares"] = {
-            { { 53091, 53517 }, { 1185 }, "Witherbark Direwing",     33, "Nimar the Slayer" },
-            { { 53014, 53518 }, { 1182 }, "Lil' Donkey",             33, "Overseer Krix" },
-            { { 53022, 53526 }, { 1183 }, "Skullripper",             33, "Skullripper" },
-            { { 53083, 53504 }, { 1180 }, "Swift Albino Raptor",     33, "Beastrider Kama" },
-            { { 53085 },        { 1174 }, "Highland Mustang",        33, "Doomrider Helgrim",     "Alliance Only", },
-            { { 53088 },        { 1173 }, "Broken Highland Mustang", 33, "Knight-Captain Aldrin", "Horde Only" }
-        },
-        ["BfA Darkshore Rares"] = {
-            { { 54695, 54696 }, { 1200 }, "Ashenvale Chimaera",           20, "Alash'anir" },
-            { { 54883 },        { 1199 }, "Caged Bear",                   20, "Agathe Wyrmwood",   "Alliance Only" },
-            { { 54890 },        { 1199 }, "Blackpaw",                     20, "Blackpaw",          "Horde Only" },
-            { { 54886 },        { 1205 }, "Captured Kaldorei Nightsaber", 20, "Croz Bloodrage",    "Alliance Only" },
-            { { 54892 },        { 1205 }, "Kaldorei Nightsaber",          20, "Shadowclaw",        "Horde Only" },
-            { { 54431 },        { 1203 }, "Umber Nightsaber",             20, "Athil Dewfire",     "Horde Only" },
-            { { 54277 },        { 1203 }, "Captured Umber Nightsaber",    20, "Moxo the Beheader", "Alliance Only" }
-        },
         ["BfA Mechagon Rares"] = {
             { { 55811 }, { 1248 }, "Rusted Keys to the Junkheap Drifter", 200, "Rustfeather" },
             { { 55512 }, { 1229 }, "Rusty Mechanocrawler",                333, "Arachnoid Harvester" }
@@ -114,8 +97,6 @@ function MC.dailiesDisplay()
         "SL Rares (non-Covenant Specific)",
         "BfA Nazjatar Rares",
         "BfA Mechagon Rares",
-        "BfA Darkshore Rares",
-        "BfA Arathi Highlands Rares",
         "Legion Argus Rares",
         "WoD Tanaan Jungle Rares",
     }
@@ -220,15 +201,14 @@ function MC.dailiesDisplay()
         { "SEQUENTIAL",        { 65727, 65725, 65726, 65728, 65729, 65730, 65731 }, 1569, 7, "Patient Bufonid Quest" },
     }
 
-
     local dailyBfaActivities = {
-        { { 50393, 50394, 50402, 52305, 50395, 50401, 50412, 52447, 50396, 50886, 50887, 50900, 52748, 50397, 50940, 50942, 50943, 50944 }, { 1043 }, 30,
+        { "SEQUENTIAL", { 50393, 50394, 50402, 52305, 50395, 50401, 50412, 52447, 50396, 50886, 50887, 50900, 52748, 50397, 50940, 50942, 50943, 50944 }, { 1043 }, 30,
             "Kua'fon Quest",
             { 50801, 50796, 50791, 50798, 50839, 51146, 50838, 50838, 52317, 50842, 50930, 50860, 50841, 51146 } },
-        { { 55608, 54086, 54929, 55373, 55697, 54922, 56168, 54083, 56175, 55696, 55753, 55622 },                      { 1253 }, 12, "Scrapforged Mechaspider Quest" },
-        { { 55254, 55252, 55253, 55258, 55462, 55503, 55504, 55506, 55505, 55507, 55247, 55795, 55796, 55797, 55798 }, { 1249 }, 15, "Child of Torcali" },
-        { { 58887, 58879 },                                                                                            { 1329 }, 7,  "Feed Gersahl Greens to Friendly Alpaca" },
-        { { 58802, 58803, 58804, 58806, 58805, 58805, 58808, 58805, 58805, 58805, 58805, 58805, 58809, 58810, 58811, 58812, 58813, 58817,
+        { "SEQUENTIAL", { 55608, 54086, 54929, 55373, 55697, 54922, 56168, 54083, 56175, 55696, 55753, 55622 },                      { 1253 }, 12, "Scrapforged Mechaspider Quest" },
+        { "SEQUENTIAL", { 55254, 55252, 55253, 55258, 55462, 55503, 55504, 55506, 55505, 55507, 55247, 55795, 55796, 55797, 55798 }, { 1249 }, 15, "Child of Torcali" },
+        { "REPEAT_PLUS_FINAL", { 58887, 58879 },                                                                                     { 1329 }, 7,  "Feed Gersahl Greens to Friendly Alpaca" },
+        { "SEQUENTIAL", { 58802, 58803, 58804, 58806, 58805, 58805, 58808, 58805, 58805, 58805, 58805, 58805, 58809, 58810, 58811, 58812, 58813, 58817,
             58858, 58858, 58818, 58825, 58858, 58858, 58829, 58830, 58861, 58831, 58862, 58859, 58831, 58863, 58865, 58866 }, { 1320 }, 30,
             "Shadowbarb Drone Quest" },
     }
@@ -501,8 +481,6 @@ function MC.dailiesDisplay()
 
     local function displayLockouts()
         local lockoutText = ""
-        local whiteColor = "|cffffffff"
-
         for _, expansion in ipairs(lockoutOrder) do
             local dungeons = lockouts[expansion]
             if dungeons then
@@ -559,7 +537,7 @@ function MC.dailiesDisplay()
                                                     if dropChanceDenominator and dropChanceDenominator ~= 0 then
                                                         local chance = 1 / dropChanceDenominator
                                                         local cumulativeChance = 100 * (1 - math.pow(1 - chance, attempts))
-                                                        rarityAttemptsText = string.format(" (Attempts: %d/%s", attempts, dropChanceDenominator)
+                                                        rarityAttemptsText = string.format(" (Attempts: %d/%s)", attempts, dropChanceDenominator)
                                                         dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                                                     else
                                                         rarityAttemptsText = ""
@@ -571,8 +549,8 @@ function MC.dailiesDisplay()
                                                 end
                                             end
                                             if MasterCollectorSV.showMountName then
-                                                dungeonText = dungeonText .. string.format("%s- %sMount:|r %s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h%s%s|r\n", 
-                                                    string.rep(" ", 6), whiteColor, MC.blueHex, mountID, mountName, mountID, wowheadIcon, rarityAttemptsText, dropChanceText)
+                                                dungeonText = dungeonText .. string.format("%s|r- Mount:|r %s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h%s%s|r\n",
+                                                    string.rep(" ", 6), MC.blueHex, mountID, mountName, mountID, wowheadIcon, rarityAttemptsText, dropChanceText)
                                             end
                                         end
                                     end
@@ -600,8 +578,6 @@ function MC.dailiesDisplay()
                 local shouldProcessExpansion = true
                 if (expansion == "WoD Tanaan Jungle Rares" and not MasterCollectorSV.showTanaanRares) or
                     (expansion == "Legion Argus Rares" and not MasterCollectorSV.showArgusRares) or
-                    (expansion == "BfA Arathi Highlands Rares" and not MasterCollectorSV.showArathiRares) or
-                    (expansion == "BfA Darkshore Rares" and not MasterCollectorSV.showDarkshoreRares) or
                     (expansion == "BfA Mechagon Rares" and not MasterCollectorSV.showMechagonRares) or
                     (expansion == "BfA Nazjatar Rares" and not MasterCollectorSV.showNazRares) or
                     (expansion == "SL Rares (non-Covenant Specific)" and not MasterCollectorSV.showSLRares) or
@@ -626,23 +602,38 @@ function MC.dailiesDisplay()
                         end
 
                         local rareNames = { strsplit("/", rareName) }
+                        if #questIDs == #rareNames then
+                            for index, questID in ipairs(questIDs) do
+                                local name = strtrim(rareNames[index])
+                                local isKilled = C_QuestLog.IsQuestFlaggedCompleted(questID)
+                                local color = isKilled and MC.greenHex or MC.redHex
 
-                        for index, questID in ipairs(questIDs) do
-                            local individualRareName = rareNames[index] or 0
-                            local isKilled = C_QuestLog.IsQuestFlaggedCompleted(questID)
-                            local rareNameColor = isKilled and "|cFF00FF00" or MC.redHex
+                                if not isKilled then
+                                    allKilled = false
+                                end
+
+                                individualRaresText = individualRaresText.. string.format("   %s%s|r", color, name)
+
+                                if index < #questIDs then
+                                    individualRaresText = individualRaresText .. ""
+                                end
+                            end
+                        else
+                            local isKilled = false
+                            for _, questID in ipairs(questIDs) do
+                                if C_QuestLog.IsQuestFlaggedCompleted(questID) then
+                                    isKilled = true
+                                    break
+                                end
+                            end
 
                             if not isKilled then
                                 allKilled = false
                             end
 
-                            if individualRareName == 0 then
-                                individualRareName = ""
-                            end
-
-                            individualRaresText = individualRaresText .. string.format("   %s%s|r", rareNameColor, individualRareName)
+                            local color = isKilled and MC.greenHex or MC.redHex
+                            individualRaresText = individualRaresText.. string.format("   %s%s|r", color, rareName)
                         end
-
 
                         if type(mountIDs) ~= "table" then
                             mountIDs = { mountIDs }
@@ -678,8 +669,7 @@ function MC.dailiesDisplay()
                                         dropChanceText = string.format(" = %.2f%%)", cumulativeChance)
                                     end
                                 end
-                                table.insert(mountTexts, string.format("%s- %s Mount: |r%s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h%s%s|r", 
-                                    string.rep(" ", 6), whiteColor, MC.blueHex, mountID, mountName, mountID, wowheadIcon, rarityAttemptsText, dropChanceText))
+                                table.insert(mountTexts, string.format("%s|r- Mount: |r%s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h%s%s|r", string.rep(" ", 6), MC.blueHex, mountID, mountName, mountID, wowheadIcon, rarityAttemptsText, dropChanceText))
                             end
                         end
 
@@ -1217,86 +1207,98 @@ function MC.dailiesDisplay()
             end
         end
 
+        local function GetBfAProgress(entry)
+            local progressType = entry[1]
+            local quests       = entry[2]
+            local mountID      = entry[3]
+            local requiredDays = entry[4]
+            local extraQuests  = entry[6]
+
+            local completedDays = 0
+            local isCompleted = false
+
+            if progressType == "SEQUENTIAL" then
+                for i, questID in ipairs(quests) do
+                    if C_QuestLog.IsQuestFlaggedCompleted(questID) then
+                        completedDays = i
+                    else
+                        break
+                    end
+                end
+
+                -- Kua'fon special case: multiple unique dailies
+                if extraQuests then
+                    completedDays = 0
+                    local seen = {}
+                    for _, questID in ipairs(extraQuests) do
+                        if C_QuestLog.IsQuestFlaggedCompleted(questID) and not seen[questID] then
+                            completedDays = completedDays + 1
+                            seen[questID] = true
+                        end
+                    end
+                end
+
+            elseif progressType == "REPEAT_PLUS_FINAL" then
+                local dailyQuest = quests[1]
+                local finalQuest = quests[2]
+
+                if C_QuestLog.IsQuestFlaggedCompleted(finalQuest) then
+                    completedDays = requiredDays
+                    isCompleted = true
+                else
+                    local fulfilled = select(4, GetQuestObjectiveInfo(dailyQuest, 0, false))
+                    completedDays = fulfilled or 0
+                end
+            end
+
+            if completedDays > requiredDays then
+                completedDays = requiredDays
+            end
+
+            return completedDays, isCompleted
+        end
+
         local function QueryBfADailyActivities()
             local output = {}
             local hasActivities = false
 
             if MasterCollectorSV.showBfaDailies then
                 table.insert(output, MC.goldHex .. "BfA Daily Activities|r")
+
                 for _, entry in ipairs(dailyBfaActivities) do
-                    local questIDs = entry[1]
-                    local mountID = entry[2][1]
-                    local requiredDays = entry[3]
-                    local objective = entry[4]
-                    local kuafonQuestIDs = entry[5]
-                    local completedDays = 0
+                    local mountID = entry[3][1]
+                    local requiredDays = entry[4]
+                    local label = entry[5]
+
                     local mountName, _, _, _, _, _, _, _, _, _, isCollected = C_MountJournal.GetMountInfoByID(mountID)
 
-                    local isCompleted = false
-                    for _, questID in ipairs(questIDs) do
-                        if C_QuestLog.IsQuestFlaggedCompleted(questID) then
-                            isCompleted = true
-                            break
-                        end
+                    local completedDays, isCompleted = GetBfAProgress(entry)
+
+                    if isCollected then
+                        completedDays = requiredDays
                     end
 
                     if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then
-                        if isCollected then
-                            completedDays = requiredDays
-                        else
-                            if #questIDs == 2 then
-                                local dailyQuestID = questIDs[2]
-                                if isCompleted then
-                                    completedDays = requiredDays
-                                else
-                                    for _ = 1, requiredDays do
-                                        if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) then
-                                            completedDays = completedDays + 1
-                                        end
-                                    end
-                                end
-                            elseif kuafonQuestIDs ~= nil and #kuafonQuestIDs > 0 then
-                                if isCompleted then
-                                    completedDays = requiredDays
-                                else
-                                    local completedQuestSet = {}
-                                    for _, dailyQuestID in ipairs(kuafonQuestIDs) do
-                                        if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) and not completedQuestSet[dailyQuestID] then
-                                            completedDays = completedDays + 1
-                                            completedQuestSet[dailyQuestID] = true
-                                        end
-                                    end
-                                end
-                            else
-                                local dailyQuestID = questIDs[1]
-                                for _ = 1, requiredDays do
-                                    if C_QuestLog.IsQuestFlaggedCompleted(dailyQuestID) then
-                                        completedDays = completedDays + 1
-                                    end
-                                end
-                            end
-                        end
-
-                        local entryOutput = {}
-                        table.insert(entryOutput, string.format("%s%s%s|r", string.rep(" ", 5), MC.goldHex, objective))
                         hasActivities = true
 
-                        if MasterCollectorSV.showMountName then
-                            table.insert(entryOutput, string.format("%sMount: %s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h  (Progress: %d / %d Days)\n", string.rep(" ", 5), MC.blueHex, mountID, mountName, mountID, wowheadIcon, completedDays, requiredDays))
-                        else
-                            table.insert(entryOutput, string.format("Progress: %s / %s Days)", string.rep(" ", 9), completedDays, requiredDays))
-                        end
+                        table.insert(output, string.format("%s%s%s|r", string.rep(" ", 5), MC.goldHex, label))
 
-                        for _, line in ipairs(entryOutput) do
-                            table.insert(output, line)
+                        if MasterCollectorSV.showMountName then
+                            table.insert(output, string.format(
+                                "%sMount: %s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h  (Progress: %d / %d Days)\n",
+                                string.rep(" ", 5), MC.blueHex, mountID, mountName, mountID, wowheadIcon, completedDays, requiredDays))
+                        else
+                            table.insert(output, string.format("%sProgress: %d / %d Days", string.rep(" ", 9), completedDays, requiredDays))
                         end
                     end
                 end
             end
+
             if hasActivities then
                 return output
             end
         end
+
 
         local function GetSLProgress(entry)
             local progressType = entry[1]
@@ -1331,9 +1333,8 @@ function MC.dailiesDisplay()
 
             elseif progressType == "REPEAT" then
                 local dailyQuest = quests[1]
-                completedDays = MasterCollectorSV.SLRepeatCounts
-                    and MasterCollectorSV.SLRepeatCounts[dailyQuest]
-                    or 0
+                local fulfilled = select(4, GetQuestObjectiveInfo(dailyQuest, 0, false))
+                completedDays = fulfilled or 0
             end
 
             if completedDays > requiredDays then

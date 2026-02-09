@@ -146,4 +146,22 @@ MC.ItemDetails = {
 ["name"] = "Schematic: Mawdapted Raptora",
 ["quality"] = 3,
 },
+[208091] = {
+["hex"] = "|cffa335ee",
+["icon"] = 1542852,
+["name"] = "Cache of Timewarped Treasures",
+["quality"] = 4,
+},
+[208094] = {
+["hex"] = "|cffa335ee",
+["icon"] = 1542852,
+["name"] = "Cache of Timewarped Treasures",
+["quality"] = 4,
+},
+[208095] = {
+["hex"] = "|cffa335ee",
+["icon"] = 1542852,
+["name"] = "Cache of Timewarped Treasures",
+["quality"] = 4,
+},
 }
