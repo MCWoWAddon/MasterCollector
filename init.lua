@@ -169,7 +169,8 @@ MC.defaultValues = {
     showTWWAchieves = true,
     showLegionRemix = false,
     showProtoform = true,
-    showTWWWeeklies = true
+    showTWWWeeklies = true,
+    showMidnightPrepatch = true
 }
 
 MasterCollectorSV = MasterCollectorSV or {}
@@ -313,6 +314,7 @@ MC.checkboxNames = {
     "showLegionRemix",
     "showProtoform",
     "showTWWWeeklies",
+    "showMidnightPrepatch"
 }
 
 MC.parentCheckboxes = {

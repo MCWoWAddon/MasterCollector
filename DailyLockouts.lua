@@ -1570,13 +1570,7 @@ function MC.dailiesDisplay()
 
                     if blockedItem == 208646 then
                         table.insert(entryOutput,
-                            string.format(
-                                "%s%sYou need to use the Emerald Dream Seedling (Item ID: %d) to proceed|r",
-                                string.rep(" ", 9),
-                                MC.redHex,
-                                blockedItem
-                            )
-                        )
+                            string.format("%s%sYou need to use the Emerald Dream Seedling (Item ID: %d) to proceed|r", string.rep(" ", 9), MC.redHex, blockedItem))
                     end
 
                     if not MasterCollectorSV.hideBossesWithMountsObtained or not isCollected then

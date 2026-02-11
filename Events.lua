@@ -2118,6 +2118,51 @@ function MC.events()
         end
     end
 
+    local function midnightPrepatch()
+        local mounts = {
+            {2220, 100, 0},      -- currency mount
+            {2608, 0, 42300},    -- achievement mount
+        }
+
+        local output = MC.goldHex .. "Midnight Prepatch Mounts|r"
+        local hasVisibleMounts = false
+
+        for _, mountData in ipairs(mounts) do
+            local mountID     = mountData[1]
+            local cost        = mountData[2]
+            local achievement = mountData[3]
+
+            local mountName = C_MountJournal.GetMountInfoByID(mountID)
+            local isCollected = select(11, C_MountJournal.GetMountInfoByID(mountID))
+
+            local showMount = not (isCollected and MasterCollectorSV.hideBossesWithMountsObtained)
+            if showMount then
+                local comment = ""
+                if cost > 0 then
+                    local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(3319)
+                    local have = currencyInfo.quantity or 0
+                    local icon = currencyInfo.iconFileID
+                    local currencyTexture = CreateTextureMarkup(icon, 32, 32, 16, 16, 0, 1, 0, 1)
+
+                    comment = string.format("%s  %s / %s %s %s Required|r", MC.goldHex, have, cost or "", currencyInfo.name, currencyTexture)
+                elseif achievement > 0 then
+                    local achName = select(2, GetAchievementInfo(achievement))
+                    comment = string.format(" from Achievement: %s|Hachievement:%d|h[%s]|h|r", MC.goldHex, achievement, achName)
+                end
+
+                if MasterCollectorSV.showMountName then
+                    hasVisibleMounts = true
+                    output = output .. string.format("\n    Mount: %s|Hmount:%d|h[%s]|h|r  |Hwowhead:%d|h|T%s:16:16:0:0|t|h %s\n", MC.blueHex, mountID, mountName, mountID, wowheadIcon, comment)
+                end
+            end
+        end
+
+        if MasterCollectorSV.showMidnightPrepatch and hasVisibleMounts then
+            return output
+        end
+    end
+
+
     local function isDunegorgerAvailable()
         local nextReset = tostring(date("%d-%m-%Y %H:%M", realmTime + GetQuestResetTime()))
         local resetHour = tonumber(string.sub(nextReset, 12, 13))
@@ -2188,7 +2233,7 @@ function MC.events()
     local function EventsActive()
         local calendarEvents = {
             { "Brewfest",                           { 202, 226, 2640 },              { "Swift Brewfest Ram", "Great Brewfest Kodo", "Brewfest Bomber" },                                                                { 25, 25, 25 } },
-            { "Love is in the Air",                 { 352, 431, 1941, 2328 },        { "Big Love Rocket", "Swift Lovebird", "Heartseeker Mana Ray", "Love Witch's Sweeper" },                                           { 3333, 0, 0, 666 } },
+            { "Love is in the Air",                 { 352, 431, 1941, 2328, 2492 },  { "Big Love Rocket", "Swift Lovebird", "Heartseeker Mana Ray", "Love Witch's Sweeper", "Spring Butterfly" },                       { 3333, 0, 0, 666, 100 } },
             { "Hallow's End",                       { 219, 2623 },                   { "The Horseman's Reins", "The Headless Horseman's Ghoulish Charger" },                                                            { 200, 25 } },
             { "Noblegarden",                        { 430, 2023 },                   { "Swift Springstrider", "Noble Flying Carpet" },                                                                                  { 0, 100 } },
             { "Feast of Winter Veil",               { 769 },                         { "Minion of Grumpus" },                                                                                                           { 100 } },
@@ -2516,7 +2561,7 @@ function MC.events()
                                                     local icon = itemData and itemData.icon
                                                     local count = C_Item.GetItemCount(currencyID, false, false)
                                                     local currencyTexture = CreateTextureMarkup(icon, 32, 32, 16, 16, 0, 1, 0, 1)
-                                                    currencyText = string.format("\n%s%s%d / %d %s %s Required|r", MC.goldHex, string.rep(" ", 4), count, amount, itemName, currencyTexture)
+                                                    currencyText = string.format("%s%s%d / %d %s %s Required|r", MC.goldHex, string.rep(" ", 4), count, amount, itemName, currencyTexture)
                                                 end
                                             end
 
@@ -2560,6 +2605,7 @@ function MC.events()
 
     local statusFunctions = {
         EventsActive,
+        midnightPrepatch,
         legionRemix,
         ffaAchieveWQs,
         GetLegionInvasionStatus,

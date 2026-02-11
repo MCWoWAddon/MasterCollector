@@ -372,6 +372,25 @@ function MC.grinds()
         {1433, 189472, {{188957, 400}, {189180, 1}, {189154, 1}}, {189180, "Enhanced Avian", 1, 83}}  -- Vespoid Flutterer - in Lotus Shift Tele
     }
 
+    local otherMounts = {
+        {366}, -- Shadowmourne Required, Crimson Deathcharger
+        {802}, -- Long Forgotten Hippogryph
+        -- Falcosaurs
+        -- Ivory Hawkstrider - Talon's Vengeance Exalted - requires PVP after Falcosaurs
+        -- Fathom Dweller
+        -- Riddler's Mind-Worm
+        -- Lucid Nightmare
+        -- Mage-Bound Spelltome - Mage Tower Challenges
+        -- The Hivemind
+        -- Mechanocat Laser Pointer - Mechagon
+        {1389}, -- Venthyr Level 3 Mirror Network Shadowlands
+        {1727}, -- Dragonwrath Required, Tarecgosa's Visage
+    }
+
+    local craftedMounts = {
+        
+    }
+
     local islandMounts = {
         { 1175, 100, {1501} }, -- Twilight Avenger
         { 1175, 100, {1036} }, -- Craghorn Chasm-Leaper

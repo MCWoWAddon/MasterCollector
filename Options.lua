@@ -45,7 +45,7 @@ mainPanel:RegisterEvent("ADDON_LOADED")
 
 local mainTitle = mainPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 mainTitle:SetPoint("TOPLEFT", 16, -16)
-mainTitle:SetText("Master Collector V1.9.4")
+mainTitle:SetText("Master Collector V1.9.5")
 
 local weeklyTitle = weeklyPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 weeklyTitle:SetPoint("TOPLEFT", 16, -16)
@@ -777,7 +777,8 @@ function MC.CreateOptions()
         "showTWWRaids",
         "showTWWPVP",
         "showTWWAchieves",
-        "showTWWWeeklies"
+        "showTWWWeeklies",
+        "showMidnightPrepatch"
     }
     local main = {
         options = {
@@ -1213,7 +1214,10 @@ function MC.CreateOptions()
     local hideEventTab = MC.CreateCheckbox("Hide Event Tab", "hideEventTab", eventPanel, MC.eventTab)
     hideEventTab:SetPoint("TOPLEFT", eventTitle, "BOTTOMLEFT", 0, -10)
     local events = {
-        {"Show The War Within: Beledar Dark Shift Timer", "showBeledarShiftTimer"},
+        options = {
+            {"Show The War Within: Beledar Dark Shift Timer", "showBeledarShiftTimer"},
+            {"Show Midnight Prepatch Mounts", "showMidnightPrepatch"}
+        },
         divider = "Legion Event Timers",
         legionEvents = {
             {"Show Legion Remix Mounts", "showLegionRemix"},
@@ -1261,6 +1265,10 @@ function MC.CreateOptions()
         end
     end
 
+    for _, row in ipairs(events.options) do
+        eventControls[row[2]] = MC.CreateCheckbox(row[1], row[2], eventPanel)
+    end
+
     eventControls.legionEventDivider = MC.CreateDivider(eventPanel)
     eventControls.legionEventHeader = MC.CreateHeader(eventPanel, events.divider)
     for _, row in ipairs(events.legionEvents) do
@@ -1286,7 +1294,7 @@ function MC.CreateOptions()
     end
 
     local function AutoLayoutEvents()
-        local last = eventControls.title
+        local last = eventControls.options
         for _, row in ipairs(events) do
             if type(row) == "table" and row[1] then
                 local widget = eventControls[row[2]]
@@ -1322,7 +1330,9 @@ function MC.CreateOptions()
             end
         end
 
-        eventControls.legionEventDivider:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -5)
+        last = LayoutTwoColumn(events.options, eventControls.title)
+
+        eventControls.legionEventDivider:SetPoint("TOPLEFT", last, "BOTTOMLEFT", -300, -5)
         eventControls.legionEventHeader:SetPoint("TOPLEFT", eventControls.legionEventDivider, "BOTTOMLEFT", 0, -10)
         last = LayoutTwoColumn(events.legionEvents, eventControls.legionEventHeader)
 

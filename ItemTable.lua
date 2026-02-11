@@ -164,4 +164,10 @@ MC.ItemDetails = {
 ["name"] = "Cache of Timewarped Treasures",
 ["quality"] = 4,
 },
+[49927] = {
+["hex"] = "|cffffffff",
+["icon"] = 135453,
+["name"] = "Love Token",
+["quality"] = 1,
+},
 }
