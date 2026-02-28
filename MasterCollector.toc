@@ -2,9 +2,9 @@
 ## Title: Master Collector
 ## Category: Collections
 ## Notes: Your ultimate addon for tracking and managing your collection of mounts in World of Warcraft!
-## IconTexture: Interface/Icons/70_professions_scroll_03.blp
+## IconTexture: Interface/AddOns/MasterCollector/MCicon.png
 ## Author: DivineKate
-## Version: 1.9.5
+## Version: 1.9.6
 ## SavedVariables: MasterCollectorSV
 ## OptionalDeps: Rarity
 

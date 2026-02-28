@@ -77,11 +77,10 @@ function MC.dailiesDisplay()
             { { 64164 },                                           { 1502 }, "Fallen Charger's Reins",                      100, "Fallen Charger" },
             { { 65585 },                                           { 1584 }, "Iska's Mawrat Leash",                         100, "Rhuv, Gorger of Ruin" }
         },
-        ["DF Rares"] = {
-            { 75333, 1732, "Cobalt Shalewing", 100, "Karokta" }
-        },
         ["TWW Rares"] = {
             { 81633, 2205, "Regurgitated Mole Reins", 100, "Lurker of the Deeps" },
+            { 91293, 2603, "Sthaarbs's Last Lunch", 10, "Sthaarbs"},
+            { 90593, 2601, "Pearlescent Krolusk", 10, "Urmag"}
         }
     }
 
@@ -99,6 +98,10 @@ function MC.dailiesDisplay()
         "BfA Mechagon Rares",
         "Legion Argus Rares",
         "WoD Tanaan Jungle Rares",
+    }
+
+    local dailyTWWactivities = {
+        { { }, 2505 }, -- Resplendent K'arroc (K'aresh Oasis 9x each of Dailies)
     }
 
     local DFDreamInfusion = { -- Dream Infusion Daily - Trade 1x Dream Infusion
@@ -477,6 +480,12 @@ function MC.dailiesDisplay()
             local minutes = math.floor((secondsUntilReset % 3600) / 60)
             return string.format("%sTime until daily reset: |r%02d Hrs %02d Min\n", MC.goldHex, hours, minutes)
         end
+    end
+
+    local function GetCurrentDungeonDifficulty()
+        local dungeonDifficultyID = GetDungeonDifficultyID()
+        local dungeonDifficultyName = GetDifficultyInfo(dungeonDifficultyID) or "None Selected"
+        return string.format("%sCurrent Dungeon Difficulty Setting: |r%s\n", MC.goldHex, dungeonDifficultyName)
     end
 
     local function displayLockouts()
@@ -1726,9 +1735,9 @@ function MC.dailiesDisplay()
         end
 
         if lockoutText == "" then
-            lockoutText = GetDailyResetTime() .. MC.goldHex .. "\nWe are all done here.... FOR NOW!|r"
+            lockoutText = GetDailyResetTime() .. GetCurrentDungeonDifficulty() .. MC.goldHex .. "\nWe are all done here.... FOR NOW!|r"
         else
-            lockoutText = GetDailyResetTime() .. lockoutText
+            lockoutText = GetDailyResetTime() .. GetCurrentDungeonDifficulty() .. lockoutText
         end
         return lockoutText
     end

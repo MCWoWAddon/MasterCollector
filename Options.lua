@@ -45,7 +45,7 @@ mainPanel:RegisterEvent("ADDON_LOADED")
 
 local mainTitle = mainPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 mainTitle:SetPoint("TOPLEFT", 16, -16)
-mainTitle:SetText("Master Collector V1.9.5")
+mainTitle:SetText("Master Collector V1.9.6")
 
 local weeklyTitle = weeklyPanel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 weeklyTitle:SetPoint("TOPLEFT", 16, -16)
@@ -1216,7 +1216,8 @@ function MC.CreateOptions()
     local events = {
         options = {
             {"Show The War Within: Beledar Dark Shift Timer", "showBeledarShiftTimer"},
-            {"Show Midnight Prepatch Mounts", "showMidnightPrepatch"}
+            {"Show Midnight Prepatch Mounts", "showMidnightPrepatch"},
+            -- {"Show Mists of Pandaria Remix Mounts", "showPandaRemix"}
         },
         divider = "Legion Event Timers",
         legionEvents = {

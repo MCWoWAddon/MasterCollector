@@ -462,8 +462,14 @@ function MC.weeklyDisplay()
             local hours = math.floor((secondsUntilWeeklyReset % 86400) / 3600)
             local minutes = math.floor((secondsUntilWeeklyReset % 3600) / 60)
 
-            displayText = displayText .. string.format("%sTime until weekly reset: |r%02d Days %02d Hrs %02d Min\n\n", MC.goldHex, days, hours, minutes)
+            displayText = displayText .. string.format("%sTime until weekly reset: |r%02d Days %02d Hrs %02d Min\n", MC.goldHex, days, hours, minutes)
         end
+    end
+
+    local function GetCurrentRaidDifficulty()
+        local raidDifficultyID = GetRaidDifficultyID()
+        local raidDifficultyName = GetDifficultyInfo(raidDifficultyID) or "None Selected"
+        displayText = displayText .. string.format("%sCurrent Raid Difficulty Setting: |r%s\n\n", MC.goldHex, raidDifficultyName)
     end
 
     function GetRarityAttempts(itemName)
@@ -911,6 +917,7 @@ function MC.weeklyDisplay()
 
     local function displayCategories()
         GetWeeklyResetTime()
+        GetCurrentRaidDifficulty()
 
         local previousLength = #displayText
 

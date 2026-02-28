@@ -170,4 +170,16 @@ MC.ItemDetails = {
 ["name"] = "Love Token",
 ["quality"] = 1,
 },
+[44791] = {
+["hex"] = "|cffffffff",
+["icon"] = 236570,
+["name"] = "Noblegarden Chocolate",
+["quality"] = 1,
+},
+[21100] = {
+["hex"] = "|cffffffff",
+["icon"] = 133858,
+["name"] = "Coin of Ancestry",
+["quality"] = 1,
+},
 }

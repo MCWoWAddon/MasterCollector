@@ -377,10 +377,10 @@ function MC.events()
 
     local function GetActiveWarfrontStatus()
         local warfrontIDs = {
-            { id = 11,  name = "Battle for Stromgarde (Arathi Highlands)", faction = "Horde" },
-            { id = 116, name = "Battle for Stromgarde (Arathi Highlands)", faction = "Alliance" },
-            { id = 117, name = "Battle for Darkshore",                     faction = "Alliance" },
-            { id = 118, name = "Battle for Darkshore",                     faction = "Horde" }
+            { id = 11,  name = "Battle for Stromgarde (Arathi Highlands)", faction = "Alliance" },
+            { id = 116, name = "Battle for Stromgarde (Arathi Highlands)", faction = "Horde" },
+            { id = 117, name = "Battle for Darkshore",                     faction = "Horde" },
+            { id = 118, name = "Battle for Darkshore",                     faction = "Alliance" }
         }
 
         local activeWarfronts = { ["Battle for Stromgarde (Arathi Highlands)"] = nil, ["Battle for Darkshore"] = nil }
@@ -2110,10 +2110,120 @@ function MC.events()
 
         local output = ""
         if #lines > 0 then
-            output = MC.goldHex .. "Remix Mounts|r" .. table.concat(lines)
+            output = MC.goldHex .. "Legion Remix Mounts|r" .. table.concat(lines)
         end
 
         if MasterCollectorSV.showLegionRemix then
+            return output
+        end
+    end
+
+    local function pandaRemix()
+        local remixMounts = {
+            {2064, 2200}, -- Sky Surfer
+            {2060, 2200}, -- Golden Discus
+            {2063, 2200}, -- Mogu Hazeblazer
+            {2069, 2200}, -- Feathered Windsurfer
+            {482, 2200}, -- Jungle Riding Crane
+            {2072, 2200}, -- Gilded Riding Crane
+            {2073, 2200}, -- Pale Riding Crane
+            {2074, 2200}, -- Rose Riding Crane
+            {2075, 2200}, -- Silver Riding Crane
+            {2076, 2200}, -- Luxurious Riding Crane
+            {2077, 2200}, -- Tropical Riding Crane
+            {2078, 2200}, -- Snowy Riding Goat
+            {2080, 2200}, -- Little Red Riding Goat
+            {2088, 2200}, -- Riverwalker Mushan
+            {2089, 2200}, -- Palehide Mushan Beast
+            {484, 2200},  -- Black Riding Yak
+            {485, 2200}, -- Modest Expedition Yak
+            {462, 2200}, -- Kafa Yak
+            {2087, 4400}, -- Purple Shado-Pan Riding Tiger
+            {2085, 4400}, -- Cobalt Juggernaut
+            {2086, 4400}, -- Fel Iron Juggernaut
+            {2081, 4400}, -- Bloody Skyscreamer
+            {2083, 4400}, -- Night Pterrorwing
+            {2084, 4400}, -- Jade Pterrordax
+            {2118, 4400}, -- Amber Pterrordax
+            {2071, 6600}, -- Marble Quilen
+            {2070, 6600}, -- Guardian Quilen
+            {2068, 6600}, -- Dashing Windsteed
+            {2067, 6600}, -- Forest Windsteed
+            {2065, 6600} -- Daystorm Windsteed
+        }
+        local purchasableMounts = {
+            {534, 18700, "Normally Rare Farm"}, -- Amber Primordial Direhorn
+            {536, 18700, "Normally Rare Farm"}, -- Jade Primordial Direhorn
+            {535, 18700, "Normally Rare Farm"}, -- Slate Primordial Direhorn
+            {533, 38500, "Normally World Boss Farm"}, -- Cobalt Primordial Direhorn
+            {515, 38500, "Normally World Boss Farm"}, -- Son of Galleon
+            {531, 38500, "Normally Raid 1/100 Drop Chance"}, -- Spawn of Horridon
+            {543, 38500, "Normally Raid 1/100 Drop Chance"}, -- Clutch of Ji-Kun
+            {478, 18700, "Normally Raid 1/100 Drop Chance"}, -- Astral Cloud Serpent
+            {561, 38500, "Normally Rare Farm"}, -- Thundering Onyx Cloud Serpent
+            {473, 38500, "Normally World Boss Farm"}, -- Heavenly Onyx Cloud Serpent
+            {542, 38500, "Normally World Boss Farm"}, -- Thundering Cobalt Cloud Serpent
+            {517, 38500, "Normally Farm Rare Currency"}, -- Thundering Ruby Cloud Serpent
+            {559, 38500, "Normally Raid 1/100 Drop Chance"}, -- Kor'kron Juggernaut
+        }
+        local achievementMounts = {
+            {2142, nil, 20593}, -- August Phoenix
+            {2143, nil, 19876} -- Astral Emperor's Serpent
+        }
+
+        local lines = {}
+        local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(2778)
+        local have = currencyInfo.quantity or 0
+        local icon = currencyInfo.iconFileID
+        local texture = CreateTextureMarkup(icon, 32, 32, 16, 16, 0, 1, 0, 1)
+        local SCORNWING_QUEST_ID = 92638
+        local SCORNWING_SPELL_ID = 1255451
+
+        local function AddMountLine(mountID, cost, commentOrAchID)
+            local mountName = mountID and C_MountJournal.GetMountInfoByID(mountID)
+            local isCollected = false
+            local comment = commentOrAchID
+
+            if mountID then
+                isCollected = select(11, C_MountJournal.GetMountInfoByID(mountID))
+                local showMount = not (isCollected and MasterCollectorSV.hideBossesWithMountsObtained)
+                if not showMount then return end
+            end
+
+            if type(commentOrAchID) == "number" then
+                local achName = select(2,GetAchievementInfo(commentOrAchID))
+                comment = string.format("%s|Hachievement:%d|h[%s]|h|r", MC.goldHex, commentOrAchID, achName)
+            end
+
+            if MasterCollectorSV.showMountName then
+                if mountID ~= nil then
+                    table.insert(lines, string.format("\n    Mount: %s|Hmount:%d|h[%s]|h|r |Hwowhead:%d|h|T%s:16:16:0:0|t|h\n", MC.blueHex, mountID, mountName, mountID, wowheadIcon))
+                end
+                if cost == nil then
+                    table.insert(lines, string.format("     %s\n", comment))
+                end
+                if comment ~= nil and (mountID ~= 2142 or mountID ~= 2143) then
+                    table.insert(lines, string.format(" or %s\n", comment))
+                end
+            end
+        end
+
+        for _, entry in ipairs(remixMounts) do
+            AddMountLine(entry[1], entry[2])
+        end
+        for _, entry in ipairs(purchasableMounts) do
+            AddMountLine(entry[1], entry[2], entry[3])
+        end
+        for _, entry in ipairs(achievementMounts) do
+            AddMountLine(entry[1], entry[2], entry[3])
+        end
+
+        local output = ""
+        if #lines > 0 then
+            output = MC.goldHex .. "Mists of Pandaria Remix Mounts|r" .. table.concat(lines)
+        end
+
+        if MasterCollectorSV.showPandaRemix then
             return output
         end
     end
@@ -2238,8 +2348,12 @@ function MC.events()
             { "Noblegarden",                        { 430, 2023 },                   { "Swift Springstrider", "Noble Flying Carpet" },                                                                                  { 0, 100 } },
             { "Feast of Winter Veil",               { 769 },                         { "Minion of Grumpus" },                                                                                                           { 100 } },
             { "Lunar Festival",                     { 2327 },                        { "Lunar Launcher" },                                                                                                              { 0 } },
+            { "Hearthstone's 10th Anniversary",     { 1959, 1168 },                  { "Compass Rose", "Fiery Hearthsteed" },                                                                                           { 33, 0 } },
+            { "A Greedy Emissary",                  { 2605 },                        { "Inarius' Charger" },                                                                                                            { 100 } },
+            { "Plunderstorm",                       { 2324, 2240, 2090, 994, 1259 }, { "Hooktalon", "Plunderlord's Midnight Crocolisk", "Polly Roger", "Royal Seafeather", "Silver Tidestallion" },                     { 0, 0, 0, 0, 0 } },
             { "Turbulent Timeways",                 { 2518, 2796, 2797, 2795, 2798 },{ "Chrono Corsair", "Bronze Aquilon Harness", "Bronze Corpsefly Harness", "Bronze Wilderling Harness", "Bronze Gravewing Harness" }, { 0, 0, 0, 0, 0 } },
-            { "WoW's 20th Anniversary",             { 2261, 1285, 1292, 293, 1798 }, { "Coldflame Tempest", "Frostwolf Snarler", "Stormpike Battle Ram", "Illidari Doomhawk", "Azure Worldchiller" },                   { 0, 0, 0, 9, 100 } },
+            { "WoW's 20th Anniversary",             { 2261, 1285, 1292, 293, 1798, 1240, 606 }, { "Coldflame Tempest", "Frostwolf Snarler", "Stormpike Battle Ram", "Illidari Doomhawk", "Azure Worldchiller",
+                                                                                                "Obsidian Worldbreaker", "Core Hound" },        { 0, 0, 0, 9, 100, 0, 0 } },
             { "WoW's 21st Anniversary",             { 1285, 1292, 293, 1798 },       { "Frostwolf Snarler", "Stormpike Battle Ram", "Illidari Doomhawk", "Azure Worldchiller" },                                        { 0, 0, 9, 100 } },
             { "Darkmoon Faire",                     { 429, 434, 962, 855 },          { "Swift Forest Strider", "Darkmoon Dancing Bear", "Darkmoon Dirigible", "Darkwater Skate" },                                      { 0, 0, 0, 0 } },
             { "Classic Timewalking",                { 2224, 1737, 2321, 781 },             { "Reins of the Frayfeather Hippogryph", "Sandy Shalewing", "Timely Buzzbee", "Reins of the Infinite Timereaver" },                                  { 0, 0, 0, 4000 } },
@@ -2327,7 +2441,14 @@ function MC.events()
             {434, 180, 515}, -- DMF Token Currency
             {638, 5000, 823}, -- Apexis Crystals
             {639, 5000, 823}, -- Apexis Crystals
-            {962, 1000, 515} -- DMF Token Currency
+            {962, 1000, 515}, -- DMF Token Currency
+            {2324, 5000, 3139}, -- Plunder Currency
+            {2240, 5000, 3139}, -- Plunder Currency
+            {2090, 5000, 3139}, -- Plunder Currency
+            {994, 5000, 3139}, -- Plunder Currency
+            {1259, 5000, 3139}, -- Plunder Currency
+            {606, 20, 3100}, -- Bronze Celebration Token
+            {1240, 20, 3100} -- Bronze Celebration Token
         }
 
         local eventmetaAchieves = {
@@ -2606,6 +2727,7 @@ function MC.events()
     local statusFunctions = {
         EventsActive,
         midnightPrepatch,
+        pandaRemix,
         legionRemix,
         ffaAchieveWQs,
         GetLegionInvasionStatus,

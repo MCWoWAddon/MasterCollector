@@ -170,7 +170,8 @@ MC.defaultValues = {
     showLegionRemix = false,
     showProtoform = true,
     showTWWWeeklies = true,
-    showMidnightPrepatch = true
+    showMidnightPrepatch = true,
+    showPandaRemix = false
 }
 
 MasterCollectorSV = MasterCollectorSV or {}
@@ -314,7 +315,8 @@ MC.checkboxNames = {
     "showLegionRemix",
     "showProtoform",
     "showTWWWeeklies",
-    "showMidnightPrepatch"
+    "showMidnightPrepatch",
+    "showPandaRemix"
 }
 
 MC.parentCheckboxes = {
@@ -515,11 +517,26 @@ function MC.CheckInstanceLimit()
     local lastWarningTime = 0
 
     if liveLocks >= 8 then
+        if MC.livelocks == liveLocks then return end
         local now = time()
         if now - lastWarningTime > 60 then
-            print(string.format("MasterCollector |cffffff00Warning:|r You've entered %d instances recently. You are nearing the Realm 10 x instances per hour limit.", liveLocks))
+            print(string.format("MasterCollector |cffffff00Warning:|r You're saved to %d instances. You are nearing the Realm 10 x instances per hour limit.", liveLocks))
             lastWarningTime = now
         end
+    end
+    MC.livelocks = liveLocks
+end
+
+function MC.CheckDifficultyChangeMessage(msg)
+    if not msg then return end
+
+    local raidPattern = "^Raid Difficulty set to (.+)$"
+    local dungeonPattern = "^Dungeon Difficulty set to (.+)$"
+
+    local difficulty = msg:match(raidPattern) or msg:match(dungeonPattern)
+    if difficulty then
+        MC.weeklyDisplay()
+        MC.dailiesDisplay()
     end
 end
 
@@ -578,17 +595,15 @@ local function HandleInstanceGraphics()
         print("|cFF00FF00MasterCollector Graphics Instance Override is ENABLED|r")
     else
         MC.RestoreGraphics()
-        print("|cFFFF0000MasterCollector Graphics Instance Override is DISABLED|r")
     end
 end
 
 local function HandleCityGraphics()
     if IsResting() and MasterCollectorSV.graphicsCityOverride then
         MC.ApplyDynamicGraphics(MasterCollectorSV.graphicsConfig)
-        print("|cFF00FF00MasterCollector Graphics City Override is ENABLED|r")
+        print("MasterCollector: Graphics City Override is |cFF00FF00ENABLED|r")
     elseif IsResting() then
         MC.RestoreGraphics()
-        print("|cFFFF0000MasterCollector Graphics City Override is DISABLED|r")
     end
 end
 
@@ -680,6 +695,7 @@ end
 EVENT_HANDLERS.CHAT_MSG_SYSTEM = function(msg)
     if issecretvalue(msg) then return end
     MC.CheckInstanceResetMessage(msg)
+    MC.CheckDifficultyChangeMessage(msg)
 end
 
 EVENT_HANDLERS.START_LOOT_ROLL = function(rollID)

@@ -36,6 +36,9 @@ function MC.grinds()
     end
 
     local achievementMounts = {
+        ["Classic"] = {
+            { 937, {416} }, -- Black Qiraji War Tank, Scarab Lord (retroactive for Ahn'Qiraji Gate Open Event)
+        },
         ["Wrath of the Lich King"] = {
             { 262, {2136} }, -- Red Proto-Drake, Glory of the Hero
             { 268, {2143} }, -- Albino Drake, Leading the Cavalry (50 mounts usable)
@@ -93,13 +96,14 @@ function MC.grinds()
             { 846, {11163} }, -- Leyfeather Hippogryph, Glory of the Legion Hero
             { 773, {11180} }, -- Grove Defiler, Glory of the Legion Raider
             { 972, {11987} }, -- Antoran Gloomhound, Glory of the Argus Raider
-            { 1532, {15310} } -- Mage-Bound Spelltome, A Tour of Towers (Mage Tower)
+            { 1532, {15310} } -- Soaring Spelltome, A Tour of Towers (Mage Tower)
             -- { 978, 12110 }, -- Violet Spellwing, Ahead of the Curve: Argus the Unmaker
         },
         ["Battle for Azeroth"] = {
             { 1191, {12933, 12934} }, -- Frenzied Feltalon, A Horde of Hoofbeats (400 mounts usable)
             { 1190, {12866} }, -- Pureheart Courser, 100 Exalted Reputations
-            { 1245, {13517} }, -- Bloodflank Charger, Two Sides to Every Tale
+            { 1245, {13517}, "Horde Only" }, -- Bloodflank Charger, Two Sides to Every Tale
+            { 1246, {13517}, "Alliance Only" }, -- Ironclad Frostclaw, Two Sides to Every Tale
             { 1224, {13250} }, -- Wonderwing 2.0, Battle for Azeroth Pathfinder, Part Two
             { 1238, {13638} }, -- Snapback Scuttler, Undersea Usurper
             { 1247, {13541} }, -- Mechacycle Model W, Mecha-Done
@@ -128,6 +132,7 @@ function MC.grinds()
             { 1446, {15178} }, -- Tazavesh Gearglider, Fake It 'Til You Make It (Tazavesh Hard Mode)
             { 1504, {15064} }, -- Hand of of Salaranga, Breaking the Chains
             { 2114, {20501} } -- Zovaal's Soul Eater, Back from the Beyond
+            -- { 1552, 15470 } -- Carcinized Zerethsteed, Ahead of the Curve: The Jailer
         },
         ["Dragonflight"] = {
             { 1654, {15833, 15834} }, -- Frenzied Feltalon, Thanks for the Carry! (500 mounts usable)
@@ -143,7 +148,7 @@ function MC.grinds()
             { 1474, {19481} }, -- Bestowed Thunderspine Packleader, Centaur of Attention
             { 1651, {19483} }, -- Bestowed Ottuk Vanguard, Flight Club
             { 1733, {17785} }, -- Calescent Shalewing, Que Zara(lek), Zara(lek)
-            { 1825, {19458} } -- Calescent Shalewing, Que Zara(lek), Zara(lek)
+            { 1825, {19458} } -- Taivan, A World Awoken
             -- { 2091, 19574 }, -- Voyaging Wilderling, Awakening the Dragonflight Raids
             -- { 1681, 16649 }, -- Hailstorm Armoredon, Dragonflight Keystone Master: Season One
             -- { 1725, 17844 }, -- Inferno Armoredon, Dragonflight Keystone Master: Season Two
@@ -166,13 +171,25 @@ function MC.grinds()
             -- { 2508, 40951 }, -- Enterprising Shreddertank, The War Within Keystone Legend: Season Two
             { 2606, {41624} }, -- Royal Voidwing, Ahead of the Curve: Dimensius, the All-Devouring
             -- { 2633, {41973} }, -- Azure Void Flyer, The War Within Keystone Master: Season Three
-            -- { 2631, {42172} } -- Scarlet Void Flyer, The War Within Keystone Legend: Season Three
+            -- { 2631, {42172} }, -- Scarlet Void Flyer, The War Within Keystone Legend: Season Three
+            -- { 2261, {40976} }, -- Coldflame Tempest, A Cool Twenty Years (WoW 20th Anniversary Meta)
+            { 2505, {41811} }, -- Resplendent K'arroc (K'aresh Oasis 9x each of Dailies)
+            { 2917, {62103, 62096} }, -- Anu'shalla, Shadow's Guidance, Insurmountable Collection (600 mounts usable)
+        },
+        ["Midnight"] = {
+            { 2831, {61380} }, -- Tenebrous Harrower, Glory of the Midnight Raider
+            { 2842, {61799} }, -- Arcanovoid Construct, Let Me Solo Him: Nullaeus
+            { 2733, {61256} }, -- Calamitous Carrion, Midnight Keystone Master: Season One
+            { 2734, {61258} }, -- Convalescent Carrion, Midnight Keystone Legend: Season One
+            { 2771, {42703} }, -- Preyseeker's Nightmare, Prey: Nightmare Mode III
+            { 2707, {62386} }, -- Brilliant Petalwing, Light Up the Night
         }
     }
 
     local pvpMounts = {
         ["Classic"] = {
-            { 108, 15 } -- Frostwolf Howler, 15 Marks of Honor
+            { 108, 15, "Horde Only" }, -- Frostwolf Howler, 15 Marks of Honor
+            { 109, 15, "Alliance Only" } -- Stormpike Battle Charger, 15 Marks of Honor
         },
         ["The Burning Crusade"] = {
             { 76, 15 }, -- Black War Kodo, 15 Marks of Honor
@@ -303,6 +320,9 @@ function MC.grinds()
             -- { 2570, 42043, "Alliance Only" }, -- Vicious Void Creeper The War Within Season 3 (100 Arena Wins after 1000 PVP Rating)
             -- { 2326, 41049 } -- Astral Gladiator's Fel Bat, Gladiator The War Within Season 3 (Season 40)
         },
+        ["Midnight"] = {
+
+        }
     }
 
     local expansionOrder = {
@@ -316,7 +336,8 @@ function MC.grinds()
         "Battle for Azeroth",
         "Shadowlands",
         "Dragonflight",
-        "The War Within"
+        "The War Within",
+        --"Midnight"
     }
 
     local dungeons = {
@@ -373,27 +394,607 @@ function MC.grinds()
     }
 
     local otherMounts = {
-        {366}, -- Shadowmourne Required, Crimson Deathcharger
-        {802}, -- Long Forgotten Hippogryph
-        -- Falcosaurs
-        -- Ivory Hawkstrider - Talon's Vengeance Exalted - requires PVP after Falcosaurs
-        -- Fathom Dweller
-        -- Riddler's Mind-Worm
-        -- Lucid Nightmare
-        -- Mage-Bound Spelltome - Mage Tower Challenges
-        -- The Hivemind
-        -- Mechanocat Laser Pointer - Mechagon
-        {1389}, -- Venthyr Level 3 Mirror Network Shadowlands
-        {1727}, -- Dragonwrath Required, Tarecgosa's Visage
+        ["Horrific Visions Mounts"] = {
+            {1315, 0, 100}, -- Mail Muncher, Mailbox Spawn 1/100 drop rate
+            {1321, 100000}, -- Wicked Swarmer, 100,000 Corrupted Memento
+            {2178, 0, 100}, -- Nesting Swarmite, Trash Pile Spawn 1/100 drop rate
+            {2496, 0}, -- Void-Scarred Gryphon, Require Feeding Certain Food
+            {2497, 0}, -- Void-Forged Stallion, Click Horseshoes and throw into Dwarven District Forge
+            {2498, 0}, -- Void-Scarred Pack Mother, Click Wolven Items and spawn rare in Org Leatherworking Shop
+            {2499, 0}, -- Void-Scarred Windrider, go up lift and protect Wind Rider Master
+            {2501, 40000}, -- Corruption of the Aspects, 40,000 Corrupted Memento
+        },
+        ["Torghast Mounts"] = {
+            {1416, 15089}, -- Mawsworn Charger, Flawless Master (Layer 12)
+            {1564, 15322}, -- Colossal Soulshredder Mawrat, Flawless Master (Layer 16) - required for Tower Ranger -> Back from the Beyond
+            {1565, 0, 100}, -- Colossal Umbrahide Mawrat, Boss Drop (Layer 13+)
+            {1566, 15254}, -- Colossal Ebonclaw Mawrat, The Jailer's Gauntlet: Layer 4 - required for Tower Ranger -> Back from the Beyond
+            {1442, 14570}, -- Corridor Creeper, Twisting Corridors: Layer 8 - required for Tower Ranger -> Back from the Beyond
+        },
+        ["Legendary Mounts"] = {
+            {366}, -- Shadowmourne Required, Crimson Deathcharger
+            {1727}, -- Dragonwrath Required, Tarecgosa's Visage
+        },
+        ["Puzzle Mounts"] ={
+            {802}, -- Long Forgotten Hippogryph
+            {838}, -- Fathom Dweller
+            {947}, -- Riddler's Mind-Worm
+            {961}, -- Lucid Nightmare
+            {1025}, -- The Hivemind
+            {1057}, -- Nazjatar Blood Serpent
+            {1260}, -- Crimson Tidestallion, Mrrl Item Switch
+            {1306}, -- Swift Gloomhoof, Night Mare
+            {1360}, -- Shimmermist Runner
+            {1362}, -- Spinemaw Gladechewer
+            {1404}, -- Silverwind Larion (Gift of Silver Wind Puzzle)
+            {1503}, -- Hand of Nilganihmaht
+            {1441}, -- Bound Shadehound
+            {1445}, -- Slime Serpent (solo Mythic Plaguefall)
+            {1469}, -- Magmashell - obtain Empty Magma Shell and dive in lava for mount
+            {1545}, -- Divine Kiss of Ohn'ahra (Renown 25 with Maruuk and Lizi's Reins)
+            {1623}, -- Seething Slug - 3 orb buff in ZC
+            {1674}, -- Temperamental Skyclaw - feed 20 x 3 specific Gnoll foods
+            {1656}, -- Otto
+            {1774}, -- Valiance (Old Strat Unlock)
+            {2222}, -- Siesbarg, Starts with Tka'ktath drop in Azj-Kahet
+            {2322}, -- Thrayir, Eyes of the Siren
+            {1943}, -- Incognitro, the Indecipherable Felcycle
+            {1948}, -- Voidfire Deathcycle (starts in Horrific Visions - add note)
+            {1482}, -- Xy Trustee's Gearglider
+        },
+        ["Secrets of Azeroth Event"] = {
+            {1794}, -- Pattie Secrets of Azeroth
+            {1813}, -- Mimiron's Jumpjets Secrets of Azeroth
+        },
+        ["Rarely Sighted but 100% Drop Mounts"] = {
+            {265}, -- Time-Lost Proto-Drake, The Storm Peaks
+            {393}, -- Phosphorescent Stone Drake, Aeonaxx, Deepholm
+            {400}, -- Grey Riding Camel (Camel Statues), Uldum
+            {420}, -- Subdued Seahorse, Poseidus, Vashj'ir
+            {612}, -- Bloodhoof Bull, Nakk the Thunderer, Nagrand
+            {614}, -- Mottled Meadowstomper, Luk'hok, Nagrand
+            {627}, -- Great Greytusk, Gorok, Frostfire Ridge
+            {630}, -- Sapphire Riverbeast, Silthide, Talador
+            {636}, -- Swift Breezestrider, Pathrunner, Shadowmoon Valley
+            {655}, -- Sunhide Gronnling, Poundfist, Gorgrond
+            {682}, -- Voidtalon of the Dark Star, Portals across Draenor
+            {1201}, -- Frightened Kodo, Darkshore
+            {1258}, -- Fabious, take a S.E.L.F.I.E to get mount
+            {1672}, -- Zenet Hatchling, Zenet Avis, Ohn'ahran Plains
+        },
+        ["Farmable/Low Drop Rate Mounts"] = {
+            {517}, -- Thundering Ruby Cloud Serpent, Alani, Vale of Eternal Blossoms
+            {534}, -- Amber Primordial Direhorn, Zandalari Warbringer, Pandaria
+            {535}, -- Jade Primordial Direhorn, Zandalari Warbringer, Pandaria
+            {536}, -- Slate Primordial Direhorn, Zandalari Warbringer, Pandaria
+            {539}, -- Black Primal Raptor, Primal Egg, Isle of Giants
+            {540},	-- Green Primal Raptor, Primal Egg, Isle of Giants
+            {538},	-- Red Primal Raptor, Primal Egg, Isle of Giants
+            {561}, -- Thundering Onyx Cloud Serpent, Huolon, Timeless Isle
+            {656}, -- Volpin the Elusive (Torn Invitation comes from Nightfallen Emissary Chest/Withered Army Training/Class Order Hall Reward)
+            {928}, -- Dune Scavenger (Vol'dun Zone Drop)
+            {956}, -- Leaping Veinseeker (Nazmir Zone Drop)
+            {1018}, -- Terrified Pack Mule (Drustvar Zone Drop)
+            {1019}, -- Goldenmane (Stormsong Valley Zone Drop)
+            {1257}, -- Silent Glider, Soundless, Nazjatar
+            {1311}, -- Ivory Cloud Serpent, Vale of the Eternal Blossoms
+            {1407}, -- Callow Flayedwing, Hatches from Blight-Touched Egg, Maldraxxus Zone Drop
+            {1415}, -- Arboreal Gulper, Humon'gozz, Ardenweald
+            {1553}, -- Liberated Slyvern, Breezebiter, The Azure Span
+            {1585}, -- Colossal Wraithbound Mawrat, Mawsworn Supply Chest around the Maw
+            {1617}, -- Verdant Skitterfly, Requires Renown 25 Dragonscale Expedition to drop
+            {1619}, -- Ancient Salamanther, Rares, The Forbidden Reach
+            {2176}, -- Alunira 10 x Crackling Shard
+            {2291} -- Salvaged Goblin Gazillionaire's Flying Machine, Gallagio Garbage, Undermine
+        },
+        ["Guaranteed Mounts"] = {
+            {134, "Horde Only"}, -- Blue Wind Rider
+            {135, "Horde Only"}, -- Green Wind Rider
+            {140, "Horde Only"}, -- Swift Green Wind Rider
+            {142, "Horde Only"}, -- Swift Purple Wind Rider
+            {136, "Horde Only"}, -- Swift Red Wind Rider
+            {141, "Horde Only"}, -- Swift Yellow Wind Rider
+            {133, "Horde Only"}, -- Tawny Wind Rider
+            --{199}, -- Amani War Bear, Drop from Kasha's Bag (defeat first 4 bosses in 45min) inside Zul'Aman
+            {248}, -- Bronze Drake, Infinite Corruptor, The Culling of Stratholme
+            {250}, -- Twilight Drake, Sartharion, The Obsidian Sanctum 25man
+            {253}, -- Black Drake, Sartharion, The Obsidian Sanctum 10man
+            {280, "Alliance Only"}, -- Traveler's Tundra Mammoth
+            {284, "Horde Only"},    -- Traveler's Tundra Mammoth
+            {269, "Alliance Only"},	-- Armored Brown Bear
+            {270, "Horde Only"},	-- Armored Brown Bear
+            {256, "Alliance Only"}, -- Wooly Mammoth
+            {257, "Horde Only"},    -- Wooly Mammoth
+            {435, "Alliance Only"}, -- Mountain Horse
+            {436, "Alliance Only"}, -- Swift Mountain Horse
+            {277, "Horde Only"},     -- Armored Blue Wind Rider
+            {276, "Alliance Only"},  -- Armored Snowy Gryphon
+            {487}, -- Blonde Riding Yak
+            {460}, -- Grand Expedition Yak
+            {486}, -- Grey Riding Yak
+            {652}, -- Champion's Treadblade, 100,000g
+            {663}, -- Bloodfang Widow - 2 mil gold
+            {419}, -- Amani Battle Bear, Drop from Kasha's Bag (defeat first 4 bosses in 45min) inside Zul'Aman
+            {537}, -- Bone-White Primal Raptor, 99,999 Giant Dinosaur Bone on Isle of Giants
+            {657}, -- Garn Nighthowl, Nok-Karosh, Frostfire Ridge
+            {1206}, -- Blue Marsh Hopper, 333,333g
+            {1012}, -- Green Marsh Hopper, 333,333g
+            {1207}, -- Yellow Marsh Hopper, 333,333g
+            {1227}, -- Aerial Unit R-21/X, Operation: Mechagon Hardmode
+            {1239}, -- X-995 Mechanocat, Mechagon Crafting
+            {1397}, -- Wildseed Cradle, Twinklestar, Ardenweald
+            {1629}, -- Scrappy Worldsnail - Handin 10x repeatables to get Worldbreaker Membership - 1000 Magmotes drop from enemies around Obsidian Citadel
+            {1949}, -- Gilnean Prowler
+            {2165}, -- Soaring Meaderbee
+            {2333} -- Soweezi's Vintage Waveshredder
+        },
+        ["Anytime Rep Mounts"] = {
+            ["Draenei"] = {
+                {147}, -- Brown Elekk
+                {163}, -- Gray Elekk
+                {166}, -- Great Blue Elekk
+                {165}, -- Great Green Elekk
+                {167}, -- Great Purple Elekk
+                {164}, -- Purple Elekk
+            },
+            ["Human"] = {
+                --{52}, -- Palomino
+                --{53}, -- White Stallion
+            },
+            ["Night Elf"] = {
+                --{46}, -- Ancient Frostsaber
+                --{45}, -- Black Nightsaber
+                {31}, -- Spotted Frostsaber
+                {26}, -- Striped Frostsaber
+                {34}, -- Striped Nightsaber
+                {87}, -- Swift Frostsaber
+                {85}, -- Swift Mistsaber
+                {107}, -- Swift Stormsaber
+            },
+            ["Gnome"] = {
+                {40}, -- Blue Mechanostrider
+                {57}, -- Green Mechanostrider
+                --{62}, -- Icy Blue Mechanostrider Mod A
+                {39}, -- Red Mechanostrider
+                {90}, -- Swift Green Mechanostrider
+                {89}, -- Swift White Mechanostrider
+                {88}, -- Swift Yellow Mechanostrider
+                {58}, -- Unpainted Mechanostrider
+                --{42}, -- White Mechanostrider Mod B
+            },
+            ["Dwarf"] = {
+                --{64}, -- Black Ram
+                {25}, -- Brown Ram
+                --{63}, -- Frost Ram
+                {21}, -- Gray Ram
+                {94}, -- Swift Brown Ram
+                {95}, -- Swift Gray Ram
+                {96}, -- Swift White Ram
+                {24}, -- White Ram
+            },
+            ["Troll"] = {
+                {27}, -- Emerald Raptor
+                --{56}, -- Ivory Raptor
+                --{54}, -- Mottled Red Raptor
+                {97}, -- Swift Blue Raptor
+                {98}, -- Swift Olive Raptor
+                {99}, -- Swift Orange Raptor
+                {36}, -- Turquoise Raptor
+                {38}, -- Violet Raptor
+            },
+            ["Blood Elves"] = {
+                {159}, -- Black Hawkstrider
+                {158}, -- Blue Hawkstrider
+                {157}, -- Purple Hawkstrider
+                {152}, -- Red Hawkstrider
+                {160}, -- Swift Green Hawkstrider
+                {146}, -- Swift Pink Hawkstrider
+                {161}, -- Swift Purple Hawkstrider
+            },
+            ["Tauren"] = {
+                {72}, -- Brown Kodo
+                {71}, -- Gray Kodo
+                {103}, -- Great Brown Kodo
+                {102}, -- Great Gray Kodo
+                {101}, -- Great White Kodo
+                --{73}, -- Green Kodo
+                --{74} -- Teal Kodo
+            },
+            ["Goblin"] = {
+                {388}, -- Goblin Trike
+                {389} -- Goblin Turbo-Trike
+            },
+            ["Orc"] = {
+                --{51}, -- Arctic Wolf
+                {310}, -- Black Wolf
+                {20}, -- Brown Wolf
+                {19}, -- Dire Wolf
+                --{50}, -- Red Wolf
+                {104}, -- Swift Brown Wolf
+                {106}, -- Swift Gray Wolf
+                {105}, -- Swift Timber Wolf
+                {14} -- Timber Wolf
+            },
+            {475}, -- Heavenly Golden Cloud Serpent, Emperor Shaohao, Exalted
+            {509}, -- Red Flying Cloud, The Lorewalkers, Exalted
+            {625}, -- Domesticated Razorback, Steamwheedle "Preservation" Society, Exalted
+            {635}, -- Shadowmane Charger, Arakkoa Outcasts, Exalted
+            {617, "Alliance Only"}, -- Dusty Rockhide, Council of Exarchs, Exalted
+            {618, "Alliance Only"}, -- Armored Irontusk, Sha'tari Defense, Exalted
+            {645, "Horde Only"}, -- Ironside Warwolf, Laughing Skull, Exalted
+            {648, "Horde Only"}, -- Swift Frostwolf, Frostwolf Orcs, Exalted
+            {624}, -- Wild Goretusk, The Saberstalkers, Honored
+            {765}, -- Bristling Hellboar, The Saberstalkers, Exalted
+            {877}, -- Ivory Hawkstrider - Talon's Vengeance Exalted - requires PVP after Falcosaurs
+            {1382}, -- Inquisition Gargon, The Avowed, Exalted
+        }
     }
 
-    local craftedMounts = {
-        
+    local professionMounts = {
+        ["Alchemy"] = {
+            {407} -- Sandstone Drake
+        },
+        ["Archaeology"] = {
+            {386}, -- Fossilized Raptor
+            {404}, -- Ultramarine Qiraji Battletank
+            {779} -- Spirit of Eche'ro - see timer
+        },
+        ["Blacksmithing"] = {
+            {797}, -- Steelbound Devourer
+        },
+        ["Engineeering"] = {
+            {205}, -- Flying Machine
+            {204}, -- Turbo-Charged Flying Machine
+            {240, "Horde Only"}, -- Mechano-Hog
+            {275, "Alliance Only"}, -- Mekgineer's Chopper
+            {469}, -- Depleted-Kyparium Rocket
+            {470}, -- Geosynchronous World Spinner
+            {522}, -- Sky Golem
+            {1028}, -- Mecha-Mogul MK2
+            {999}, -- Xiwyllag ATV
+            {2158}, -- Croud Pummeler 2-30
+        },
+        ["Fishing"] = {
+            { 125,  "Sea Turtle",                         200 },
+            { 312,  "Riding Turtle",                      200 },
+            { 488,  "Reins of the Crimson Water Strider", 100 },
+            { 982,  "Pond Nettle",                        2000 },
+            { 1166, "Great Sea Ray",                      10000 },
+            { 1434, "Deepstar Aurelid",                   10000 }, -- Hirukon, Zereth Mortis
+            { 800 } -- Brinedeep Bottom-Feeder - requires rep Honored with Conjurer Margoss
+        },
+        ["Jewelcrafting"] = {
+            {457}, -- Jade Panther
+            {458}, -- Ruby Panther
+            {456}, -- Sapphire Panther
+            {459}, -- Sunstone Panther
+            {451}, -- Jeweled Onyx Panther
+            {2502}, -- Void-Crystal Panther
+        },
+        ["Tailoring"] = {
+            {285}, -- Flying Carpet
+            {375}, -- Frosty Flying Carpet
+            {279}, -- Magnificent Flying Carpet
+            {603}, -- Creeping Carpet
+        },
+        ["Leatherworking"] = {
+            {650}, -- Dustmane Direwolf
+            {854}, -- Great Northern Elderhorn
+        }
+    }
+
+    local alliedRaceMounts = {
+        {1006}, -- Lightforged Felcrusher
+        {1009}, -- Starcursed Voidstrider
+        {1283}, -- Mechagon Mechanostrider
+        {1048}, -- Dark Iron Core Hound
+        {1198}, -- Kul Tiran Charger
+        {1007}, -- Highmountain Thunderhoof - reach level 40 on any toon, and do questline
+        {1008}, -- Nightborne Manasaber - reach level 40 on any toon, and do questline
+        {1044}, -- Mag'har Direwolf - reach level 40 on any toon, and do questline
+        {1038}, -- Zandalari Direhorn - reach level 40 on any toon, and do questline
+        {1286}, -- Caravan Hyena - reach level 40 on any toon, and do questline
+        {2214}, -- Slatestone Ramolith
+    }
+
+    local covFeatureMounts = {
+        ["Mission Tables"] = {
+            {1305}, -- Darkwarren Hardshell
+            {1309}, -- Chittering Animite
+            {1422}, -- Warstitched Darkhound
+            {1423}, -- Highwind Darkmane
+        },
+        ["Abomination Factory - Necrolord"] = {
+            {1413}, -- Dauntless Duskrunner - Rank 1 - Exalted
+            {1376}, -- Silvertip Dredwing - Rank 1 - Exalted
+            {1408}, -- Gruesome Flayedwing - Rank 1 - Exalted
+            {1392}, -- Pale Acidmaw - Rank 1 - Exalted
+            {1409}, -- Bonesewn Fleshroc - Rank 5
+            {1367}, -- Chosen Tauralus - Rank 5 - plus achieve The Gang's All Here
+            {1371}, -- Armored Chosen Tauralus - Rank 5 - plus achieve Things to do when you're dead
+        },
+        ["Path of Ascension - Kyrian"] = {
+            {1413}, -- Dauntless Duskrunner - Rank 4
+            {1376}, -- Silvertip Dredwing - Rank 3
+            {1408}, -- Gruesome Flayedwing - Rank 2
+            {1392}, -- Pale Acidmaw - Rank 3
+            {1395}, -- Phalynx of Loyalty - Rank 2
+            {1399}, -- Eternal Phalynx of Loyalty - Rank 5
+            {1402}, -- Eternal Phalynx of Humility - Rank 4
+        },
+        ["Queen's Conservatory - Night Fae"] = {
+            {1413}, -- Dauntless Duskrunner - Rank 5
+            {1376}, -- Silvertip Dredwing - Rank 5
+            {1408}, -- Gruesome Flayedwing - Rank 5
+            {1392}, -- Pale Acidmaw - Rank 5
+            {1355}, -- Wakener's Runestag - Rank 2
+            {1358}, -- Enchanted Wakener's Runestag - Rank 5
+        },
+        ["The Ember Court - Venthyr"] = {
+            {1413}, -- Dauntless Duskrunner - Rank 3
+            {1376}, -- Silvertip Dredwing - Rank 1 - Exalted
+            {1408}, -- Gruesome Flayedwing - Rank 3
+            {1392}, -- Pale Acidmaw - Rank 3
+            {1387}, -- Desire's Battle Gargon - Rank 4 - Best Friends with The Countess
+        },
+        ["Mirror Network - Venthyr"] = {
+            {1389}, -- Battle Gargon Silessa - Rank 3
+        }
+    }
+
+    local campaignMounts = {
+        ["Shadowlands"] = {
+            ["Night Fae"] = {
+                {1302}, -- Dreamlight Runestag
+                {1303} -- Enchanted Dreamlight Runestag
+            },
+            ["Necrolord"] = {
+                {1364}, -- War-Bred Tauralus
+                {1368} -- Armored War-Bred Tauralus
+            },
+            ["Kyrian"] = {
+                {1396}, -- Phalynx of Courage
+                {1400} -- Eternal Phalynx of Courage
+            },
+            ["Venthyr"] = {
+                {1385}, -- Crypt Gargon
+                {1299} -- Battle Gargon Vrednic
+            }
+        },
+        ["Dragonflight"] = {
+            {1589}, -- Renewed Proto-Drake
+            {1590}, -- Windbourne Velocidrake
+            {1563}, -- Highland Drake
+            {1591}, -- Cliffside Wylderdrake
+            {1588}, -- Winding Slitherdrake
+            {1830}, -- Flourishing Whimsydrake
+            {1744}, -- Grotto Netherwing Drake
+        }
+    }
+
+    local tradingPostMounts = {
+        {1266}, -- Alabaster Stormtalon
+        {1267}, -- Alabaster Thunderwing
+        {1468}, -- Amber Skitterfly
+        {1785}, -- Ancestral Clefthoof
+        {1586}, -- Armored Golden Pterrordax
+        {1577}, -- Ash'adar, Harbinger of Dawn
+        --{371}, -- Blazing Hippogryph
+        {2036}, -- Brilliant Sunburst Peafowl
+        {1824}, -- Brown-Furred Spiky Bakar
+        {376}, -- Celestial Steed
+        {2628}, -- Cinder-Plumed Highland Gryphon
+        {2825}, -- Cloudborn Razorwing
+        {2524}, -- Coldflame Cormaera
+        {646}, -- Coldflame Infernal
+        {1841}, -- Crimson Glimmerfur
+        {1574}, -- Crusty Crawler
+        {1550}, -- Depthstalker
+        {2495}, -- Emerald Snail
+        {1799}, -- Eve's Ghastly Rider
+        {1742}, -- Felcrystal Scorpion
+        {2579}, -- Forsaken's Grotesque Charger
+        {1956}, -- Fur-endship Fox
+        {2575}, -- Grandmaster's Prophetic Board
+        {2577}, -- Grandmaster's Royal Board
+        {2249}, -- Hand of Reshkigaal
+        {2627}, -- High Shaman's Aerie Gryphon
+        {2696}, -- Highlands Gobbler
+        {1942}, -- Jeweled Copper Scarab
+        {1945}, -- Jeweled Sapphire Scarab
+        {2645}, -- Kalu'ak Crest-Horn
+        {2239}, -- Keg Leg's Radiant Crocolisk
+        {2198}, -- Kor'kron Warsaber
+        {2621}, -- Legion-Forged Elekk
+        {2482}, -- Lively Darkmoon Charger
+        {1573}, -- Magenta Cloud Serpent
+        {2035}, -- Majestic Azure Peafowl
+        {2527}, -- Molten Cormaera
+        {2630}, -- Ornery Breezestrider
+        {2489}, -- Pearlescent Butterfly
+        {2152}, -- Pearlescent Goblin Wave Shredder
+        {2238}, -- Plunderlord's Golden Crocolisk
+        {2699}, -- Prized Turkey
+        {1575}, -- Quawks
+        {1784}, -- Royal Swarmer
+        {2491}, -- Ruby Butterfly
+        {2347}, -- Savage Alabaster Battle Turtle
+        {2039}, -- Savage Blue Battle Turtle
+        {2823}, -- Savage Crimson Battle Turtle
+        {1582}, -- Savage Green Battle Turtle
+        {2201}, -- Sentinel War Wolf
+        {2488}, -- Shimmermist Free Runner
+        {2329}, -- Silvermoon Sweeper
+        {2331}, -- Sky Witch's Sweeper
+        {1957}, -- Soaring Sky Fox
+        {440}, -- Spectral Gryphon
+        {441}, -- Spectral Wind Rider
+        {2504}, -- Spotted Black Riding Goat
+        {2520}, -- Spring Harvesthog
+        {224}, -- Swift Zhevra
+        {2625}, -- The Headless Horseman's Hallowed Charger
+        {1958}, -- Twilight Sky Prowler
+        {2330}, -- Twilight Witch's Sweeper
+        {2600}, -- Unarmored Deathtusk Felboar
+        {2189}, -- Underlight Corrupted Behemoth
+        {2483}, -- Violet Darkmoon Charger
+        {2580} -- Wailing Banshee's Charger
+    }
+
+    local BMAHMounts = {
+        {606}, -- Core Hound
+        {1039}, -- Mighty Caravan Brutosaur
+        {1240}, -- Obsidian Worldbreaker
+        {125}, -- Riding Turtle
+        {372}, -- Wooly White Rhino
+        {212}, -- X-51 Nether-Rocket X-TREME
+        {266}, -- Plagued Proto-Drake
+        {110}, -- Swift Razzashi Raptor
+        {111} -- Swift Zulian Tiger
+    }
+
+    local cashShopMounts = {
+        ["Classic Edition Mounts"] = {
+            {2732, "BC Classic"}, -- Cobalt Phase-Hunter
+            {2719, "BC Classic"}, -- Starspark Netherdrake
+            {1679, "Wrath of the Lich King Classic"}, -- Shaohao's Sage Serpent
+            {1812, "Cata Classic"}, -- Runebound Firelord
+            {2476, "Mists of Pandaria Classic"}, -- Sha-Warped Cloud Serpent
+            {2477, "Mists of Pandaria Classic"}, -- Sha-Warped Riding Tiger
+            {2582, "Mists of Pandaria Classic"}, -- Shaohao's Sage Serpent
+        },
+        ["Collector's Edition Mounts"] = {
+            {1792}, -- Algarian Stormrider
+            {600}, -- Dread Raven
+            {1289}, -- Ensorcelled Everwyrm
+            {997}, -- Gilded Ravasaur
+            {763}, -- Illidari Felstalker
+            {468}, -- Imperial Quilen
+            {2568}, -- Lightwing Dragonhawk
+            {996}, -- Seabraid Stallion
+            {1556}, -- Tangled Dreamweaver
+            {1602}, -- Tuskarr Shoreglider
+            {1444}, -- Viridian Phase-Hunter
+            {2598}, -- Voidlight Surger
+            {2567} -- Voidwing Dragonhawk
+        },
+        ["Shop Mounts"] = {
+            {2529}, -- Archmage's Great Raven
+            {544},	-- Armored Bloodwing
+            {1583},	-- Armored Siege Kodo
+            {2632},	-- Astral Aurochs
+            {1795},	-- Auspicious Arborwyrm
+            {2307},	-- Chaos-Forged Dreadwing
+            {2304},	-- Chaos-Forged Gryphon
+            {2305},	-- Chaos-Forged Hippogryph
+            {2308},	-- Chaos-Forged Wind Rider
+            {2140},	-- Charming Courier
+            {2651},	-- Cragstepper Crest-Horn
+            {551},	-- Enchanted Fey Dragon
+            {2526},	-- Felborn Cormaera
+            {2259},	-- Gigantic Grrloc
+            {1797},	-- Ginormous Grrloc
+            {1699},	-- Gleaming Moonbeast
+            {2573},	-- Grandiose Grrloc
+            --{594},-- Grinning Reaver
+            {2237},	-- Grizzly Hills Packmaster
+            {446},	-- Heart of the Aspects
+            {2532},	-- Herald of Sa'bak
+            {1221},	-- Hogrus, Swine of Good Fortune
+            {571},	-- Iron Skyreaver
+            {1594},	-- Jade, Bright Foreseer
+            {2145},	-- Kickin' Kezan Waveshredder
+            {2566},	-- Lana'thel's Crimson Cascade
+            {1291},	-- Lucky Yun
+            {949},	-- Luminous Starseeker
+            {2346},	-- Meeksi Brewthief
+            {2344},	-- Meeksi Rollingpaw
+            {2342},	-- Meeksi Rufflefur
+            {2343},	-- Meeksi Softpaw
+            {2345},	-- Meeksi Teatuft
+            {741},	-- Mystic Runesaber
+            {1581},	-- Nether-Gorged Greatwyrm
+            {2525},	-- Prophet's Great Raven
+            {1456},	-- Sapphire Skyblazer
+            {2634},	-- Scorching Valor
+            {1011},	-- Shu-Zen, the Divine Sentinel
+            {1290},	-- Squeakers, the Trickster
+            {2235},	-- Startouched Furline
+            {1346},	-- Steamscale Incinerator
+            {1330},	-- Sunwarmed Furline
+            --{523},-- Swift Windsteed
+            {1223},	-- Sylverian Dreamer
+            {1051},	-- The Dreadwake
+            {2315},	-- Timbered Sky Snake
+            {2265},	-- Trader's Gilded Brutosaur
+            {2620},	-- Void-Razed Elekk
+            {1222},	-- Vulpine Familiar
+            {593},	-- Warforged Nightmare
+            {1531},	-- Wen Lo, the River's Edge
+            {421},	-- Winged Guardian
+            {1692},	-- Wondrous Wavewhisker
+            ["12 Month Subscription Mounts"] = {
+                --{1312}, -- Gargantuan Grrloc
+                --{1662}, -- Telix the Stormhorn
+            }
+        }
+    }
+
+    local externalMounts = {
+        ["Trading Card Game Mounts"] = {
+            {412}, -- Amani Dragonhawk
+            {230}, -- Big Battle Bear
+            {433}, -- Corrupted Hippogryph
+            {447}, -- Feldrake
+            {532}, -- Ghastly Charger
+            {328}, -- Magic Rooster
+            {408}, -- Mottled Drake
+            {418}, -- Savage Raptor
+            {196}, -- Spectral Tiger
+            {426}, -- Swift Shorestrider
+            {197}, -- Swift Spectral Tiger
+            {432}, -- White Riding Camel
+            {211} -- X-51 Nether-Rocket
+        },
+        ["Blizzcon Rewards"] ={
+            --{243, "2008"}, -- Big Blizzard Bear
+            --{959, "2017 Virtual Ticket"}, -- Stormwind Skychaser
+            --{960, "2017 Virtual Ticket"}, -- Orgrimmar Interceptor
+            --{1424, "2021 BlizzConline/Blizzard 30th Anniversary"}, -- Snowstorm
+            --{1517, "2023 Collection Bundle"} -- Bound Blizzard
+        },
+        ["Cross Promotions with World of Warcraft"] = {
+            --{439, "Annual Pass Promotion"},     -- Tyrael's Charger
+            --{651, "Azeroth Choppers x Warcraft"}, -- Warlord's Deathwheel
+            --{896, "Heroes of the Storm 15 x matches"}, -- Primal Flamesaber
+            {1193, "Warcraft III Reforged Collector's Edition"}, -- Meat Wagon
+            --{1458, "Player Choice - Login during Event"},      -- Wandering Ancient
+            {1596, "Diablo IV Collector's Edition"}, -- Amalgam of Rage
+            {1579, "Razer x Warcraft"},         -- Coral-Stalker Waveray
+            --{1947, "Mountain Dew USA x Warcraft"},	-- Hateforged Blazecycle
+            {2232, "Steelseries x Warcraft"},   -- Savage Ebony Battle Turtle
+            {594, "Steelseries x Warcraft"},    -- Grinning Reaver
+            ["Hearthstone Events"] = {
+                {547, "Win 3 Play or Arena Mode Matches"}, -- Hearthsteed
+                {1513, "Mercenaries Tutorial"}, -- Sarge's Tale
+            },
+            ["Twitch Drops"] = {
+                --{523, "Late 2022 Twitch Drop"}, -- Swift Windsteed ex Shop Mount
+                --{447, "Late 2022 Twitch Drop"}, -- Feldrake TCG mount
+                --{230, "Early 2023 Prime Gaming Sub Reward"}, -- Big Battle Bear TCG mount
+                --{426, "Mid 2023 Prime Gaming Sub Reward"}, -- Swift Shorestrider TCG mount
+                --{371, "Mid 2023 Twitch Drop"}, -- Blazing Hippogryph ex Shop Mount
+                --{432, "Late 2023 Twitch Drop"}, -- White Riding Camel TCG mount
+                --{532, "Late 2024 Twitch Drop"}, -- Ghastly Charger TCG mount
+                --{2199, "Warcraft 30th Anniversary Direct"}, -- Blackrock Warsaber
+                --{2203, "Warcraft 30th Anniversary Direct"}, -- Kaldorei War Wolf
+            }
+        }
     }
 
     local islandMounts = {
         { 1175, 100, {1501} }, -- Twilight Avenger
-        { 1175, 100, {1036} }, -- Craghorn Chasm-Leaper
+        { 1176, 100, {1036} }, -- Craghorn Chasm-Leaper
         { 1178, 100, {1502, 1036} }, -- Qinsho's Eternal Hound
         { 993, 100, {1501, 1033} }, -- Squawks
         { 1169, 100, {1037} }, -- Surf Jelly
